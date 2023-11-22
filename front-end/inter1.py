@@ -6,62 +6,12 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QPixmap, QIcon
 
-
-class ParametersWidget(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        # Set up the main layout
-        self.main_layout = QVBoxLayout(self)
-        self.setFixedSize(QSize(250, 220))
-
-        # Create a button to toggle the collapsible content
-        self.toggle_button = QPushButton("Toggle", self)
-        self.toggle_button.setCheckable(True)
-        self.toggle_button.clicked.connect(self.toggle_content)
-        self.main_layout.addWidget(self.toggle_button)
-
-        # Create a frame for the collapsible content
-        self.collapsible_frame = QFrame(self)
-        self.collapsible_frame.setFrameShape(QFrame.Shape.StyledPanel)
-        self.collapsible_layout = QVBoxLayout(self.collapsible_frame)
-
-        # Add widgets for temperature, top P, and max output tokens
-        self.temperature_label = QLabel("Temperature:", self.collapsible_frame)
-        self.temperature_input = QLineEdit(self.collapsible_frame)
-        self.temperature_input.setFixedSize(QSize(200,20))
-        self.temperature_input.setStyleSheet("background-color:#44475A; color: white; font-size: 10px;")
-        self.collapsible_layout.addWidget(self.temperature_label)
-        self.collapsible_layout.addWidget(self.temperature_input)
-
-        self.top_p_label = QLabel("Top P:", self.collapsible_frame)
-        self.top_p_input = QLineEdit(self.collapsible_frame)
-        self.top_p_input.setFixedSize(QSize(200,20))
-        self.top_p_input.setStyleSheet("background-color:#44475A; color: white; font-size: 10px;")
-        self.collapsible_layout.addWidget(self.top_p_label)
-        self.collapsible_layout.addWidget(self.top_p_input)
-
-        self.max_tokens_label = QLabel("Max Output Tokens:", self.collapsible_frame)
-        self.max_tokens_input = QLineEdit(self.collapsible_frame)
-        self.max_tokens_input.setFixedSize(QSize(200,20))
-        self.max_tokens_input.setStyleSheet("background-color:#44475A; color: white; font-size: 10px;")
-        self.collapsible_layout.addWidget(self.max_tokens_label)
-        self.collapsible_layout.addWidget(self.max_tokens_input)
-
-        # Initially hide the collapsible content
-        self.collapsible_frame.setVisible(False)
-        self.main_layout.addWidget(self.collapsible_frame)
-
-    def toggle_content(self):
-        # Toggle the visibility of the collapsible content
-        self.collapsible_frame.setVisible(self.toggle_button.isChecked())
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("GUI Mockup")
-        self.setFixedSize(QSize(1400, 750))
+        self.setFixedSize(QSize(1009, 684))
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #282A36;
@@ -101,24 +51,20 @@ class MainWindow(QMainWindow):
         chat_frame = QFrame()
         #removed to try to fix it to look like what we have
         #chat_frame.setStyleSheet("background-color: #6272A4; border-radius: 10px;")
-        #chat_frame.setStyleSheet("border-radius: 20px;")
+        chat_frame.setStyleSheet("background-color: #6272A4; border-radius: 20px;")
         chat_layout = QHBoxLayout(chat_frame)
-        chat_layout.setContentsMargins(5,5,5,5)
         # chat_display = QTextEdit()
         # chat_display.setStyleSheet("background-color: #44475A; border-radius: 20px; color: white;")
-        #need to make the placeholder text have left padding
         chat_input = QLineEdit()
         chat_input.setPlaceholderText("Enter text and press ENTER")
-        chat_input.setStyleSheet("border-radius: 10px; background-color: #44475A; color: white;")
-        chat_input.setFixedSize(QSize(600, 40))
+        chat_input.setStyleSheet("background-color: #44475A; color: white;")
+        chat_input.setFixedSize(QSize(960, 60))
         send_button = QPushButton("Send")
-        send_button.setFixedSize(QSize(90,40 ))
-        send_button.setStyleSheet("background-color: #44475A; color: white;  border-radius: 10px")
+        send_button.setStyleSheet("background-color: #50FA7B; color: #282A36;  border-radius: 50px;")
         # chat_layout.addWidget(chat_display, 75)
         chat_layout.addWidget(chat_input, 20)
         chat_layout.addWidget(send_button, 5)
-        chat_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-        chat_frame.setFixedSize(QSize(960, 80))
+        chat_frame.setFixedSize(QSize(960, 60))
 
         examples_frame = QFrame()
         examples_frame.setStyleSheet("background-color: #44475A; border-radius: 10px;")
@@ -154,9 +100,6 @@ class MainWindow(QMainWindow):
 
         main_layout.setSpacing(20)
         main_layout.setContentsMargins(25, 25, 25, 25)
-
-        parameters_widget = ParametersWidget()
-        main_layout.addWidget(parameters_widget)
 
         self.header_frame.mousePressEvent = self.upload_image
 
