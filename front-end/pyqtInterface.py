@@ -123,8 +123,12 @@ class MainWindow(QMainWindow):
         examples_frame = QFrame()
         examples_frame.setStyleSheet("background-color: #44475A; border-radius: 10px;")
         examples_layout = QHBoxLayout(examples_frame)
+        examples_label = QLabel("Examples!")
+        examples_label.setStyleSheet("color: white; font-size: 16px; padding: 5px;")
         examples_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        examples_layout.addWidget(examples_label)
 
+        
         example_images = ['example1.png', 'example2.png', 'example3.png']
         for img_path in example_images:
             pixmap = QPixmap(img_path)
@@ -148,15 +152,16 @@ class MainWindow(QMainWindow):
         footer_label.setFixedSize(QSize(960, 40))
 
         main_layout.addWidget(self.header_frame, alignment=Qt.AlignmentFlag.AlignLeft) 
-        main_layout.addWidget(chat_frame, alignment=Qt.AlignmentFlag.AlignCenter)
-        main_layout.addWidget(examples_frame, alignment=Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(chat_frame, alignment=Qt.AlignmentFlag.AlignRight)
+        main_layout.addWidget(examples_frame, alignment=Qt.AlignmentFlag.AlignLeft)
         main_layout.addWidget(footer_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         main_layout.setSpacing(20)
         main_layout.setContentsMargins(25, 25, 25, 25)
 
-        parameters_widget = ParametersWidget()
-        main_layout.addWidget(parameters_widget)
+        #DO NOT DELETE IN CASE WE NEED IT LATER
+        # parameters_widget = ParametersWidget()
+        # main_layout.addWidget(parameters_widget)
 
         self.header_frame.mousePressEvent = self.upload_image
 
