@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem
 )
 from PyQt6.QtCore import Qt, QSize, QEvent, QTimer
-from PyQt6.QtGui import QPixmap, QIcon, QAction
+from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFont
 
 class DockableWidget(QDockWidget):
     def __init__(self, title, widget_to_dock, parent=None):
@@ -105,7 +105,6 @@ class MainWindow(QMainWindow):
             color: #ffffff;  
             }
         QLabel, QPushButton, QLineEdit, QListWidget, QTabWidget, QDockWidget {
-            font-family: Arial;
             color: #ffffff;  
         }
         QTabWidget {
@@ -177,6 +176,16 @@ class MainWindow(QMainWindow):
             image: url(icons/handleIcon.png);  
         }
     """)
+        
+        font_path = "font/Roboto/Roboto-Bold.ttf"  
+        font_id = QFontDatabase.addApplicationFont(font_path)
+        if font_id != -1:
+            font_families = QFontDatabase.applicationFontFamilies(font_id)
+            print("Loaded font families:", font_families)  
+            app_font = QFont(font_families[0], 10)
+            QApplication.setFont(app_font)
+        else:
+            print("Failed to load font from", font_path)
 
         self.setup_ui()
         self.showMaximized()
@@ -186,12 +195,39 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
         main_layout = QHBoxLayout(self.central_widget)
 
+        chat_container_widget = QWidget()
+        chat_container_layout = QVBoxLayout(chat_container_widget)  
+
+        title_layout = QHBoxLayout()
+        title_layout.addStretch(1)
+        title_label = QLabel("Chat Box")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignLeft) 
+        title_label.setStyleSheet("color: #ffffff; font-size: 13px; padding: 5px; background-color: #333333;")
+        title_layout.addWidget(title_label)
+
+        title_layout.addStretch()  
+
+        help_button = QPushButton()
+        help_button.setIcon(QIcon('icons/helpIcon.png'))
+        sliders_button = QPushButton()
+        sliders_button.setIcon(QIcon('icons/slidersIcon.png'))
+        settings_button = QPushButton()
+        settings_button.setIcon(QIcon('icons/settingsIcon.png'))
+
+        title_layout.addWidget(help_button)
+        title_layout.addWidget(sliders_button)
+        title_layout.addWidget(settings_button)
+
+        chat_container_layout.addLayout(title_layout)
+
         chat_widget = QTabWidget()
         self.add_tab(chat_widget)
         add_tab_button = QPushButton("+")
         add_tab_button.clicked.connect(lambda: self.add_tab(chat_widget))
         chat_widget.setCornerWidget(add_tab_button, Qt.Corner.TopRightCorner)
-        main_layout.addWidget(chat_widget)
+        chat_container_layout.addWidget(chat_widget) 
+
+        main_layout.addWidget(chat_container_widget) 
 
         # Interactive Map Dock Widget
         map_placeholder = QLabel("Interactive Map Placeholder")
@@ -317,3 +353,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
