@@ -305,7 +305,7 @@ class MainWindow(QMainWindow):
         chat_input.setStyleSheet("border: 1px solid #767676;")
 
         send_button = QPushButton()
-        send_button.setIcon(QIcon('icons/uparrowIcon.png')) 
+        send_button.setIcon(QIcon('icons/activity.svg'))
         send_button.setIconSize(QSize(24, 24))  
         send_button.setFlat(True)  
         send_button.setStyleSheet("QPushButton:pressed { background-color: #03B5A9; }")
