@@ -3,7 +3,7 @@ import os
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget,
     QPushButton, QLabel, QLineEdit, QDockWidget, QTabWidget, QListWidget,
-    QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem
+    QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem, QScrollArea
 )
 from PyQt6.QtCore import Qt, QSize, QEvent, QTimer
 from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFont
@@ -188,8 +188,10 @@ class MainWindow(QMainWindow):
             print("Failed to load font from", font_path)
 
         self.setup_ui()
+        self.load_chat_history()
+        self.setup_menus()
         self.showMaximized()
-
+    
     def setup_ui(self):
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -233,24 +235,43 @@ class MainWindow(QMainWindow):
         map_placeholder = QLabel("Interactive Map Placeholder")
         map_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
         map_placeholder.setStyleSheet("border: none; background-color: #202020;")
-        map_dock_widget = DockableWidget("Interactive Map", map_placeholder, self)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, map_dock_widget)
+        self.map_dock_widget = DockableWidget("Interactive Map", map_placeholder, self)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
 
         # Image Preview Dock Widget
         self.image_preview_label = QLabel("Image Preview/Selection")
         self.image_preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_preview_label.setScaledContents(True)
         self.image_preview_label.setStyleSheet("background-color: #202020;")
-        image_preview_dock_widget = DockableWidget("Image Preview", self.image_preview_label, self)
-        self.splitDockWidget(map_dock_widget, image_preview_dock_widget, Qt.Orientation.Vertical)
+        self.image_preview_dock_widget = DockableWidget("Image Preview", self.image_preview_label, self)
+        self.splitDockWidget(self.map_dock_widget, self.image_preview_dock_widget, Qt.Orientation.Vertical)
 
         # File Explorer Dock Widget
-        file_explorer_dock_widget = self.createFileExplorerWidget()
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, file_explorer_dock_widget)
+        self.file_explorer_dock_widget = self.createFileExplorerWidget()
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.file_explorer_dock_widget)
 
         self.setDockNestingEnabled(True)
-        self.resizeDocks([map_dock_widget, image_preview_dock_widget], [1, 1], Qt.Orientation.Vertical)
+        self.resizeDocks([self.map_dock_widget, self.image_preview_dock_widget], [1, 1], Qt.Orientation.Vertical)
 
+    def setup_menus(self):
+        menubar = self.menuBar()
+            
+        viewMenu = menubar.addMenu("&View")
+            
+        self.add_view_menu_action(viewMenu, "Interactive Map", self.map_dock_widget)
+        self.add_view_menu_action(viewMenu, "Image Preview", self.image_preview_dock_widget)
+        self.add_view_menu_action(viewMenu, "Map File Explorer", self.file_explorer_dock_widget)
+
+    def add_view_menu_action(self, menu, title, dock_widget):
+        action = QAction(title, self, checkable=True)
+
+        action.setChecked(dock_widget.isVisible())
+        
+        action.triggered.connect(lambda checked: dock_widget.setVisible(checked))
+
+        dock_widget.visibilityChanged.connect(action.setChecked)
+
+        menu.addAction(action)
 
     def createFileExplorerWidget(self):
         self.file_list = QListWidget()
@@ -283,14 +304,20 @@ class MainWindow(QMainWindow):
         file_explorer_widget = QWidget()
         file_explorer_widget.setLayout(file_explorer_vertical_layout)
 
-        return DockableWidget("Local File Explorer", file_explorer_widget, self)
+        return DockableWidget("Map File Explorer", file_explorer_widget, self)
 
     def add_tab(self, chat_widget):
         tab = QWidget()
         tab_layout = QVBoxLayout(tab)
         
-        chat_box = QPlainTextEdit()
-        chat_box.setReadOnly(True)
+        self.chat_box = QPlainTextEdit()
+        self.chat_box.setReadOnly(True)
+        chat_scroll_area = QScrollArea()
+        chat_scroll_area.setWidgetResizable(True)
+        chat_scroll_widget = QWidget()
+        chat_scroll_layout = QVBoxLayout(chat_scroll_widget)
+        chat_scroll_layout.addWidget(self.chat_box)
+        chat_scroll_area.setWidget(chat_scroll_widget)
         
         chat_input_layout = QHBoxLayout()
         
@@ -300,25 +327,52 @@ class MainWindow(QMainWindow):
         attach_icon_button.setFlat(True)  
         attach_icon_button.setStyleSheet("QPushButton:pressed { background-color: #03B5A9; }")
         
-        chat_input = QLineEdit()
-        chat_input.setPlaceholderText("Type here !")
-        chat_input.setStyleSheet("border: 1px solid #767676;")
-
-        send_button = QPushButton()
+        self.chat_input = QLineEdit()
+        self.chat_input.setPlaceholderText("Type here!")
+        send_button = QPushButton("Send")
+        send_button.clicked.connect(self.send_message)
+        self.chat_input.setStyleSheet("border: 1px solid #767676;")
         send_button.setIcon(QIcon('icons/activity.svg'))
         send_button.setIconSize(QSize(24, 24))  
         send_button.setFlat(True)  
         send_button.setStyleSheet("QPushButton:pressed { background-color: #03B5A9; }")
         
         chat_input_layout.addWidget(attach_icon_button)
-        chat_input_layout.addWidget(chat_input)
+        chat_input_layout.addWidget(self.chat_input)
         chat_input_layout.addWidget(send_button)
         
-        tab_layout.addWidget(chat_box)
+        tab_layout.addWidget(chat_scroll_area)
         tab_layout.addLayout(chat_input_layout)
         
-        chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), f"Tab {chat_widget.count() + 1}")
+        tab_title = f"Tab {chat_widget.count() + 1}"
+        chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
+    
+    def send_message(self):
+        message = self.chat_input.text()
+        if message:  
+            self.chat_box.appendPlainText(message)  
+            self.save_message(message)  
+            self.chat_input.clear()  
+        
+        # TODO: Integrate with model
+        # self.receive_message("Model response here...")
 
+    # TODO: Method for recieving model response       
+    # def receive_message(self, message):
+    #     self.chat_box.appendPlainText(message)
+    #     self.save_message(message)  
+
+    def save_message(self, message):
+        with open("chat_history.txt", "a") as file:
+            file.write(f"{message}\n")
+
+    def load_chat_history(self):
+        try:
+            with open("chat_history.txt", "r") as file:
+                for line in file:
+                    self.chat_box.appendPlainText(line.strip())
+        except FileNotFoundError:
+            pass  
 
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select TIFF file", "", "TIFF files (*.tiff *.tif)")
