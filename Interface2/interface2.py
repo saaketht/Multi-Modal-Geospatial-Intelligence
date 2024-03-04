@@ -1,5 +1,6 @@
 import sys
 import os
+from component_file import *
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget,
     QPushButton, QLabel, QLineEdit, QDockWidget, QTabWidget, QListWidget,

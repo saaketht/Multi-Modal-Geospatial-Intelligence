@@ -35,11 +35,7 @@ from PyQt6.QtWidgets import (
     QFrame,
     QTabWidget
 )
-from ipyleaflet import Map, basemaps, basemap_to_tiles
 
-from ipyleaflet import Map, Marker, LayersControl, basemaps
-from ipywidgets import HTML, IntSlider
-from ipywidgets.embed import embed_data
 class TitleBar(QFrame):
     def __init__(self,title='',parent=None):
         super().__init__(parent=parent)
