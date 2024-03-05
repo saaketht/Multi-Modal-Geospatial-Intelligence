@@ -21,19 +21,24 @@ class CustomListItem(QWidget):
     def __init__(self, text, image_preview_label, list_widget, parent=None):
         super().__init__(parent)
         layout = QHBoxLayout(self)
+        layout.setContentsMargins(0,11,0,11)
+        layout.setSpacing(5)
 
-        self.remove_button = QPushButton()
-        self.remove_button.setIcon(QIcon('icons/imageIcon.png')) 
-        self.remove_button.setFlat(True)
-        self.label = QLabel(text)
-        self.eye_button = QPushButton()
-        self.eye_button.setIcon(QIcon('icons/eyeIcon.png'))  
-        self.world_button = QPushButton()
-        self.world_button.setIcon(QIcon('icons/worldIcon.png'))  
+        self.remove_button = icon_button(initial_icon='feather/image.svg',icon_square_len=22, button_square_len=34)
+        # self.remove_button = QPushButton()
+        # self.remove_button.setIcon(QIcon('icons/imageIcon.png'))
+        # self.remove_button.setFlat(True)
+        self.label = Label(text)
+        # self.eye_button = QPushButton()
+        # self.eye_button.setIcon(QIcon('icons/eyeIcon.png'))
+        self.eye_button = icon_button(initial_icon='feather/eye.svg', icon_square_len=22, button_square_len=34)
+        # self.world_button = QPushButton()
+        # self.world_button.setIcon(QIcon('icons/worldIcon.png'))
+        self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
 
         layout.addWidget(self.remove_button)
         layout.addWidget(self.label)
-        layout.addStretch()
+        #layout.addStretch()
         layout.addWidget(self.eye_button)
         layout.addWidget(self.world_button)
 
@@ -64,32 +69,32 @@ class CustomListItem(QWidget):
     def eventFilter(self, source, event):
         if source == self.remove_button:
             if event.type() == QEvent.Type.HoverEnter:
-                self.remove_button.setIcon(QIcon('icons/trashIcon.png'))
+                self.remove_button.setIcon(QIcon('feather/trash-2.svg'))
             elif event.type() == QEvent.Type.HoverLeave:
-                self.remove_button.setIcon(QIcon('icons/imageIcon.png'))
+                self.remove_button.setIcon(QIcon('feather/image.svg'))
             elif event.type() == QEvent.Type.MouseButtonPress:
-                self.remove_button.setStyleSheet("background-color: red;")
+                self.remove_button.setStyleSheet("border:0px; background-color: red;")
             elif event.type() == QEvent.Type.MouseButtonRelease:
-                self.remove_button.setStyleSheet("") 
+                self.remove_button.setStyleSheet("border:0px;")
         return super().eventFilter(source, event)
     
     def toggle_image_preview(self):
         file_path = self.label.text()
         if self.is_image_displayed:
             self.image_preview_label.clear()
-            self.world_button.setIcon(QIcon('icons/worldIcon.png'))
+            self.world_button.setIcon(QIcon('feather/globe.svg'))
             self.is_image_displayed = False
         elif os.path.isfile(file_path):
             self.image_preview_label.setPixmap(QPixmap(file_path))
-            self.world_button.setIcon(QIcon('icons/xIcon.png'))
+            self.world_button.setIcon(QIcon('feather/x.svg'))
             self.is_image_displayed = True
 
     def toggle_eye_icon(self):
         if self.is_eye_icon:
-            self.eye_button.setIcon(QIcon('icons/eyeoffIcon.png')) 
+            self.eye_button.setIcon(QIcon('feather/eye-off.svg'))
             self.is_eye_icon = False
         else:
-            self.eye_button.setIcon(QIcon('icons/eyeIcon.png'))  
+            self.eye_button.setIcon(QIcon('feather/eye.svg'))
             self.is_eye_icon = True
 
 class MainWindow(QMainWindow):
@@ -257,6 +262,10 @@ class MainWindow(QMainWindow):
                     ''')
 
         layout.addWidget(chatbox_frame)
+        self.tabs = TabWidget(parent=None)
+        self.chatbox_layout.addWidget(self.tabs)
+        #layout.addWidget(chatbox_frame)
+
 
         widget = QWidget()
         widget.setLayout(layout)
@@ -316,24 +325,35 @@ class MainWindow(QMainWindow):
 
         menu.addAction(action)
 
+    #Please integrate this into a widget using INHERITANCE
     def createFileExplorerWidget(self):
         self.file_list = QListWidget()
-        self.file_path_line_edit = QLineEdit()
+        self.file_path_line_edit = LineEdit()
         
         file_explorer_layout = QHBoxLayout()
+        file_explorer_layout.setContentsMargins(0,0,0,0)
+        file_explorer_layout.setSpacing(5)
+        self.file_list.setStyleSheet('''
+        QListWidget 
+        {
+            border-top: 2px solid #494949;
+            border-bottom: 2px solid #494949;
+            border-right: 0;
+            border-left: 0;
+            border-radius:0;
+        }
+        ''')
         
-        open_folder_action = QAction(QIcon('icons/folderIcon.png'), 'Open Folder', self)
-        open_folder_action.triggered.connect(self.open_file_dialog)
+        # open_folder_action = QAction(QIcon('icons/folderIcon.png'), 'Open Folder', self)
+        # open_folder_action.triggered.connect(self.open_file_dialog)
+        #
+        # add_file_action = QAction(QIcon('icons/plusIcon.png'), 'Add File', self)
+        # add_file_action.triggered.connect(self.add_file_to_list)
         
-        add_file_action = QAction(QIcon('icons/plusIcon.png'), 'Add File', self)
-        add_file_action.triggered.connect(self.add_file_to_list)
-        
-        open_folder_button = QPushButton()
-        open_folder_button.setIcon(QIcon('icons/folderIcon.png'))
+        open_folder_button = icon_button(initial_icon='feather/folder.svg',icon_square_len=22, button_square_len=34)
         open_folder_button.clicked.connect(self.open_file_dialog)
         
-        add_file_button = QPushButton()
-        add_file_button.setIcon(QIcon('icons/plusIcon.png'))
+        add_file_button = icon_button(initial_icon='feather/plus.svg',icon_square_len=22, button_square_len=34)
         add_file_button.clicked.connect(self.add_file_to_list)
 
         file_explorer_layout.addWidget(open_folder_button)
@@ -349,73 +369,73 @@ class MainWindow(QMainWindow):
 
         return docks("Map File Explorer", file_explorer_widget, self)
 
-    def add_tab(self, chat_widget):
-        tab = QWidget()
-        tab_layout = QVBoxLayout(tab)
-        
-        self.chat_box = QPlainTextEdit()
-        self.chat_box.setReadOnly(True)
-        chat_scroll_area = QScrollArea()
-        chat_scroll_area.setWidgetResizable(True)
-        chat_scroll_widget = QWidget()
-        chat_scroll_layout = QVBoxLayout(chat_scroll_widget)
-        chat_scroll_layout.addWidget(self.chat_box)
-        chat_scroll_area.setWidget(chat_scroll_widget)
-        
-        chat_input_layout = QHBoxLayout()
-        
-        attach_icon_button = QPushButton()
-        attach_icon_button.setIcon(QIcon('icons/attachIcon.png'))  
-        attach_icon_button.setIconSize(QSize(24, 24))  
-        attach_icon_button.setFlat(True)  
-        attach_icon_button.setStyleSheet("QPushButton:pressed { background-color: #03B5A9; }")
-        
-        self.chat_input = QLineEdit()
-        self.chat_input.setPlaceholderText("Type here!")
-        send_button = QPushButton("Send")
-        send_button.clicked.connect(self.send_message)
-        self.chat_input.setStyleSheet("border: 1px solid #767676;")
-        send_button.setIcon(QIcon('icons/activity.svg'))
-        send_button.setIconSize(QSize(24, 24))  
-        send_button.setFlat(True)  
-        send_button.setStyleSheet("QPushButton:pressed { background-color: #03B5A9; }")
-        
-        chat_input_layout.addWidget(attach_icon_button)
-        chat_input_layout.addWidget(self.chat_input)
-        chat_input_layout.addWidget(send_button)
-        
-        tab_layout.addWidget(chat_scroll_area)
-        tab_layout.addLayout(chat_input_layout)
-        
-        tab_title = f"Tab {chat_widget.count() + 1}"
-        chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
-    
-    def send_message(self):
-        message = self.chat_input.text()
-        if message:  
-            self.chat_box.appendPlainText(message)  
-            self.save_message(message)  
-            self.chat_input.clear()  
-        
-        # TODO: Integrate with model
-        # self.receive_message("Model response here...")
-
-    # TODO: Method for recieving model response       
-    # def receive_message(self, message):
-    #     self.chat_box.appendPlainText(message)
-    #     self.save_message(message)  
-
-    def save_message(self, message):
-        with open("chat_history.txt", "a") as file:
-            file.write(f"{message}\n")
-
-    def load_chat_history(self):
-        try:
-            with open("chat_history.txt", "r") as file:
-                for line in file:
-                    self.chat_box.appendPlainText(line.strip())
-        except FileNotFoundError:
-            pass  
+    # def add_tab(self, chat_widget):
+    #     tab = QWidget()
+    #     tab_layout = QVBoxLayout(tab)
+    #
+    #     self.chat_box = QPlainTextEdit()
+    #     self.chat_box.setReadOnly(True)
+    #     chat_scroll_area = QScrollArea()
+    #     chat_scroll_area.setWidgetResizable(True)
+    #     chat_scroll_widget = QWidget()
+    #     chat_scroll_layout = QVBoxLayout(chat_scroll_widget)
+    #     chat_scroll_layout.addWidget(self.chat_box)
+    #     chat_scroll_area.setWidget(chat_scroll_widget)
+    #
+    #     chat_input_layout = QHBoxLayout()
+    #
+    #     attach_icon_button = QPushButton()
+    #     attach_icon_button.setIcon(QIcon('icons/attachIcon.png'))
+    #     attach_icon_button.setIconSize(QSize(24, 24))
+    #     attach_icon_button.setFlat(True)
+    #     attach_icon_button.setStyleSheet("QPushButton:pressed { background-color: #03B5A9; }")
+    #
+    #     self.chat_input = QLineEdit()
+    #     self.chat_input.setPlaceholderText("Type here!")
+    #     send_button = QPushButton("Send")
+    #     send_button.clicked.connect(self.send_message)
+    #     self.chat_input.setStyleSheet("border: 1px solid #767676;")
+    #     send_button.setIcon(QIcon('icons/activity.svg'))
+    #     send_button.setIconSize(QSize(24, 24))
+    #     send_button.setFlat(True)
+    #     send_button.setStyleSheet("QPushButton:pressed { background-color: #03B5A9; }")
+    #
+    #     chat_input_layout.addWidget(attach_icon_button)
+    #     chat_input_layout.addWidget(self.chat_input)
+    #     chat_input_layout.addWidget(send_button)
+    #
+    #     tab_layout.addWidget(chat_scroll_area)
+    #     tab_layout.addLayout(chat_input_layout)
+    #
+    #     tab_title = f"Tab {chat_widget.count() + 1}"
+    #     chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
+    #
+    # def send_message(self):
+    #     message = self.chat_input.text()
+    #     if message:
+    #         self.chat_box.appendPlainText(message)
+    #         self.save_message(message)
+    #         self.chat_input.clear()
+    #
+    #     # TODO: Integrate with model
+    #     # self.receive_message("Model response here...")
+    #
+    # # TODO: Method for recieving model response
+    # # def receive_message(self, message):
+    # #     self.chat_box.appendPlainText(message)
+    # #     self.save_message(message)
+    #
+    # def save_message(self, message):
+    #     with open("chat_history.txt", "a") as file:
+    #         file.write(f"{message}\n")
+    #
+    # def load_chat_history(self):
+    #     try:
+    #         with open("chat_history.txt", "r") as file:
+    #             for line in file:
+    #                 self.chat_box.appendPlainText(line.strip())
+    #     except FileNotFoundError:
+    #         pass
 
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select TIFF file", "", "TIFF files (*.tiff *.tif)")

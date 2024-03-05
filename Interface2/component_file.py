@@ -33,9 +33,95 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QGridLayout,
     QFrame,
-    QTabWidget
+    QTabWidget,
+    QPlainTextEdit
 )
 
+class PlainTextEdit(QPlainTextEdit):
+    def __init__(self, parent =None):
+        super().__init__(parent=parent)
+
+        self.setStyleSheet('''
+        PlainTextEdit
+        {
+            border-radius: 0;
+            border-top:2px solid #494949;
+            border-bottom: 2px solid #494949;
+            border-right:0;
+            border-left:0;
+            color:#FFFFFF;
+        }
+        
+        ''')
+class chat(QWidget):
+    def __init__(self, parent = None):
+        super().__init__(parent=parent)
+
+        self.font1 = QFont('Arial', 13)
+        self.font1.setWeight(1000)
+        self.setFont(self.font1)
+
+        self.tab_layout = QVBoxLayout()
+        self.setContentsMargins(0,0,0,0)
+        self.tab_layout.setSpacing(15)
+
+        self.chat_box = PlainTextEdit()
+        self.chat_box.setReadOnly(True)
+        self.chat_scroll_area = QScrollArea()
+        self.chat_scroll_area.setWidgetResizable(True)
+        self.chat_scroll_widget = QWidget()
+        self.chat_scroll_layout = QVBoxLayout(self.chat_scroll_widget)
+        self.chat_scroll_layout.addWidget(self.chat_box)
+        self.chat_scroll_area.setWidget(self.chat_scroll_widget)
+
+        self.chat_input_layout = QHBoxLayout()
+        self.chat_input_layout.setContentsMargins(0,0,0,0)
+        self.chat_input_layout.setSpacing(5)
+
+        self.attach_icon_button = icon_button(initial_icon='feather/paperclip.svg',button_square_len=34,icon_square_len=22)
+
+        self.chat_input = LineEdit()
+        self.chat_input.setPlaceholderText("Type here!")
+        self.send_button = icon_button(initial_icon='feather/arrow-up.svg', icon_square_len=22, button_square_len=34)
+        self.send_button.clicked.connect(self.send_message)
+
+        self.chat_input_layout.addWidget(self.attach_icon_button)
+        self.chat_input_layout.addWidget(self.chat_input)
+        self.chat_input_layout.addWidget(self.send_button)
+
+
+        self.tab_layout.addWidget(self.chat_scroll_area)
+        self.tab_layout.addLayout(self.chat_input_layout)
+        self.setLayout(self.tab_layout)
+        #
+        # tab_title = f"Tab {chat_widget.count() + 1}"
+        # chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
+    def send_message(self):
+        message = self.chat_input.text()
+        if message:
+            self.chat_box.appendPlainText(message)
+            self.save_message(message)
+            self.chat_input.clear()
+
+            # TODO: Integrate with model
+        # self.receive_message("Model response here...")
+
+        # TODO: Method for recieving model response
+        # def receive_message(self, message):
+        #     self.chat_box.appendPlainText(message)
+        #     self.save_message(message)
+
+    def save_message(self, message):
+        with open("chat_history.txt", "a") as file:
+            file.write(f"{message}\n")
+
+    def load_chat_history(self):
+        try:
+            with open("chat_history.txt", "r") as file:
+                for line in file:
+                    self.chat_box.appendPlainText(line.strip())
+        except FileNotFoundError:
+            pass
 class TitleBar(QFrame):
     def __init__(self,title='',parent=None):
         super().__init__(parent=parent)
@@ -116,6 +202,7 @@ class TabWidget(QTabWidget):
             border:none;
             padding:0px;
             margin:1.5px;
+            alignment:left;
         }
         QTabBar::tab:top {
             top:0px;
@@ -183,41 +270,45 @@ class TabWidget(QTabWidget):
             background-color: red;
             border: 1px solid white;
         }
-        QTabWidget::right-corner
-        {
-            bottom:20px;
-        }
         
         ''')
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.removeTab2)
         self.index = 0
+        self.addTab2(widget=chat())
         self.addTab2()
-        self.addTab2()
-        self.addButton =  icon_button(initial_icon='feather(3px)/plus.svg',icon_square_len=16, button_square_len=28)
+
+        self.addButton = icon_button(initial_icon='feather(3px)/plus.svg',icon_square_len=16, button_square_len=28)
+
+        test1 = QWidget()
+        test = QHBoxLayout()
+        test.setContentsMargins(0,0,0,0)
+        test.setSpacing(0)
+        test.addWidget(self.addButton)
+        test1.setLayout(test)
+        self.setCornerWidget(test1, Qt.Corner.TopRightCorner)
         self.addButton.clicked.connect(lambda : self.addTab2())
-        self.test = QHBoxLayout()
-        spacer = QSpacerItem(8,8,QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.test.addWidget(self.addButton)
-        self.test.addItem(spacer)
-        self.setUsesScrollButtons(False)
-        self.setCornerWidget(self.addButton, Qt.Corner.TopRightCorner)
-        self.cornerWidget(Qt.Corner.TopRightCorner).minimumSizeHint()
+
+        # self.test = QHBoxLayout()
+        # spacer = QSpacerItem(8,8,QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        # self.test.addWidget(self.addButton)
+        # self.test.addItem(spacer)
+
+        self.setUsesScrollButtons(True)
         
 
     def removeTab2(self, index):
         self.removeTab(index)
         self.index= self.index - 1
-    def addTab2(self,title=('Tab'), widget = None):
+    def addTab2(self,title=('Tab'),widget =None):
         if title=='Tab':
             title = title + " " + str(self.index +1)
         if widget == None:  widget = QWidget(parent=None)
-
         temp = self.index
 
         icon = QIcon('feather(2.5px)/globe.svg')
         self.insertTab(temp,widget, icon, title)
-        #self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).resize(20,20)
+        # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
 
         self.index += 1
 
@@ -239,6 +330,28 @@ class LineEdit (QLineEdit):
             padding: none 16px;
             border: 2px solid #494949;
             border-radius:10px;
+            color: #FFFFFF;
+        }
+        ''')
+class Label (QLabel):
+    def __init__(self,text=""):
+        super().__init__(text=text,parent = None)
+
+        self.setFixedHeight(34)
+        self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        font1 = QFont('Arial', 13)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+        self.setFont(font1)
+        self.setStyleSheet('''
+        Label
+        {
+            background: #202020;
+            padding: none 16px;
+            border-top:0;
+            border-bottom:2px solid #494949;
+            border-right:0;
+            border-left:0;
+            border-radius:0;
             color: #FFFFFF;
         }
         ''')
@@ -417,7 +530,7 @@ class icon_button (QPushButton):
             }
             icon_button:hover 
             {
-                background-color: #494949;
+                background-color: #2d2d2d;
             }
             icon_button:pressed
             {
