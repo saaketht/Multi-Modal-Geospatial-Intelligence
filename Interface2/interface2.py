@@ -9,13 +9,13 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize, QEvent, QTimer
 from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFont
 
-class DockableWidget(QDockWidget):
-    def __init__(self, title, widget_to_dock, parent=None):
-        super().__init__(title, parent)
-        self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
-        self.setWidget(widget_to_dock)
-
-        self.setFloating(False)
+# class DockableWidget(QDockWidget):
+#     def __init__(self, title, widget_to_dock, parent=None):
+#         super().__init__(title, parent)
+#         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+#         self.setWidget(widget_to_dock)
+#
+#         self.setFloating(False)
 
 class CustomListItem(QWidget):
     def __init__(self, text, image_preview_label, list_widget, parent=None):
@@ -97,146 +97,186 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("GEOINT")
         self.setDockOptions(QMainWindow.DockOption.AllowTabbedDocks | QMainWindow.DockOption.AllowNestedDocks)
-        self.setStyleSheet("""
-        QMainWindow {
-            background-color: #494949;  
-        }
-        QMainWindow::title {
-            background-color: gray;  
-            color: #ffffff;  
-            }
-        QLabel, QPushButton, QLineEdit, QListWidget, QTabWidget, QDockWidget {
-            color: #ffffff;  
-        }
-        QTabWidget {
-            border: none; 
-        }
-        QPushButton {
-            padding: 5px;
-            border-radius: 2px;
-            background-color: #202020;  
-        }
-        QPushButton:hover {
-            background-color: #555555;  
-        }
-        QLineEdit, QListWidget {
-            background-color: #202020;  
-            border-radius: 2px;
-            padding: 5px;
-        }
-        QDockWidget::title {
-            text-align: center;
-            background: #3e3e3e;  
-            padding: 3px;
-        }
-        QDockWidget {
-            border: none;
-            titlebar-close-icon: url(icons/xIcon.png);  
-            titlebar-normal-icon: url(icons/undockIcon.png); 
-        }
-        QTabWidget::pane {
-            border: none;  
-            background-color: #202020;  
-        }
-        QTabWidget::tab-bar {
-            alignment: center;
-        }
-        QTabBar::tab {
-            background: gray;
-            color: #ffffff;
-            border: none;
-            border-bottom-color: #202020; 
-            border-radius: 2px;
-            min-width: 8ex;
-            padding: 5px;
-        }
-        QTabBar::tab:selected, QTabBar::tab:hover {
-            background: #202020;  
-            color: #ffffff;
-        }
-        QDockWidget::floatable {
-            border: none;
-        }
-        QTabWidget::tab {
-            border: none;
-        }
-        QPlainTextEdit {
-            background-color: #202020;  
-            color: #ffffff;  
-            border: none;
-            padding: 5px;
-        }
-        QToolBar {
-            border: none;
-            background-color: #202020;  
-        }
-        QPushButton:pressed {
-            background-color: #03B5A9;  
-        }
-        QToolBar::handle {
-            image: url(icons/handleIcon.png);  
-        }
-    """)
+    #     self.setStyleSheet("""
+    #     QMainWindow {
+    #         background-color: #494949;
+    #     }
+    #     QMainWindow::title {
+    #         background-color: gray;
+    #         color: #ffffff;
+    #         }
+    #     QLabel, QPushButton, QLineEdit, QListWidget, QTabWidget, QDockWidget {
+    #         color: #ffffff;
+    #     }
+    #     QTabWidget {
+    #         border: none;
+    #     }
+    #     QPushButton {
+    #         padding: 5px;
+    #         border-radius: 2px;
+    #         background-color: #202020;
+    #     }
+    #     QPushButton:hover {
+    #         background-color: #555555;
+    #     }
+    #     QLineEdit, QListWidget {
+    #         background-color: #202020;
+    #         border-radius: 2px;
+    #         padding: 5px;
+    #     }
+    #     QDockWidget::title {
+    #         text-align: center;
+    #         background: #3e3e3e;
+    #         padding: 3px;
+    #     }
+    #     QDockWidget {
+    #         border: none;
+    #         titlebar-close-icon: url(icons/xIcon.png);
+    #         titlebar-normal-icon: url(icons/undockIcon.png);
+    #     }
+    #     QTabWidget::pane {
+    #         border: none;
+    #         background-color: #202020;
+    #     }
+    #     QTabWidget::tab-bar {
+    #         alignment: center;
+    #     }
+    #     QTabBar::tab {
+    #         background: gray;
+    #         color: #ffffff;
+    #         border: none;
+    #         border-bottom-color: #202020;
+    #         border-radius: 2px;
+    #         min-width: 8ex;
+    #         padding: 5px;
+    #     }
+    #     QTabBar::tab:selected, QTabBar::tab:hover {
+    #         background: #202020;
+    #         color: #ffffff;
+    #     }
+    #     QDockWidget::floatable {
+    #         border: none;
+    #     }
+    #     QTabWidget::tab {
+    #         border: none;
+    #     }
+    #     QPlainTextEdit {
+    #         background-color: #202020;
+    #         color: #ffffff;
+    #         border: none;
+    #         padding: 5px;
+    #     }
+    #     QToolBar {
+    #         border: none;
+    #         background-color: #202020;
+    #     }
+    #     QPushButton:pressed {
+    #         background-color: #03B5A9;
+    #     }
+    #     QToolBar::handle {
+    #         image: url(icons/handleIcon.png);
+    #     }
+    # """)
+        self.setStyleSheet('''
+                QMainWindow
+                {
+                    background-color: #494949;
+                }
+                QMainWindow::separator 
+                {
+                background-color: #494949;
+                }
+                ''')
         
-        font_path = "font/Roboto/Roboto-Bold.ttf"  
-        font_id = QFontDatabase.addApplicationFont(font_path)
-        if font_id != -1:
-            font_families = QFontDatabase.applicationFontFamilies(font_id)
-            print("Loaded font families:", font_families)  
-            app_font = QFont(font_families[0], 10)
-            QApplication.setFont(app_font)
-        else:
-            print("Failed to load font from", font_path)
+        # font_path = "font/Roboto/Roboto-Bold.ttf"
+        # font_id = QFontDatabase.addApplicationFont(font_path)
+        # if font_id != -1:
+        #     font_families = QFontDatabase.applicationFontFamilies(font_id)
+        #     print("Loaded font families:", font_families)
+        #     app_font = QFont(font_families[0], 10)
+        #     QApplication.setFont(app_font)
+        # else:
+        #     print("Failed to load font from", font_path)
 
         self.setup_ui()
-        self.load_chat_history()
+        #self.load_chat_history()
         self.setup_menus()
         self.showMaximized()
     
     def setup_ui(self):
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        main_layout = QHBoxLayout(self.central_widget)
+        # self.central_widget = QWidget()
+        # self.setCentralWidget(self.central_widget)
+        # main_layout = QHBoxLayout(self.central_widget)
+        #
+        # chat_container_widget = QWidget()
+        # chat_container_layout = QVBoxLayout(chat_container_widget)
+        #
+        # title_layout = QHBoxLayout()
+        # title_layout.addStretch(1)
+        # title_label = QLabel("Chat Box")
+        # title_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        # title_label.setStyleSheet("color: #ffffff; font-size: 13px; padding: 5px; background-color: #333333;")
+        # title_layout.addWidget(title_label)
+        #
+        # title_layout.addStretch()
+        #
+        # help_button = QPushButton()
+        # help_button.setIcon(QIcon('icons/helpIcon.png'))
+        # sliders_button = QPushButton()
+        # sliders_button.setIcon(QIcon('icons/slidersIcon.png'))
+        # settings_button = QPushButton()
+        # settings_button.setIcon(QIcon('icons/settingsIcon.png'))
+        #
+        # title_layout.addWidget(help_button)
+        # title_layout.addWidget(sliders_button)
+        # title_layout.addWidget(settings_button)
+        #
+        # chat_container_layout.addLayout(title_layout)
+        layout = QVBoxLayout()
+        self.titlebar = TitleBar("Chat Box")
+        self.titlebar.setFixedHeight(38)
 
-        chat_container_widget = QWidget()
-        chat_container_layout = QVBoxLayout(chat_container_widget)  
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self.titlebar)
 
-        title_layout = QHBoxLayout()
-        title_layout.addStretch(1)
-        title_label = QLabel("Chat Box")
-        title_label.setAlignment(Qt.AlignmentFlag.AlignLeft) 
-        title_label.setStyleSheet("color: #ffffff; font-size: 13px; padding: 5px; background-color: #333333;")
-        title_layout.addWidget(title_label)
+        chatbox_frame = QFrame()
+        self.chatbox_layout = QVBoxLayout(chatbox_frame)
+        chatbox_frame.setLayout(self.chatbox_layout)
+        chatbox_frame.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.chatbox_layout.setContentsMargins(0, 12, 0, 0)
+        self.chatbox_layout.setSpacing(0)
+        chatbox_frame.setStyleSheet('''
+                QFrame {
+                    background: #202020;
+                    border: 2px solid #494949;
+                    border-radius:10px;
+                }
+                    ''')
 
-        title_layout.addStretch()  
+        layout.addWidget(chatbox_frame)
 
-        help_button = QPushButton()
-        help_button.setIcon(QIcon('icons/helpIcon.png'))
-        sliders_button = QPushButton()
-        sliders_button.setIcon(QIcon('icons/slidersIcon.png'))
-        settings_button = QPushButton()
-        settings_button.setIcon(QIcon('icons/settingsIcon.png'))
+        widget = QWidget()
+        widget.setLayout(layout)
 
-        title_layout.addWidget(help_button)
-        title_layout.addWidget(sliders_button)
-        title_layout.addWidget(settings_button)
+        self.setCentralWidget(widget)
 
-        chat_container_layout.addLayout(title_layout)
-
-        chat_widget = QTabWidget()
-        self.add_tab(chat_widget)
-        add_tab_button = QPushButton("+")
-        add_tab_button.clicked.connect(lambda: self.add_tab(chat_widget))
-        chat_widget.setCornerWidget(add_tab_button, Qt.Corner.TopRightCorner)
-        chat_container_layout.addWidget(chat_widget) 
-
-        main_layout.addWidget(chat_container_widget) 
+        # chat_widget = QTabWidget()
+        # self.add_tab(chat_widget)
+        # add_tab_button = QPushButton("+")
+        # add_tab_button.clicked.connect(lambda: self.add_tab(chat_widget))
+        # chat_widget.setCornerWidget(add_tab_button, Qt.Corner.TopRightCorner)
+        # chat_container_layout.addWidget(chat_widget)
+        #
+        # main_layout.addWidget(chat_container_widget)
 
         # Interactive Map Dock Widget
         map_placeholder = QLabel("Interactive Map Placeholder")
         map_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        map_placeholder.setStyleSheet("border: none; background-color: #202020;")
-        self.map_dock_widget = DockableWidget("Interactive Map", map_placeholder, self)
+        #map_placeholder.setStyleSheet("border: none; background-color: #202020;")
+        self.map_dock_widget = docks("Interactive Map", map_placeholder, self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
 
         # Image Preview Dock Widget
@@ -244,15 +284,17 @@ class MainWindow(QMainWindow):
         self.image_preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_preview_label.setScaledContents(True)
         self.image_preview_label.setStyleSheet("background-color: #202020;")
-        self.image_preview_dock_widget = DockableWidget("Image Preview", self.image_preview_label, self)
-        self.splitDockWidget(self.map_dock_widget, self.image_preview_dock_widget, Qt.Orientation.Vertical)
+        self.image_preview_dock_widget = docks("Image Preview", self.image_preview_label, self)
+        #self.splitDockWidget(self.map_dock_widget, self.image_preview_dock_widget, Qt.Orientation.Vertical)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.image_preview_dock_widget)
 
         # File Explorer Dock Widget
         self.file_explorer_dock_widget = self.createFileExplorerWidget()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.file_explorer_dock_widget)
 
-        self.setDockNestingEnabled(True)
-        self.resizeDocks([self.map_dock_widget, self.image_preview_dock_widget], [1, 1], Qt.Orientation.Vertical)
+        # self.setDockNestingEnabled(True)
+        # self.resizeDocks([self.map_dock_widget, self.image_preview_dock_widget], [1, 1], Qt.Orientation.Vertical)
 
     def setup_menus(self):
         menubar = self.menuBar()
@@ -305,7 +347,7 @@ class MainWindow(QMainWindow):
         file_explorer_widget = QWidget()
         file_explorer_widget.setLayout(file_explorer_vertical_layout)
 
-        return DockableWidget("Map File Explorer", file_explorer_widget, self)
+        return docks("Map File Explorer", file_explorer_widget, self)
 
     def add_tab(self, chat_widget):
         tab = QWidget()
