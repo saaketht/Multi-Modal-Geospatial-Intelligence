@@ -36,12 +36,6 @@ class CustomListItem(QWidget):
         # self.world_button.setIcon(QIcon('icons/worldIcon.png'))
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
 
-        layout.addWidget(self.remove_button)
-        layout.addWidget(self.label)
-        #layout.addStretch()
-        layout.addWidget(self.eye_button)
-        layout.addWidget(self.world_button)
-
         self.image_preview_label = image_preview_label
         self.list_widget = list_widget
 
@@ -52,7 +46,13 @@ class CustomListItem(QWidget):
         self.remove_button.installEventFilter(self) 
 
         self.world_button.clicked.connect(self.toggle_image_preview)
-        self.is_image_displayed = False  
+        self.is_image_displayed = False
+
+        layout.addWidget(self.remove_button)
+        layout.addWidget(self.label)
+        # layout.addStretch()
+        layout.addWidget(self.eye_button)
+        layout.addWidget(self.world_button)
 
     def preview_image(self):
         file_path = self.label.text()
@@ -462,12 +462,11 @@ class MainWindow(QMainWindow):
             print(f"An error occurred: {e}")
             QMessageBox.critical(self, "Error", f"An unexpected error occurred: {e}")
 
-def main():
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
-
-if __name__ == "__main__":
-    main()
+# def main():
+app = QApplication(sys.argv)
+window = MainWindow()
+window.show()
+sys.exit(app.exec())
+# if __name__ == "__main__":
+#     main()
 

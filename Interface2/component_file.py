@@ -276,7 +276,7 @@ class TabWidget(QTabWidget):
         self.tabCloseRequested.connect(self.removeTab2)
         self.index = 0
         self.addTab2(widget=chat())
-        self.addTab2()
+        self.addTab2(widget=chat())
 
         self.addButton = icon_button(initial_icon='feather(3px)/plus.svg',icon_square_len=16, button_square_len=28)
 
@@ -287,7 +287,7 @@ class TabWidget(QTabWidget):
         test.addWidget(self.addButton)
         test1.setLayout(test)
         self.setCornerWidget(test1, Qt.Corner.TopRightCorner)
-        self.addButton.clicked.connect(lambda : self.addTab2())
+        self.addButton.clicked.connect(lambda : self.addTab2(widget=chat()))
 
         # self.test = QHBoxLayout()
         # spacer = QSpacerItem(8,8,QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
