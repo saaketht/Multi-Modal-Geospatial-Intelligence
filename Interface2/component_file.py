@@ -135,6 +135,7 @@ class TitleBar(QFrame):
         self.font1 = QFont('Arial', 13)
         self.font1.setWeight(1000)
         self.setFont(self.font1)
+        self.setFixedHeight(38)
         self.layoutSub = QHBoxLayout(self)
         self.layoutSub.setContentsMargins(0, 0, 0, 0)
         self.layoutSub.setSpacing(4)
@@ -171,6 +172,53 @@ class TitleBar(QFrame):
         self.layoutSub.addWidget(self.titlebar_button1)
         self.layoutSub.addWidget(self.titlebar_button2)
         self.layoutSub.addWidget(self.titlebar_button3)
+class DockTitleBar(QFrame):
+    def __init__(self,title='',parent=None):
+        super().__init__(parent=parent)
+        self.setStyleSheet('''
+                background-color: #2D2D2D;
+                border: 2px solid #494949;
+                border-radius: 10px;
+                padding-right: 4px;
+                padding-left:4px;
+                ''')
+        self.font1 = QFont('Arial', 13)
+        self.font1.setWeight(1000)
+        self.setFont(self.font1)
+        self.setFixedHeight(38)
+        self.layoutSub = QHBoxLayout(self)
+        self.layoutSub.setContentsMargins(0, 0, 0, 0)
+        self.layoutSub.setSpacing(4)
+        #self.layoutSub.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+
+        self.titlebar_exit = icon_button(icon_square_len=16, initial_icon='feather(3px)/x.svg',
+                                       button_square_len=28, type='type2', exit=True)
+        self.titlebar_float = icon_button(icon_square_len=16, initial_icon='feather(3px)/arrow-up-right.svg',
+                                       button_square_len=28, type='type2')
+
+        self.titlebar_title = QLabel(title)
+        self.titlebar_title.setStyleSheet('''
+                    color: #FFFFFF;
+                    margin: 0 2px 0 0 ;
+                    border: 0px;
+                    ''')
+        self.titlebar_title.setFont(self.font1)
+        #note 3 spacers are added becasue there are 3 buttons on the right that are 28px by 28px, but the spacing between them
+        #is 4px, so the spacer item size must be 32 px bc there isn't any space between the spacers.
+        self.spacer1 = QSpacerItem(32, 32, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.spacer2 = QSpacerItem(32, 32, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+
+        self.layoutSub.addWidget(self.titlebar_exit)
+        self.layoutSub.addWidget(self.titlebar_float, alignment=Qt.AlignmentFlag.AlignHCenter)
+        self.layoutSub.addStretch()
+        self.layoutSub.addWidget(self.titlebar_title)
+        self.layoutSub.addItem(self.spacer1)
+        self.layoutSub.addItem(self.spacer2)
+        self.layoutSub.addStretch()
+
+
+
+
 
 class TabWidget(QTabWidget):
     def __init__(self,parent=None):
@@ -368,10 +416,15 @@ class docks(QDockWidget):
         self.setMinimumSize(300,200)
         self.setWidget(widget_to_dock)
         self.setFloating(False)
+        self.titlebar = DockTitleBar(title)
+        # self.setTitleBarWidget(self.titlebar)
+        #
+        # self.titlebar.titlebar_exit.clicked.connect(lambda : self.close())
+
         self.setStyleSheet('''
         QDockWidget 
         { 
-            background: #2D2D2D;
+            background: #494949;
             color:#ffffff;
             titlebar-close-icon: url(feather(3px)/x.svg);
             titlebar-normal-icon: url(feather(3px)/arrow-up-right.svg);
@@ -381,6 +434,7 @@ class docks(QDockWidget):
         {
             color:#ffffff;
             background: #202020;
+            margin-top:0px;
             border: 2px solid #494949;
             border-radius:10px;
         } 
@@ -393,7 +447,7 @@ class docks(QDockWidget):
             border-radius: 10px;
             padding:2px;
             height:40px;
-            margin-top:0px;
+            margin:0px;
             padding-left:0px;
         }
         
@@ -449,7 +503,7 @@ class docks(QDockWidget):
         {
             border: none;
             color: #494949;
-        }        
+        }       
         ''')
         
 
@@ -498,11 +552,11 @@ class icon_button (QPushButton):
             }
             ''')
         elif (exit == True and type == 'type2'):
-            self.setIcon(QIcon('feather/x.svg'))
+            self.setIcon(QIcon('feather(3px)/x.svg'))
             self.setStyleSheet('''
             icon_button
             {
-                background-color: #202020;
+                background-color: transparent;
                 border-radius: 10px;
                 border:0px;
                 margin:0px;
@@ -567,6 +621,7 @@ class MainWindow (QMainWindow):
         }
         QMainWindow::separator 
         {
+        width:1px;
         background-color: #494949;
         }
         ''')
@@ -577,7 +632,6 @@ class MainWindow (QMainWindow):
         layout = QVBoxLayout()
 
         self.titlebar = TitleBar("Chat Box")
-        self.titlebar.setFixedHeight(38)
 
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -630,16 +684,20 @@ class MainWindow (QMainWindow):
         #layout.addWidget(self.tabs)
         self.chatbox_layout.addWidget(self.tabs)
 
-        self.chatbox_input_layout = QHBoxLayout()
-        self.chatbox_input_clip_button = icon_button(initial_icon='feather/paperclip.svg')
-        self.chatbox_input_send_button = icon_button(initial_icon='feather/send.svg')
-        self.chatbox_input_lineEdit = LineEdit()
-        self.chatbox_input_lineEdit.setPlaceholderText('Type Here!')
+        # self.chatbox_input_layout = QHBoxLayout()
+        # self.chatbox_input_clip_button = icon_button(initial_icon='feather/paperclip.svg')
+        # self.chatbox_input_send_button = icon_button(initial_icon='feather/send.svg')
+        # self.chatbox_input_lineEdit = LineEdit()
+        # self.chatbox_input_lineEdit.setPlaceholderText('Type Here!')
+        #
+        # self.chatbox_input_layout.addWidget(self.chatbox_input_clip_button)
+        # self.chatbox_input_layout.addWidget( self.chatbox_input_lineEdit)
+        # self.chatbox_input_layout.addWidget(self.chatbox_input_send_button)
 
-        self.chatbox_input_layout.addWidget(self.chatbox_input_clip_button)
-        self.chatbox_input_layout.addWidget( self.chatbox_input_lineEdit)
-        self.chatbox_input_layout.addWidget(self.chatbox_input_send_button)
-
+        self.test = DockTitleBar('test')
+        self.test2 = TitleBar("test")
+        layout.addWidget(self.test)
+        layout.addWidget(self.test2)
 
         #self.chatbox_layout.addLayout(self.chatbox_input_layout)
 

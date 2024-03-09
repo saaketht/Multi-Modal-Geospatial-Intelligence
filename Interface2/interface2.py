@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, QSize, QEvent, QTimer
 from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFont
+import platform, ctypes
 
 # class DockableWidget(QDockWidget):
 #     def __init__(self, title, widget_to_dock, parent=None):
@@ -464,6 +465,11 @@ class MainWindow(QMainWindow):
 
 # def main():
 app = QApplication(sys.argv)
+app.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+if platform.system() == "Windows":
+    if int(platform.release()) >= 8:
+        print(platform.release())
+        ctypes.windll.shcore.SetProcessDpiAwareness(True)
 window = MainWindow()
 window.show()
 sys.exit(app.exec())
