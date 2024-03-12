@@ -273,7 +273,7 @@ class TabWidget(QTabWidget):
             padding-top:0;
             padding-right:7px;
             height:34px;
-            width:14ex;
+            width:125px;
         }
         /*commented because it does not render fast enough when moving tabs around*/
         /*QTabBar::tab::first
@@ -286,6 +286,11 @@ class TabWidget(QTabWidget):
             margin-left: 8px;
             margin-right:1.5px;
         }*/
+        
+        QTabBar
+        {
+            
+        }
         QTabBar::tab:selected {
             /*background:#202020;*/
             border-bottom: 2px solid #202020;
@@ -317,12 +322,39 @@ class TabWidget(QTabWidget):
             border-radius:10px;
             background:#FF0000;
         }
-        QTabWidget QToolButton
+        QTabBar QToolButton
         {
-            background-color: red;
-            border: 1px solid white;
+            
+            background-color: #202020;
+            border-image: none;
+            border: 2px solid #202020;
+            border-radius:10px;
+            padding:8px;
+            margin-bottom:4px;
+            margin-right:1px;
+            margin-top:0;
+            margin-left:1px;
         }
-        
+        QTabBar QToolButton:hover 
+        {
+            background-color: #2d2d2d;
+            border: 2px solid #2d2d2d;
+        }
+        QTabBar QToolButton:pressed 
+        {
+            
+            background-color: #03B5A9;
+            border: 2px solid #03B5A9;
+        }
+        QTabBar::scroller 
+        { /* the width of the scroll buttons */
+            width:74px;
+        }
+        QTabBar::tear
+        {
+            background:none;
+            border:none;
+        } 
         ''')
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.removeTab2)
@@ -330,13 +362,14 @@ class TabWidget(QTabWidget):
         self.addTab2(widget=chat())
         self.addTab2(widget=chat())
 
-        self.addButton = icon_button(initial_icon='feather(3px)/plus.svg',icon_square_len=16, button_square_len=28)
+        self.addButton = icon_button(initial_icon='feather(3px)/plus.svg',icon_square_len=16, button_square_len=34)
 
         test1 = QWidget()
+        test1.setContentsMargins(0,0,0,0)
         test = QHBoxLayout()
-        test.setContentsMargins(0,0,0,0)
+        test.setContentsMargins(0,0,4,0)
         test.setSpacing(0)
-        test.addWidget(self.addButton)
+        test.addWidget(self.addButton, alignment=Qt.AlignmentFlag.AlignTop)
         test1.setLayout(test)
         self.setCornerWidget(test1, Qt.Corner.TopRightCorner)
         self.addButton.clicked.connect(lambda : self.addTab2(widget=chat()))
