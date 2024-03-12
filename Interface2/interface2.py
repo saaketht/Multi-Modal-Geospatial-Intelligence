@@ -1,13 +1,14 @@
 import sys
 import os
+import shutil
 from component_file import *
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget,
     QPushButton, QLabel, QLineEdit, QDockWidget, QTabWidget, QListWidget,
-    QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem, QScrollArea
+    QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem, QScrollArea, QSizePolicy
 )
 from PyQt6.QtCore import Qt, QSize, QEvent, QTimer
-from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFont
+from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFontMetrics
 import platform, ctypes
 
 # class DockableWidget(QDockWidget):
@@ -29,13 +30,14 @@ class CustomListItem(QWidget):
         # self.remove_button = QPushButton()
         # self.remove_button.setIcon(QIcon('icons/imageIcon.png'))
         # self.remove_button.setFlat(True)
-        self.label = Label(text)
         # self.eye_button = QPushButton()
         # self.eye_button.setIcon(QIcon('icons/eyeIcon.png'))
         self.eye_button = icon_button(initial_icon='feather/eye.svg', icon_square_len=22, button_square_len=34)
         # self.world_button = QPushButton()
         # self.world_button.setIcon(QIcon('icons/worldIcon.png'))
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
+
+        self.label = Label(text)
 
         self.image_preview_label = image_preview_label
         self.list_widget = list_widget
@@ -54,6 +56,7 @@ class CustomListItem(QWidget):
         # layout.addStretch()
         layout.addWidget(self.eye_button)
         layout.addWidget(self.world_button)
+
 
     def preview_image(self):
         file_path = self.label.text()
@@ -101,6 +104,9 @@ class CustomListItem(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.uploads_folder = os.path.join(os.getcwd(), "uploads")
+        if not os.path.exists(self.uploads_folder):
+            os.makedirs(self.uploads_folder)
         self.setWindowTitle("GEOINT")
         self.setDockOptions(QMainWindow.DockOption.AllowTabbedDocks | QMainWindow.DockOption.AllowNestedDocks)
     #     self.setStyleSheet("""
@@ -294,6 +300,7 @@ class MainWindow(QMainWindow):
         self.image_preview_label = QLabel("Image Preview/Selection")
         self.image_preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_preview_label.setScaledContents(True)
+        self.image_preview_label.setMaximumSize(315, 317)
         self.image_preview_label.setStyleSheet("background-color: #202020;")
         self.image_preview_dock_widget = docks("Image Preview", self.image_preview_label, self)
         #self.splitDockWidget(self.map_dock_widget, self.image_preview_dock_widget, Qt.Orientation.Vertical)
@@ -331,6 +338,7 @@ class MainWindow(QMainWindow):
     def createFileExplorerWidget(self):
         self.file_list = QListWidget()
         self.file_path_line_edit = LineEdit()
+        self.file_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
         
         file_explorer_layout = QHBoxLayout()
         file_explorer_layout.setContentsMargins(0,0,0,0)
@@ -448,7 +456,19 @@ class MainWindow(QMainWindow):
         file_path = self.file_path_line_edit.text()
         try:
             if file_path and os.path.isfile(file_path):
-                custom_list_item_widget = CustomListItem(file_path, self.image_preview_label, self.file_list)
+                base_name = os.path.basename(file_path)
+                new_file_path = os.path.join(self.uploads_folder, base_name)
+                
+                file_root, file_extension = os.path.splitext(base_name)
+                counter = 1
+                while os.path.exists(new_file_path):
+                    new_file_name = f"{file_root}_{counter}{file_extension}"
+                    new_file_path = os.path.join(self.uploads_folder, new_file_name)
+                    counter += 1
+                
+                shutil.copy(file_path, new_file_path)
+
+                custom_list_item_widget = CustomListItem(new_file_path, self.image_preview_label, self.file_list)
                 list_widget_item = QListWidgetItem(self.file_list)
                 list_widget_item.setSizeHint(custom_list_item_widget.sizeHint())
                 
@@ -463,6 +483,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"An error occurred: {e}")
             QMessageBox.critical(self, "Error", f"An unexpected error occurred: {e}")
+
 
 # def main():
 app = QApplication(sys.argv)
