@@ -183,6 +183,8 @@ class DockTitleBar(QFrame):
                 border-radius: 10px;
                 padding-right: 4px;
                 padding-left:4px;
+                padding-top:0;
+                padding-bottom:0;
                 ''')
         self.font1 = QFont('Arial')
         self.font1.setPixelSize(13)
@@ -346,6 +348,12 @@ class TabWidget(QTabWidget):
             background-color: #03B5A9;
             border: 2px solid #03B5A9;
         }
+        QTabBar QToolButton:disabled 
+        {
+            
+            background-color: #101010;
+            border: 2px solid #101010;
+        }
         QTabBar::scroller 
         { /* the width of the scroll buttons */
             width:74px;
@@ -355,6 +363,15 @@ class TabWidget(QTabWidget):
             background:none;
             border:none;
         } 
+        QTabBar QToolButton::right-arrow 
+        {
+            image: url(feather(3px)/arrow-right.svg);
+        }
+        
+        QTabBar QToolButton::left-arrow 
+        {
+            image: url(feather(3px)/arrow-left.svg);
+        }
         ''')
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.removeTab2)
@@ -367,9 +384,9 @@ class TabWidget(QTabWidget):
         test1 = QWidget()
         test1.setContentsMargins(0,0,0,0)
         test = QHBoxLayout()
-        test.setContentsMargins(0,0,4,0)
+        test.setContentsMargins(0,0,4,4)
         test.setSpacing(0)
-        test.addWidget(self.addButton, alignment=Qt.AlignmentFlag.AlignTop)
+        test.addWidget(self.addButton, alignment=Qt.AlignmentFlag.AlignBottom)
         test1.setLayout(test)
         self.setCornerWidget(test1, Qt.Corner.TopRightCorner)
         self.addButton.clicked.connect(lambda : self.addTab2(widget=chat()))
@@ -456,11 +473,15 @@ class docks(QDockWidget):
         self.setMinimumSize(300,200)
         self.setWidget(widget_to_dock)
         self.setFloating(False)
-        #self.titlebar = DockTitleBar(title)
-        # self.setTitleBarWidget(self.titlebar)
-        #
-        # self.titlebar.titlebar_exit.clicked.connect(lambda : self.close())
+        self.titlebar = DockTitleBar(title)
 
+        self.setTitleBarWidget(self.titlebar)
+        self.titlebar.titlebar_exit.clicked.connect(lambda: self.close())
+        self.titlebar.titlebar_float.clicked.connect(lambda: self.setFloating(True))
+
+        self.topLevelChanged.connect(lambda x: self.temp(x))
+
+        print(self.isFloating())
         self.setStyleSheet('''
         QDockWidget 
         { 
@@ -474,19 +495,18 @@ class docks(QDockWidget):
         {
             color:#ffffff;
             background: #202020;
-            margin-top:0px;
+            margin-top:1px;
             border: 2px solid #494949;
             border-radius:10px;
         } 
         
-        QDockWidget::title 
+        /*QDockWidget::title 
         {
             background: #2D2D2D; 
             text-align: center;
             border: 2px solid #494949;
             border-radius: 10px;
-            padding:5px;
-            padding-left:0px;
+            padding:2px;
         }
         
         QDockWidget::close-button, QDockWidget::float-button 
@@ -506,7 +526,6 @@ class docks(QDockWidget):
             subcontrol-origin: margin;
             position: absolute;
             top: 0px; left: 34px;
-            border-radius:10px;
             icon: url(feather(3px)/arrow-up-right.svg);
             
         }
@@ -536,13 +555,16 @@ class docks(QDockWidget):
         QDockWidget::close-button:pressed {
             icon: url(feather(3px)/x.svg);
             background:#ff0000;
-        }
-        QDockWidget QSplitter
-        {
-            border: none;
-            color: #494949;
-        }       
+        }*/
         ''')
+    def temp(self, x):
+        if x:
+            self.setTitleBarWidget(None)
+        else:
+            self.setTitleBarWidget(self.titlebar)
+            self.titlebar.titlebar_exit.clicked.connect(lambda: self.close())
+            self.titlebar.titlebar_float.clicked.connect(lambda: self.setFloating(True))
+
         
 
 
@@ -659,8 +681,8 @@ class MainWindow (QMainWindow):
         }
         QMainWindow::separator 
         {
-        width:1px;
-        background-color: #494949;
+            width:1px;
+            background-color: #494949;
         }
         ''')
         font1 = QFont('Arial')

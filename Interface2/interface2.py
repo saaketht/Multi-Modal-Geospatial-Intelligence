@@ -190,7 +190,8 @@ class MainWindow(QMainWindow):
                 }
                 QMainWindow::separator 
                 {
-                background-color: #494949;
+                    width:1px;
+                    background-color: #494949;
                 }
                 ''')
         
