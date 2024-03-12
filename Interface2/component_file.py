@@ -499,6 +499,17 @@ class docks(QDockWidget):
             border-radius:10px;
         } 
         
+        /*this will change the contents of the qdock widget too bc all widgets are QWidgets 
+        I STRONGLY recommend changing/styling those widgets instead of inheriting this stylesheet
+        so THIS MUST BE FIXED*/
+        QDockWidget QWidget
+        {
+            color:#ffffff;
+            background: #202020;
+            border: 2px solid #494949;
+            border-radius:10px;
+        } 
+        
         /*QDockWidget::title 
         {
             background: #2D2D2D; 
