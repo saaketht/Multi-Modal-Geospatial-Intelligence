@@ -183,8 +183,6 @@ class DockTitleBar(QFrame):
                 border-radius: 10px;
                 padding-right: 4px;
                 padding-left:4px;
-                padding-top:0;
-                padding-bottom:0;
                 ''')
         self.font1 = QFont('Arial')
         self.font1.setPixelSize(13)
@@ -471,13 +469,12 @@ class docks(QDockWidget):
         font1 = QFont('Arial')
         font1.setPixelSize(13)
         font1.setWeight(1000)
-
         self.setFont(font1)
         self.setMinimumSize(300,200)
         self.setWidget(widget_to_dock)
         self.setFloating(False)
         self.titlebar = DockTitleBar(title)
-
+        self.widget().setObjectName("widget")
         self.setTitleBarWidget(self.titlebar)
         self.titlebar.titlebar_exit.clicked.connect(lambda: self.close())
         self.titlebar.titlebar_float.clicked.connect(lambda: self.setFloating(True))
@@ -493,11 +490,11 @@ class docks(QDockWidget):
             titlebar-normal-icon: url(feather(3px)/arrow-up-right.svg);
         }
         
-        QDockWidget QWidget
+        QDockWidget #widget
         {
             color:#ffffff;
             background: #202020;
-            margin-top:1px;
+            margin-top:2px;
             border: 2px solid #494949;
             border-radius:10px;
         } 
