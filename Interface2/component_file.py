@@ -479,9 +479,8 @@ class docks(QDockWidget):
         self.titlebar.titlebar_exit.clicked.connect(lambda: self.close())
         self.titlebar.titlebar_float.clicked.connect(lambda: self.setFloating(True))
 
-        self.topLevelChanged.connect(lambda x: self.temp(x))
+        self.topLevelChanged.connect(lambda x: self.floatHandler(x))
 
-        print(self.isFloating())
         self.setStyleSheet('''
         QDockWidget 
         { 
@@ -557,7 +556,7 @@ class docks(QDockWidget):
             background:#ff0000;
         }*/
         ''')
-    def temp(self, x):
+    def floatHandler(self, x):
         if x:
             self.setTitleBarWidget(None)
         else:
