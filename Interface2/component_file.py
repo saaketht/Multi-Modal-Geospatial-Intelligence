@@ -57,7 +57,8 @@ class chat(QWidget):
     def __init__(self, parent = None):
         super().__init__(parent=parent)
 
-        self.font1 = QFont('Arial', 13)
+        self.font1 = QFont('Arial')
+        self.font1.setPixelSize(13)
         self.font1.setWeight(1000)
         self.setFont(self.font1)
 
@@ -132,7 +133,8 @@ class TitleBar(QFrame):
                 padding-right: 4px;
                 padding-left:4px;
                 ''')
-        self.font1 = QFont('Arial', 13)
+        self.font1 = QFont('Arial')
+        self.font1.setPixelSize(13)
         self.font1.setWeight(1000)
         self.setFont(self.font1)
         self.setFixedHeight(38)
@@ -182,7 +184,8 @@ class DockTitleBar(QFrame):
                 padding-right: 4px;
                 padding-left:4px;
                 ''')
-        self.font1 = QFont('Arial', 13)
+        self.font1 = QFont('Arial')
+        self.font1.setPixelSize(13)
         self.font1.setWeight(1000)
         self.setFont(self.font1)
         self.setFixedHeight(38)
@@ -223,7 +226,8 @@ class DockTitleBar(QFrame):
 class TabWidget(QTabWidget):
     def __init__(self,parent=None):
         super().__init__(parent=parent)
-        self.font1 = QFont('Arial',14)
+        self.font1 = QFont('Arial')
+        self.font1.setPixelSize(14)
         self.font1.setWeight(1000)
         self.setMovable(True)
         self.setFont(self.font1)
@@ -369,7 +373,8 @@ class LineEdit (QLineEdit):
 
         self.setFixedHeight(34)
         self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-        font1 = QFont('Arial', 13)
+        font1 = QFont('Arial')
+        font1.setPixelSize(13)
         self.setFont(font1)
         self.setStyleSheet('''
         LineEdit
@@ -387,7 +392,8 @@ class Label (QLabel):
 
         self.setFixedHeight(34)
         self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-        font1 = QFont('Arial', 13)
+        font1 = QFont('Arial')
+        font1.setPixelSize(13)
         self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
         self.setFont(font1)
         self.setStyleSheet('''
@@ -409,14 +415,15 @@ class docks(QDockWidget):
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
         self.setWindowTitle(title)
 
-        font1 = QFont('Arial', 13)
+        font1 = QFont('Arial')
+        font1.setPixelSize(13)
         font1.setWeight(1000)
 
         self.setFont(font1)
         self.setMinimumSize(300,200)
         self.setWidget(widget_to_dock)
         self.setFloating(False)
-        self.titlebar = DockTitleBar(title)
+        #self.titlebar = DockTitleBar(title)
         # self.setTitleBarWidget(self.titlebar)
         #
         # self.titlebar.titlebar_exit.clicked.connect(lambda : self.close())
@@ -445,15 +452,13 @@ class docks(QDockWidget):
             text-align: center;
             border: 2px solid #494949;
             border-radius: 10px;
-            padding:2px;
-            height:40px;
-            margin:0px;
+            padding:5px;
             padding-left:0px;
         }
         
         QDockWidget::close-button, QDockWidget::float-button 
         {
-            border: none;
+            border: 0px solid transparent;
             background: #2D2D2D;
             icon-size: 28px;
             width:16px;
@@ -625,9 +630,11 @@ class MainWindow (QMainWindow):
         background-color: #494949;
         }
         ''')
-        font1 = QFont('Arial',13)
+        font1 = QFont('Arial')
+        font1.setPixelSize(13)
         font1.setWeight(1000)
-        font2 = QFont('Arial', 13)
+        font2 = QFont('Arial')
+        font2.setPixelSize(13)
 
         layout = QVBoxLayout()
 
