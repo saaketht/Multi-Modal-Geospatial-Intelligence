@@ -348,12 +348,7 @@ class TabWidget(QTabWidget):
             background-color: #03B5A9;
             border: 2px solid #03B5A9;
         }
-        QTabBar QToolButton:disabled 
-        {
-            
-            background-color: #101010;
-            border: 2px solid #101010;
-        }
+        
         QTabBar::scroller 
         { /* the width of the scroll buttons */
             width:74px;
@@ -371,6 +366,14 @@ class TabWidget(QTabWidget):
         QTabBar QToolButton::left-arrow 
         {
             image: url(feather(3px)/arrow-left.svg);
+        }
+        QTabBar QToolButton::left-arrow:disabled 
+        {
+            image: url(feather(3px)/arrow-left-disabled.svg)
+        }
+        QTabBar QToolButton::right-arrow:disabled 
+        {
+            image: url(feather(3px)/arrow-right-disabled.svg)
         }
         ''')
         self.setTabsClosable(True)
