@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize, QEvent, QTimer
 from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFontMetrics
 import platform, ctypes
+from send import sendAndRecieve
 
 # class DockableWidget(QDockWidget):
 #     def __init__(self, title, widget_to_dock, parent=None):
