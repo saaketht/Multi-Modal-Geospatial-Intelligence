@@ -448,9 +448,10 @@ class MainWindow(QMainWindow):
     #         pass
 
     def open_file_dialog(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Select TIFF file", "", "TIFF files (*.tiff *.tif)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select PNG file", "", "PNG files (*.png)")
         if file_path:
             self.file_path_line_edit.setText(file_path)
+
     
     def add_file_to_list(self):
         file_path = self.file_path_line_edit.text()
