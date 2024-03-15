@@ -293,6 +293,9 @@ class TabWidget(QTabWidget):
         }
         QTabBar::tab:selected {
             /*background:#202020;*/
+            font-family: Arial;
+            font-size: 14px; 
+            font-weight: 1000;
             border-bottom: 2px solid #202020;
         }
         

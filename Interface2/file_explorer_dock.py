@@ -117,7 +117,7 @@ class CustomListItem(QWidget):
         self.is_image_displayed = False
 
         layout.addWidget(self.remove_button)
-        layout.addWidget(self.label)
+        layout.addWidget(self.label, 1)
         # layout.addStretch()
         layout.addWidget(self.eye_button)
         layout.addWidget(self.world_button)
