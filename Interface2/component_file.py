@@ -377,8 +377,11 @@ class TabWidget(QTabWidget):
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.removeTab2)
         self.index = 0
+
+        #delete from here
         self.addTab2(widget=chat())
         self.addTab2(widget=chat())
+        #to here
 
         self.addButton = icon_button(initial_icon='feather(3px)/plus.svg',icon_square_len=16, button_square_len=34)
 
@@ -390,6 +393,8 @@ class TabWidget(QTabWidget):
         test.addWidget(self.addButton, alignment=Qt.AlignmentFlag.AlignBottom)
         test1.setLayout(test)
         self.setCornerWidget(test1, Qt.Corner.TopRightCorner)
+
+        #DELETE THIS, CONNEC THSI WHEN YOU CREATE A A CHAT BOX FILE
         self.addButton.clicked.connect(lambda : self.addTab2(widget=chat()))
 
         # self.test = QHBoxLayout()
@@ -471,7 +476,19 @@ class docks(QDockWidget):
         font1.setWeight(1000)
         self.setFont(font1)
         self.setMinimumSize(300,200)
-        self.setWidget(widget_to_dock)
+
+        self.frame = QFrame()
+        self.frame_layout = QVBoxLayout(self.frame)
+
+        # self.frame.setLayout(self.frame_layout)
+        self.frame.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.frame.setContentsMargins(0,0,0,0)
+        self.frame_layout.setContentsMargins(0,0,0,0)
+        self.frame_layout.setSpacing(0)
+        self.frame_layout.addWidget(widget_to_dock)
+        self.setWidget(self.frame)
+
         self.setFloating(False)
         self.titlebar = DockTitleBar(title)
         self.widget().setObjectName("widget")
@@ -506,8 +523,8 @@ class docks(QDockWidget):
         {
             color:#ffffff;
             background: #202020;
-            border: 2px solid #494949;
-            border-radius:10px;
+            border: 2px solid transparent;
+            border-radius:8px;
         } 
         
         /*QDockWidget::title 
@@ -574,9 +591,6 @@ class docks(QDockWidget):
             self.setTitleBarWidget(self.titlebar)
             self.titlebar.titlebar_exit.clicked.connect(lambda: self.close())
             self.titlebar.titlebar_float.clicked.connect(lambda: self.setFloating(True))
-
-        
-
 
 class icon_button (QPushButton):
 
