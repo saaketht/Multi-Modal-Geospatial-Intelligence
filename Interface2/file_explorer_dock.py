@@ -6,18 +6,21 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, QSize, QEvent, QTimer
 from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFontMetrics
+from image_preview_dock import *
 import os, sys, shutil
 
-#This is the file explorer widget that will be hosted within a qdockwidget,specifically the "docks" variant
+# This is the file explorer widget that will be hosted within a qdockwidget,specifically the "docks" variant
 class file_explorer(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent = parent)
+    def __init__(self, image_preview_widget, parent=None):
+        super().__init__(parent=parent)
         self.uploads_folder = os.path.join(os.getcwd(), "uploads")
         if not os.path.exists(self.uploads_folder):
             os.makedirs(self.uploads_folder)
         self.file_list = QListWidget()
         self.file_path_line_edit = LineEdit()
         self.file_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+
+        self.image_preview_widget = image_preview_widget
 
         self.file_explorer_layout = QHBoxLayout()
         self.file_explorer_layout.setContentsMargins(0, 0, 0, 0)
@@ -72,12 +75,14 @@ class file_explorer(QWidget):
 
                 shutil.copy(file_path, new_file_path)
 
-                custom_list_item_widget = CustomListItem(new_file_path, self.image_preview_label, self.file_list)
+                custom_list_item_widget = CustomListItem(new_file_path, self.image_preview_widget, self.file_list)
+
                 list_widget_item = QListWidgetItem(self.file_list)
                 list_widget_item.setSizeHint(custom_list_item_widget.sizeHint())
 
                 self.file_list.addItem(list_widget_item)
                 self.file_list.setItemWidget(list_widget_item, custom_list_item_widget)
+                custom_list_item_widget.remove_button.clicked.connect(lambda: self.file_list.removeItemWidget(list_widget_item))
 
                 custom_list_item_widget.list_widget_item = list_widget_item
 
@@ -90,11 +95,12 @@ class file_explorer(QWidget):
 
 
 class CustomListItem(QWidget):
-    def __init__(self, text, image_preview_label, list_widget, parent=None):
+    def __init__(self, text, image_preview_widget, list_widget, parent=None):
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 11, 0, 11)
         layout.setSpacing(5)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
 
         self.remove_button = icon_button(initial_icon='feather/image.svg', icon_square_len=22, button_square_len=34)
 
@@ -103,14 +109,15 @@ class CustomListItem(QWidget):
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
 
         self.label = Label(text)
+        self.label.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
 
-        self.image_preview_label = image_preview_label
+        self.image_preview_widget = image_preview_widget
         self.list_widget = list_widget
 
         self.eye_button.clicked.connect(self.toggle_eye_icon)
         self.is_eye_icon = True
 
-        self.remove_button.clicked.connect(self.remove_item)
+        #self.remove_button.clicked.connect(self.remove_item)
         self.remove_button.installEventFilter(self)
 
         self.world_button.clicked.connect(self.toggle_image_preview)
@@ -125,7 +132,9 @@ class CustomListItem(QWidget):
     def preview_image(self):
         file_path = self.label.text()
         if os.path.isfile(file_path):
-            self.image_preview_label.setPixmap(QPixmap(file_path))
+            self.image_preview_widget.setPixmap(QPixmap(file_path))
+            self.image_preview_widget.currentImage = QPixmap(file_path)
+            self.image_preview_widget.currentImagePath = file_path
 
     def remove_item(self):
         try:
@@ -149,11 +158,15 @@ class CustomListItem(QWidget):
     def toggle_image_preview(self):
         file_path = self.label.text()
         if self.is_image_displayed:
-            self.image_preview_label.clear()
+            self.image_preview_widget.clear()
             self.world_button.setIcon(QIcon('feather/globe.svg'))
+            self.image_preview_widget.currentImage = None
+            self.image_preview_widget.currentImagePath = None
             self.is_image_displayed = False
         elif os.path.isfile(file_path):
-            self.image_preview_label.setPixmap(QPixmap(file_path))
+            self.image_preview_widget.setPixmap(QPixmap(file_path))
+            self.image_preview_widget.currentImage = QPixmap(file_path)
+            self.image_preview_widget.currentImagePath = file_path
             self.world_button.setIcon(QIcon('feather/x.svg'))
             self.is_image_displayed = True
 
