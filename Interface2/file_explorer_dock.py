@@ -82,7 +82,7 @@ class file_explorer(QWidget):
 
                 self.file_list.addItem(list_widget_item)
                 self.file_list.setItemWidget(list_widget_item, custom_list_item_widget)
-                custom_list_item_widget.remove_button.clicked.connect(lambda: self.file_list.removeItemWidget(list_widget_item))
+                custom_list_item_widget.remove_button.clicked.connect(lambda: self.remove_item(list_widget_item))
 
                 custom_list_item_widget.list_widget_item = list_widget_item
 
@@ -92,6 +92,13 @@ class file_explorer(QWidget):
         except Exception as e:
             print(f"An error occurred: {e}")
             QMessageBox.critical(self, "Error", f"An unexpected error occurred: {e}")
+
+    def remove_item(self, list_widget_item):
+        try:
+            row = self.file_list.row(list_widget_item)
+            self.file_list.takeItem(row)
+        except Exception as e:
+            print(f"Error removing item: {e}")
 
 
 class CustomListItem(QWidget):
@@ -136,12 +143,12 @@ class CustomListItem(QWidget):
             self.image_preview_widget.currentImage = QPixmap(file_path)
             self.image_preview_widget.currentImagePath = file_path
 
-    def remove_item(self):
-        try:
-            row = self.list_widget.row(self.list_widget_item)
-            self.list_widget.takeItem(row)
-        except Exception as e:
-            print(f"Error removing item: {e}")
+    # def remove_item(self):
+    #     try:
+    #         row = self.list_widget.row(self.list_widget_item)
+    #         self.list_widget.takeItem(row)
+    #     except Exception as e:
+    #         print(f"Error removing item: {e}")
 
     def eventFilter(self, source, event):
         if source == self.remove_button:
@@ -164,7 +171,8 @@ class CustomListItem(QWidget):
             self.image_preview_widget.currentImagePath = None
             self.is_image_displayed = False
         elif os.path.isfile(file_path):
-            self.image_preview_widget.setPixmap(QPixmap(file_path))
+            self.test =  QPixmap(file_path)
+            self.image_preview_widget.setPixmap(self.test)
             self.image_preview_widget.currentImage = QPixmap(file_path)
             self.image_preview_widget.currentImagePath = file_path
             self.world_button.setIcon(QIcon('feather/x.svg'))

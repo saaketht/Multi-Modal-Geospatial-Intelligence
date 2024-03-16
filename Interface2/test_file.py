@@ -1,4 +1,5 @@
 from component_file import*
+from PyQt6.QtGui import QPixmap, QPicture
 class MainWindow (QMainWindow):
     def __init__(self):
         super().__init__()
@@ -90,6 +91,31 @@ class MainWindow (QMainWindow):
         self.test2 = TitleBar("test")
         layout.addWidget(self.test)
         layout.addWidget(self.test2)
+
+        testF = QFrame()
+        testF.setObjectName('frameTest')
+        testF.setFixedSize(40,40)
+        testF.setStyleSheet('''
+        #frameTest{
+            background: #202020;
+            border: 2px solid #2d2d2d;
+            border-radius:20px;}
+        ''')
+        testF_layout= QHBoxLayout()
+        testF_layout.setContentsMargins(0,0,0,0)
+        testF_layout.setSpacing(0)
+
+        testF_icon = QLabel()
+        testF_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon5 = QIcon("feather(2.5px)/user.svg").pixmap(QSize(24, 24))
+        testF_icon.setPixmap(icon5)
+
+        testF_layout.addWidget(testF_icon)
+        test2 = icon_button(initial_icon='feather(2.5px)/user.svg', icon_square_len=24, button_square_len=40)
+        test2.setDisabled(True)
+        testF.setLayout(testF_layout)
+
+        layout.addWidget(testF)
 
         #self.chatbox_layout.addLayout(self.chatbox_input_layout)
 
