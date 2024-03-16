@@ -107,7 +107,7 @@ class CustomListItem(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 11, 0, 11)
         layout.setSpacing(5)
-        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
 
         self.remove_button = icon_button(initial_icon='feather/image.svg', icon_square_len=22, button_square_len=34)
 
@@ -116,7 +116,7 @@ class CustomListItem(QWidget):
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
 
         self.label = Label(text)
-        self.label.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+        self.label.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
 
         self.image_preview_widget = image_preview_widget
         self.list_widget = list_widget
@@ -133,7 +133,7 @@ class CustomListItem(QWidget):
         layout.addWidget(self.remove_button)
         layout.addWidget(self.label, 1)
         # layout.addStretch()
-        layout.addWidget(self.eye_button)
+        #layout.addWidget(self.eye_button)
         layout.addWidget(self.world_button)
 
     def preview_image(self):
