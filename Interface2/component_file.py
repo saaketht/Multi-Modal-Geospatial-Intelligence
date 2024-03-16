@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtCore import Qt, QSize,QRect
+from PyQt6.QtCore import Qt, QSize,QRect, pyqtSignal
 from PyQt6.QtGui import QIcon,QFont, QFontDatabase, QPainter,QBrush,QColor
 from PyQt6.QtWidgets import QStyleOptionTabWidgetFrame
 from PyQt6.QtWidgets import (
@@ -53,6 +53,43 @@ class PlainTextEdit(QPlainTextEdit):
         }
         
         ''')
+
+
+class UserMessage(QWidget):
+    def __init__(self, message, parent=None):
+        super().__init__(parent=parent)
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(5, 5, 5, 5)
+        self.layout.setSpacing(0)
+
+        self.icon_label = QLabel(self)
+        icon_pixmap = QIcon('feather/group1.svg').pixmap(QSize(40, 40))
+        self.icon_label.setPixmap(icon_pixmap)
+        self.icon_label.setFixedSize(40, 40)
+        self.icon_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+
+        self.username_label = QLabel("You", self)
+        self.username_label.setFont(QFont('Arial', 14, QFont.Weight.Bold))
+        self.username_label.setStyleSheet("color: #FFFFFF;")
+
+        self.message_content = QLabel(message, self)
+        self.message_content.setFont(QFont('Arial', 14))
+        self.message_content.setWordWrap(True)
+        self.message_content.setStyleSheet("color: #FFFFFF;")
+        
+        self.top_layout = QHBoxLayout()
+        self.top_layout.addWidget(self.icon_label)
+
+        self.top_layout.addSpacing(10) 
+
+        self.top_layout.addWidget(self.username_label)
+        self.top_layout.addStretch()
+
+        self.layout.addLayout(self.top_layout)
+        self.layout.addWidget(self.message_content)
+
+        self.setLayout(self.layout)
+
 class chat(QWidget):
     def __init__(self, parent = None):
         super().__init__(parent=parent)
@@ -82,6 +119,7 @@ class chat(QWidget):
         self.attach_icon_button = icon_button(initial_icon='feather/paperclip.svg',button_square_len=34,icon_square_len=22)
 
         self.chat_input = LineEdit()
+        self.chat_input.enter_pressed.connect(self.send_message)
         self.chat_input.setPlaceholderText("Type here!")
         self.send_button = icon_button(initial_icon='feather/arrow-up.svg', icon_square_len=22, button_square_len=34)
         self.send_button.clicked.connect(self.send_message)
@@ -100,9 +138,13 @@ class chat(QWidget):
     def send_message(self):
         message = self.chat_input.text()
         if message:
-            self.chat_box.appendPlainText(message)
+            user_message_widget = UserMessage(message)
+            self.chat_scroll_layout.addWidget(user_message_widget)
+            
             self.save_message(message)
             self.chat_input.clear()
+            self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+            self.update() 
 
             # TODO: Integrate with model
         # self.receive_message("Model response here...")
@@ -423,9 +465,8 @@ class TabWidget(QTabWidget):
 
         self.index += 1
 
-
-
 class LineEdit (QLineEdit):
+    enter_pressed = pyqtSignal()
     def __init__(self):
         super().__init__(parent = None)
 
@@ -445,6 +486,13 @@ class LineEdit (QLineEdit):
             color: #FFFFFF;
         }
         ''')
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
+            self.enter_pressed.emit()
+        else:
+            super().keyPressEvent(event)
+
 class Label (QLabel):
     def __init__(self,text=""):
         super().__init__(text=text,parent = None)
@@ -696,4 +744,3 @@ class icon_button (QPushButton):
                 background-color: #03B5A9;
             }
             ''')
-
