@@ -62,6 +62,8 @@ class UserMessage(QWidget):
         self.layout.setContentsMargins(5, 5, 5, 5)
         self.layout.setSpacing(0)
 
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
+
         self.icon_label = QLabel(self)
         icon_pixmap = QIcon('feather/group1.svg').pixmap(QSize(40, 40))
         self.icon_label.setPixmap(icon_pixmap)
@@ -73,20 +75,29 @@ class UserMessage(QWidget):
         self.username_label.setStyleSheet("color: #FFFFFF;")
 
         self.message_content = QLabel(message, self)
-        self.message_content.setFont(QFont('Arial', 14))
+        self.message_content.setFont(QFont('Arial', 14,QFont.Weight.ExtraLight))
         self.message_content.setWordWrap(True)
         self.message_content.setStyleSheet("color: #FFFFFF;")
         
         self.top_layout = QHBoxLayout()
+        self.top_layout.setContentsMargins(0,0,0,0)
         self.top_layout.addWidget(self.icon_label)
+        self.top_layout.addSpacing(15)
 
-        self.top_layout.addSpacing(10) 
+        self.top_layout.addWidget(self.username_label, Qt.AlignmentFlag.AlignLeft)
+        #self.top_layout.addStretch()
 
-        self.top_layout.addWidget(self.username_label)
-        self.top_layout.addStretch()
+        self.bottom_layout = QHBoxLayout()
+        self.bottom_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.bottom_layout_spacer = QSpacerItem(55,0,QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
+
+        self.bottom_layout.addItem(self.bottom_layout_spacer)
+        self.bottom_layout.addWidget(self.message_content, Qt.AlignmentFlag.AlignLeft)
 
         self.layout.addLayout(self.top_layout)
-        self.layout.addWidget(self.message_content)
+        self.layout.addLayout(self.bottom_layout)
+        #self.layout.addWidget(self.message_content)
 
         self.setLayout(self.layout)
 
@@ -100,19 +111,29 @@ class chat(QWidget):
         self.setFont(self.font1)
 
         self.tab_layout = QVBoxLayout()
-        self.setContentsMargins(0,0,0,0)
-        self.tab_layout.setSpacing(15)
+        self.setContentsMargins(20, 20, 20 ,0)
+        self.tab_layout.setSpacing(20)
 
         self.chat_box = PlainTextEdit()
         self.chat_box.setReadOnly(True)
         self.chat_scroll_area = QScrollArea()
+        self.chat_scroll_area.setStyleSheet('''
+        QScrollArea
+        {
+            background: #202020;
+            border-top: 2px solid #494949;
+            border-bottom: 2px solid #494949;
+            border-radius:0;
+        }
+        ''')
         self.chat_scroll_area.setWidgetResizable(True)
         self.chat_scroll_widget = QWidget()
         self.chat_scroll_layout = QVBoxLayout(self.chat_scroll_widget)
-        self.chat_scroll_layout.addWidget(self.chat_box)
+        # self.chat_scroll_layout.addWidget(self.chat_box)
         self.chat_scroll_area.setWidget(self.chat_scroll_widget)
 
         self.chat_input_layout = QHBoxLayout()
+        self.chat_input_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.chat_input_layout.setContentsMargins(0,0,0,0)
         self.chat_input_layout.setSpacing(5)
 
@@ -139,7 +160,7 @@ class chat(QWidget):
         message = self.chat_input.text()
         if message:
             user_message_widget = UserMessage(message)
-            self.chat_scroll_layout.addWidget(user_message_widget)
+            self.chat_scroll_layout.addWidget(user_message_widget,alignment=Qt.AlignmentFlag.AlignTop)
             
             self.save_message(message)
             self.chat_input.clear()
@@ -275,14 +296,18 @@ class TabWidget(QTabWidget):
         self.setFont(self.font1)
         self.setContentsMargins(0,0,0,0)
         self.setStyleSheet('''
-        QTabWidget QWidget{
-        border: none;
+        QTabWidget QWidget
+        {
+            border: none;
         }
-        QTabWidget QFrame{
-        border:none;
         
+        QTabWidget QFrame
+        {
+            border: none;
         }
-        QTabWidget::pane {
+        
+        QTabWidget::pane 
+        {
             margin-top:-2px;
             border: none;
             background: #202020;
@@ -290,7 +315,9 @@ class TabWidget(QTabWidget):
             border-bottom-left-radius:10px;
             border-bottom-right-radius:10px;
         }
-        QTabWidget::tab-bar{
+        
+        QTabWidget::tab-bar
+        {
             top:0px;
             bottom:0px;
             border:none;
@@ -298,7 +325,9 @@ class TabWidget(QTabWidget):
             margin:1.5px;
             alignment:left;
         }
-        QTabBar::tab:top {
+        
+        QTabBar::tab:top 
+        {
             top:0px;
             color:#FFFFFF;
             background:#202020;
@@ -306,8 +335,8 @@ class TabWidget(QTabWidget):
             border-top-right-radius:10px;
             border-top-left-radius:10px;
             margin-top:0px;
-            margin-left:1.5px;
-            margin-right:1.5px;
+            margin-left:6px;
+            margin-right:0px;
             margin-bottom:0px;
             /*total height of the tab must be 38px, but the borders of the tab belong to a frame so */
             padding-left:7px;
@@ -317,6 +346,7 @@ class TabWidget(QTabWidget):
             height:34px;
             width:125px;
         }
+        
         /*commented because it does not render fast enough when moving tabs around*/
         /*QTabBar::tab::first
         {
@@ -341,35 +371,40 @@ class TabWidget(QTabWidget):
             border-bottom: 2px solid #202020;
         }
         
-        
-        QTabBar::tab:!selected {
+        QTabBar::tab:!selected
+        {
             background: #494949;
             border-bottom: 2px solid #494949;
             
         }
-        QTabBar::tab:!selected:hover {
+        QTabBar::tab:!selected:hover
+        {
             background: #03B5A9;
             border: 2px solid #03B5A9;
             border-bottom: 2px solid #494949;
         
         }
-        QTabBar::close-button {
+        QTabBar::close-button
+        {
             background: transparent;
             subcontrol-position: right;
             image: url(feather(3px)/x.svg);v
         }
 
-        QTabBar::close-button:hover {
+        QTabBar::close-button:hover
+        {
             border-radius:10px;
             background:#494949;
         }
-        QTabBar::close-button:pressed {
+        
+        QTabBar::close-button:pressed
+        {
             border-radius:10px;
             background:#FF0000;
         }
+        
         QTabBar QToolButton
         {
-            
             background-color: #202020;
             border-image: none;
             border: 2px solid #202020;
@@ -380,11 +415,13 @@ class TabWidget(QTabWidget):
             margin-top:0;
             margin-left:1px;
         }
+        
         QTabBar QToolButton:hover 
         {
             background-color: #2d2d2d;
             border: 2px solid #2d2d2d;
         }
+        
         QTabBar QToolButton:pressed 
         {
             
@@ -396,11 +433,13 @@ class TabWidget(QTabWidget):
         { /* the width of the scroll buttons */
             width:74px;
         }
+        
         QTabBar::tear
         {
             background:none;
             border:none;
         } 
+        
         QTabBar QToolButton::right-arrow 
         {
             image: url(feather(3px)/arrow-right.svg);
@@ -410,10 +449,12 @@ class TabWidget(QTabWidget):
         {
             image: url(feather(3px)/arrow-left.svg);
         }
+        
         QTabBar QToolButton::left-arrow:disabled 
         {
             image: url(feather(3px)/arrow-left-disabled.svg)
         }
+        
         QTabBar QToolButton::right-arrow:disabled 
         {
             image: url(feather(3px)/arrow-right-disabled.svg)
@@ -430,14 +471,14 @@ class TabWidget(QTabWidget):
 
         self.addButton = icon_button(initial_icon='feather(3px)/plus.svg',icon_square_len=16, button_square_len=34)
 
-        test1 = QWidget()
-        test1.setContentsMargins(0,0,0,0)
-        test = QHBoxLayout()
-        test.setContentsMargins(0,0,4,4)
-        test.setSpacing(0)
-        test.addWidget(self.addButton, alignment=Qt.AlignmentFlag.AlignBottom)
-        test1.setLayout(test)
-        self.setCornerWidget(test1, Qt.Corner.TopRightCorner)
+        corner_widget = QWidget()
+        corner_widget.setContentsMargins(0,0,0,0)
+        corner_widget_layout = QHBoxLayout()
+        corner_widget_layout.setContentsMargins(0,0,4,4)
+        corner_widget_layout.setSpacing(0)
+        corner_widget_layout.addWidget(self.addButton, alignment=Qt.AlignmentFlag.AlignBottom)
+        corner_widget.setLayout(corner_widget_layout)
+        self.setCornerWidget(corner_widget, Qt.Corner.TopRightCorner)
 
         #DELETE THIS, CONNEC THSI WHEN YOU CREATE A A CHAT BOX FILE
         self.addButton.clicked.connect(lambda : self.addTab2(widget=chat()))
@@ -535,7 +576,7 @@ class docks(QDockWidget):
         self.frame.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.frame.setContentsMargins(0,0,0,0)
-        self.frame_layout.setContentsMargins(0,0,0,0)
+        self.frame_layout.setContentsMargins(10,10,10,10,)
         self.frame_layout.setSpacing(0)
         self.frame_layout.addWidget(widget_to_dock)
         self.setWidget(self.frame)
