@@ -34,6 +34,56 @@ class file_explorer(QWidget):
             border-left: 0;
             border-radius:0;
         }
+        
+        QScrollBar:vertical 
+        {
+             border: 2px solid #2d2d2d;
+             background: transparent;
+             width: 15px;
+             margin: 22px 0 22px 0;
+             border-radius:6px;
+         }
+         
+         QScrollBar::handle:vertical 
+         {
+             background: #2d2d2d;
+             border:2px solid transparent;
+             min-height: 20px;
+             border-radius:5px;
+         }
+        
+         QScrollBar::add-line:vertical 
+         {
+             border: 2px solid transparent;
+             background: transparent;
+             height: 20px;
+             border-radius:5px;
+             subcontrol-position: bottom;
+             subcontrol-origin: margin;
+         }
+        
+         QScrollBar::sub-line:vertical 
+         {
+             border: 2px solid transparent;
+             background: transparent;
+             height: 20px;
+             border-radius:5px;
+             subcontrol-position: top;
+             subcontrol-origin: margin;
+         }
+         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical 
+         {
+             border: 2px solid transparent;
+             width: 3px;
+             height: 3px;
+             border-radius:3px;
+             background: transparent;
+         }
+        
+         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical 
+         {
+             background: none;
+         }
         ''')
 
         self.open_folder_button = icon_button(initial_icon='feather/folder.svg', icon_square_len=22, button_square_len=34)
@@ -47,6 +97,7 @@ class file_explorer(QWidget):
         self.file_explorer_layout.addWidget(self.add_file_button)
 
         self.file_explorer_vertical_layout = QVBoxLayout()
+        self.file_explorer_vertical_layout.setSpacing(8)
         self.file_explorer_vertical_layout.addLayout(self.file_explorer_layout)
         self.file_explorer_vertical_layout.addWidget(self.file_list)
 
@@ -116,7 +167,8 @@ class CustomListItem(QWidget):
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
 
         self.label = Label(text)
-        self.label.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
+        self.label.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
 
         self.image_preview_widget = image_preview_widget
         self.list_widget = list_widget
@@ -172,7 +224,8 @@ class CustomListItem(QWidget):
             self.is_image_displayed = False
         elif os.path.isfile(file_path):
             self.test =  QPixmap(file_path)
-            self.image_preview_widget.setPixmap(self.test)
+            # self.image_preview_widget.setPixmap(self.test.scaled(120, 90,Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            self.image_preview_widget.setPixmap2(self.test)
             self.image_preview_widget.currentImage = QPixmap(file_path)
             self.image_preview_widget.currentImagePath = file_path
             self.world_button.setIcon(QIcon('feather/x.svg'))

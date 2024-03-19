@@ -592,16 +592,16 @@ class Label (QLabel):
         super().__init__(text=text,parent = None)
 
         self.setFixedHeight(34)
-        self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         font1 = QFont('Arial')
         font1.setPixelSize(13)
-        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
         self.setFont(font1)
+        self.setWordWrap(False)
+        self.setObjectName("Label")
         self.setStyleSheet('''
         Label
         {
             background: #202020;
-            padding: none 16px;
+            padding: 0 16px;
             border-top:0;
             border-bottom:2px solid #494949;
             border-right:0;

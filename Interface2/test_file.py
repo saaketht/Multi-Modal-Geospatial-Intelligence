@@ -116,6 +116,15 @@ class MainWindow (QMainWindow):
         testF.setLayout(testF_layout)
 
         layout.addWidget(testF)
+        
+        # self.label = Label("Test")
+        # self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # #self.label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
+        # self.label2 = QLabel("Test")
+        # self.label2.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        # self.label2.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        # layout.addWidget(self.label)
+        # layout.addWidget(self.label2)
 
         #self.chatbox_layout.addLayout(self.chatbox_input_layout)
 
