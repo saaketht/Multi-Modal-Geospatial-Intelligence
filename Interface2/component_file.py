@@ -54,15 +54,15 @@ class PlainTextEdit(QPlainTextEdit):
         
         ''')
 
-
 class UserMessage(QWidget):
     def __init__(self, message, parent=None):
         super().__init__(parent=parent)
+        self.setContentsMargins(0,0,0,0)
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(5, 5, 5, 5)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
         self.icon_label = QLabel(self)
         icon_pixmap = QIcon('feather/group1.svg').pixmap(QSize(40, 40))
@@ -75,12 +75,12 @@ class UserMessage(QWidget):
         self.username_label.setStyleSheet("color: #FFFFFF;")
 
         self.message_content = QLabel(message, self)
-        self.message_content.setFont(QFont('Arial', 14,QFont.Weight.ExtraLight))
+        self.message_content.setFont(QFont('Arial', 14, QFont.Weight.ExtraLight))
         self.message_content.setWordWrap(True)
         self.message_content.setStyleSheet("color: #FFFFFF;")
         
         self.top_layout = QHBoxLayout()
-        self.top_layout.setContentsMargins(0,0,0,0)
+        self.top_layout.setContentsMargins(0, 0, 0, 0)
         self.top_layout.addWidget(self.icon_label)
         self.top_layout.addSpacing(15)
 
@@ -90,7 +90,7 @@ class UserMessage(QWidget):
         self.bottom_layout = QHBoxLayout()
         self.bottom_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.bottom_layout_spacer = QSpacerItem(55,0,QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
+        self.bottom_layout_spacer = QSpacerItem(55, 0, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
 
         self.bottom_layout.addItem(self.bottom_layout_spacer)
         self.bottom_layout.addWidget(self.message_content, Qt.AlignmentFlag.AlignLeft)
@@ -102,8 +102,9 @@ class UserMessage(QWidget):
         self.setLayout(self.layout)
 
 class chat(QWidget):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
+        self.index = 0
 
         self.font1 = QFont('Arial')
         self.font1.setPixelSize(13)
@@ -111,7 +112,7 @@ class chat(QWidget):
         self.setFont(self.font1)
 
         self.tab_layout = QVBoxLayout()
-        self.setContentsMargins(20, 20, 20 ,0)
+        self.setContentsMargins(20, 20, 20, 20)
         self.tab_layout.setSpacing(20)
 
         self.chat_box = PlainTextEdit()
@@ -120,20 +121,71 @@ class chat(QWidget):
         self.chat_scroll_area.setStyleSheet('''
         QScrollArea
         {
+            padding:0;
             background: #202020;
             border-top: 2px solid #494949;
             border-bottom: 2px solid #494949;
             border-radius:0;
+            margin:0;
         }
+        
+        QScrollBar:vertical 
+        {
+             border: 2px solid #2d2d2d;
+             background: transparent;
+             width: 15px;
+             margin: 22px 0 22px 0;
+             border-radius:6px;
+         }
+         QScrollBar::handle:vertical {
+             background: #2d2d2d;
+             border:2px solid transparent;
+             min-height: 20px;
+             border-radius:5px;
+         }
+        
+         QScrollBar::add-line:vertical {
+             border: 2px solid transparent;
+             background: transparent;
+             height: 20px;
+             border-radius:5px;
+             subcontrol-position: bottom;
+             subcontrol-origin: margin;
+         }
+        
+         QScrollBar::sub-line:vertical {
+             border: 2px solid transparent;
+             background: transparent;
+             height: 20px;
+             border-radius:5px;
+             subcontrol-position: top;
+             subcontrol-origin: margin;
+         }
+         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+             border: 2px solid transparent;
+             width: 3px;
+             height: 3px;
+             border-radius:3px;
+             background: transparent;
+         }
+        
+         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+             background: none;
+         }
         ''')
         self.chat_scroll_area.setWidgetResizable(True)
         self.chat_scroll_widget = QWidget()
         self.chat_scroll_layout = QVBoxLayout(self.chat_scroll_widget)
+        self.chat_scroll_layout.setContentsMargins(0, 15, 0, 15)
+        self.chat_scroll_layout.setSpacing(40)
+        #self.chat_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop.AlignLeft)
+        self.chat_scroll_layout.addStretch()
+
         # self.chat_scroll_layout.addWidget(self.chat_box)
         self.chat_scroll_area.setWidget(self.chat_scroll_widget)
 
         self.chat_input_layout = QHBoxLayout()
-        self.chat_input_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.chat_input_layout.setAlignment(Qt.AlignmentFlag.AlignTop.AlignLeft)
         self.chat_input_layout.setContentsMargins(0,0,0,0)
         self.chat_input_layout.setSpacing(5)
 
@@ -161,7 +213,9 @@ class chat(QWidget):
         if message:
             user_message_widget = UserMessage(message)
             self.chat_scroll_layout.addWidget(user_message_widget,alignment=Qt.AlignmentFlag.AlignTop)
-            
+            self.chat_scroll_layout.insertWidget(self.index, user_message_widget,0,Qt.AlignmentFlag.AlignLeft.AlignTop)
+            self.index+=1
+
             self.save_message(message)
             self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
@@ -503,7 +557,6 @@ class TabWidget(QTabWidget):
         icon = QIcon('feather(2.5px)/globe.svg')
         self.insertTab(temp,widget, icon, title)
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
-
         self.index += 1
 
 class LineEdit (QLineEdit):
