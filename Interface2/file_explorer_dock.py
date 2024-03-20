@@ -166,6 +166,8 @@ class CustomListItem(QWidget):
 
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
 
+        self.label_placeholder = image_preview_widget.text()
+
         self.label = Label(text)
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
         self.label.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
@@ -218,6 +220,7 @@ class CustomListItem(QWidget):
         file_path = self.label.text()
         if self.is_image_displayed:
             self.image_preview_widget.clear()
+            self.image_preview_widget.setText(self.label_placeholder)
             self.world_button.setIcon(QIcon('feather/globe.svg'))
             self.image_preview_widget.currentImage = None
             self.image_preview_widget.currentImagePath = None
