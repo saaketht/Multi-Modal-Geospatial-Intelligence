@@ -18,13 +18,15 @@ class interactive_map_widget(QWidget):
     def __init__(self):
         super().__init__()
         self.m = folium.Map(
-            location=[28.598, -81.1974],attr="<a href=''></a>", tiles="https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png", zoom_start=17
+            location=[28.598, -81.1974],tiles="openstreetmap",
+            zoom_start=17,max_zoom=18
         )
-
+        folium.TileLayer(attr="<a href=''></a>",
+            tiles="https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png").add_to(self.m)
         self.data = io.BytesIO()
         self.m.save(self.data, close_file=False)
 
-        self.w = QtWebEngineWidgets.QWebEngineView()
+        self.w = QtWebEngineWidgets.QWebEngineView(self)
         self.w.setHtml(self.data.getvalue().decode())
 
         self.layout = QHBoxLayout()
