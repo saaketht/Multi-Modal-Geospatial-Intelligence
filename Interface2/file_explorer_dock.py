@@ -37,23 +37,20 @@ class file_explorer(QWidget):
         
         QScrollBar:vertical 
         {
-             border: 2px solid #2d2d2d;
+             border: 2px solid transparent;
              background: transparent;
              width: 15px;
              margin: 22px 0 22px 0;
              border-radius:6px;
          }
-         
-         QScrollBar::handle:vertical 
-         {
-             background: #2d2d2d;
+         QScrollBar::handle:vertical {
+             background: #494949;
              border:2px solid transparent;
              min-height: 20px;
              border-radius:5px;
          }
         
-         QScrollBar::add-line:vertical 
-         {
+         QScrollBar::add-line:vertical {
              border: 2px solid transparent;
              background: transparent;
              height: 20px;
@@ -62,8 +59,7 @@ class file_explorer(QWidget):
              subcontrol-origin: margin;
          }
         
-         QScrollBar::sub-line:vertical 
-         {
+         QScrollBar::sub-line:vertical {
              border: 2px solid transparent;
              background: transparent;
              height: 20px;
@@ -71,13 +67,16 @@ class file_explorer(QWidget):
              subcontrol-position: top;
              subcontrol-origin: margin;
          }
-         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical 
-         {
+         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
              border: 2px solid transparent;
              width: 3px;
              height: 3px;
              border-radius:3px;
              background: transparent;
+         }
+        
+         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+             background: none;
          }
         
          QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical 

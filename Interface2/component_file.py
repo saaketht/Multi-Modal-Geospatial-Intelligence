@@ -131,14 +131,14 @@ class chat(QWidget):
         
         QScrollBar:vertical 
         {
-             border: 2px solid #2d2d2d;
+             border: 2px solid transparent;
              background: transparent;
              width: 15px;
              margin: 22px 0 22px 0;
              border-radius:6px;
          }
          QScrollBar::handle:vertical {
-             background: #2d2d2d;
+             background: #494949;
              border:2px solid transparent;
              min-height: 20px;
              border-radius:5px;

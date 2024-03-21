@@ -19,19 +19,29 @@ class interactive_map_widget(QWidget):
         super().__init__()
         self.m = folium.Map(
             location=[28.598, -81.1974],tiles="openstreetmap",
-            zoom_start=17,max_zoom=18
-        )
+            zoom_start=15)
+        
         folium.TileLayer(attr="<a href=''></a>",
             tiles="https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png").add_to(self.m)
         self.data = io.BytesIO()
         self.m.save(self.data, close_file=False)
 
         self.w = QtWebEngineWidgets.QWebEngineView(self)
+        self.w.setWindowFlag(Qt.WindowType.FramelessWindowHint)
+        self.w.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
+
         self.w.setHtml(self.data.getvalue().decode())
 
         self.layout = QHBoxLayout()
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.w)
         self.setLayout(self.layout)
+
+        self.w.setStyleSheet('''
+                    border:2px solid #494949;
+                    border-radius:10px;
+                ''')
 
 # class MapWindow(QWidget):
 #     def __init__(self, base_coords):
