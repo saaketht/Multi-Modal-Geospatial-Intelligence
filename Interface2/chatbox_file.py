@@ -1,5 +1,5 @@
 from component_file import *
-
+from send import sendAndReceive
 
 class UserMessage(QWidget):
     def __init__(self, message, parent=None):
@@ -159,22 +159,27 @@ class chat(QWidget):
 
     def send_message(self):
         message = self.chat_input.text()
+        # TODO: check for chat history here, if none call sendandreceive with no chat history else
+        # call with chat history
         if message:
             user_message_widget = UserMessage(message)
             self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
             self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,
                                                  Qt.AlignmentFlag.AlignLeft.AlignTop)
             self.index += 1
-
+            # TODO: add the dictionary append area
             self.save_message(message)
             self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
-
-            # TODO: Integrate with model
+        # TODO: fill in below sendandrecieve call with the prompt/message from user and
+        #  the path to current image being viewed
+        # sendAndRecieve(prompt, picturepath as string)
+        # TODO: Integrate with model
         # self.receive_message("Model response here...")
 
         # TODO: Method for recieving model response
+
         # def receive_message(self, message):
         #     self.chat_box.appendPlainText(message)
         #     self.save_message(message)
