@@ -2,6 +2,7 @@ import sys
 from PyQt6.QtCore import Qt, QSize,QRect, pyqtSignal
 from PyQt6.QtGui import QIcon,QFont, QFontDatabase, QPainter,QBrush,QColor
 from PyQt6.QtWidgets import QStyleOptionTabWidgetFrame
+from send import sendAndReceive
 from PyQt6.QtWidgets import (
     QApplication,
     QBoxLayout,
@@ -221,12 +222,15 @@ class chat(QWidget):
             self.save_message(message)
             self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
-            self.update() 
-
+            self.update()
+        # TODO: fill in below sendandrecieve call with the prompt/message from user and
+        #  the path to current image being viewed
+        # sendAndRecieve(prompt, picturepath as string)
             # TODO: Integrate with model
         # self.receive_message("Model response here...")
 
         # TODO: Method for recieving model response
+
         # def receive_message(self, message):
         #     self.chat_box.appendPlainText(message)
         #     self.save_message(message)
