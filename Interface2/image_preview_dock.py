@@ -81,14 +81,8 @@ class image_preview_widget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # self.setMaximumSize(315, 317)
-
     def setPixmap2(self, p):
-        h = p.height()
-        w = p.width()
-        ratio = h/w
         self.setPixmap(p)
-        self.resize(0.1 * QSize(w, h))
-        self.update()
 
 
         # labelRatio = self.height()/self.width()
