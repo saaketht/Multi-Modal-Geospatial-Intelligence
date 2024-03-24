@@ -210,12 +210,14 @@ class chat(QWidget):
         # chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
     def send_message(self):
         message = self.chat_input.text()
+        # TODO: check for chat history here, if none call sendandreceive with no chat history else
+        # call with chat history
         if message:
             user_message_widget = UserMessage(message)
             self.chat_scroll_layout.addWidget(user_message_widget,alignment=Qt.AlignmentFlag.AlignTop)
             self.chat_scroll_layout.insertWidget(self.index, user_message_widget,0,Qt.AlignmentFlag.AlignLeft.AlignTop)
             self.index+=1
-
+            # TODO: add the dictionary append area
             self.save_message(message)
             self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
