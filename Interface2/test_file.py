@@ -1,4 +1,5 @@
 from component_file import*
+#from chatbox_file import *
 from PyQt6.QtGui import QPixmap, QPicture
 class MainWindow (QMainWindow):
     def __init__(self):
@@ -115,7 +116,12 @@ class MainWindow (QMainWindow):
         test2.setDisabled(True)
         testF.setLayout(testF_layout)
 
-        layout.addWidget(testF)
+        #test slider
+        test1 = Slider(Qt.Orientation.Horizontal)
+        test1.setMinimum(0)
+        test1.setMaximum(10)
+
+        layout.addWidget(test1)
         
         # self.label = Label("Test")
         # self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -139,9 +145,9 @@ class MainWindow (QMainWindow):
         placeholder2 = QLabel("Test")
         placeholder3 = QLabel("Test")
 
-        self.dockwidget = docks('Dock', placeholder)
-        self.dockwidget2 = docks('Dock', placeholder2)
-        self.dockwidget3 = docks('Dock', placeholder3)
+        self.dockwidget = DockWidget('Dock', placeholder)
+        self.dockwidget2 = DockWidget('Dock', placeholder2)
+        self.dockwidget3 = DockWidget('Dock', placeholder3)
 
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dockwidget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dockwidget2)

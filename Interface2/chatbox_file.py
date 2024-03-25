@@ -1,5 +1,18 @@
 from component_file import *
-from send import sendAndReceive
+from pyqtconfig import ConfigManager
+from PyQt6.QtCore import QFile, QDataStream, QIODevice, Qt
+from PyQt6.QtWidgets import (
+    QDialog,
+    QDialogButtonBox
+
+)
+#from send import sendAndReceive
+
+# class AddNewTabDialog(QDialog):
+#     def __init__(self):
+#         super().__init__()
+#
+
 
 class UserMessage(QWidget):
     def __init__(self, message, parent=None):
@@ -195,6 +208,43 @@ class chat(QWidget):
                     self.chat_box.appendPlainText(line.strip())
         except FileNotFoundError:
             pass
+
+    def add_dataset(self, _obj, treeWidget):
+        """adds new QTreeWidgetItem when 'addItemSignal' is emitted from ImportDataDialog"""
+        tree_obj = QTreeWidgetItem([_obj.name])
+        tree_obj.setData(1, Qt.ItemDataRole.UserRole, _obj)
+        treeWidget.addTopLevelItem(tree_obj)
+
+    def action_saveworkspace_triggered(self, filename, treeWidget):
+        """Saves current workspace to the selected file"""
+        file = QFile(filename)
+        file.open(QIODevice.WriteOnly)
+        datastream = QDataStream(file)
+        root_item = treeWidget.invisibleRootItem()
+
+        # write the total number of items to be stored
+        datastream.writeUInt32(root_item.childCount())
+
+        # write all data (= all elements of the TreeWidget) to the file
+        for n in range(root_item.childCount()):
+            item = root_item.child(n)
+            item.write(datastream)
+
+    def action_loadworkspace_triggered(self, filename, treeWidget):
+        """Loads workspace from file"""
+
+        # open the file and create datastream
+        file = QFile(filename)
+        file.open(QIODevice.ReadOnly)
+        datastream = QDataStream(file)
+        root_item = treeWidget.invisibleRootItem()
+
+        # read all data from the file and create a TreeWidgetItem for each entry
+        for n in range(datastream.readUInt32()):
+            item = QTreeWidgetItem(root_item)
+            item.read(datastream)
+            data = item.data(1, Qt.ItemDataRole.UserRole)
+
 
 class ChatTabWidget(TabWidget):
     def __init__(self, parent=None):
