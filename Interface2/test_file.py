@@ -1,5 +1,5 @@
 from component_file import*
-#from chatbox_file import *
+from chatbox_file import *
 from PyQt6.QtGui import QPixmap, QPicture
 class MainWindow (QMainWindow):
     def __init__(self):

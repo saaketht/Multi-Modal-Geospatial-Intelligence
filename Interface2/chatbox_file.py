@@ -1,18 +1,17 @@
 from component_file import *
 from pyqtconfig import ConfigManager
-from PyQt6.QtCore import QFile, QDataStream, QIODevice, Qt
+from PyQt6.QtCore import QFile, QDataStream, QIODevice, Qt, QStandardPaths
 from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox
 
 )
-from send import send_and_receive
+#from send import send_and_receive
 
 # class AddNewTabDialog(QDialog):
 #     def __init__(self):
 #         super().__init__()
 #
-
 
 class UserMessage(QWidget):
     def __init__(self, message, parent=None):
@@ -113,10 +112,13 @@ class chat(QWidget):
         super().__init__(parent=parent)
         self.index = 0
 
+        self.title_prompt = "Untitled"
         self.font1 = QFont('Arial')
         self.font1.setPixelSize(13)
         self.font1.setWeight(1000)
         self.setFont(self.font1)
+
+        self.current_image_path = ""
 
         self.tab_layout = QVBoxLayout()
         self.setContentsMargins(20, 20, 20, 20)
@@ -186,7 +188,7 @@ class chat(QWidget):
         self.chat_scroll_layout.setContentsMargins(0, 15, 0, 15)
         self.chat_scroll_layout.setSpacing(10)
         # self.chat_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop.AlignLeft)
-        # self.chat_scroll_layout.addStretch()
+        self.chat_scroll_layout.addStretch()
 
         # self.chat_scroll_layout.addWidget(self.chat_box)
         self.chat_scroll_area.setWidget(self.chat_scroll_widget)
@@ -215,6 +217,10 @@ class chat(QWidget):
         #
         # tab_title = f"Tab {chat_widget.count() + 1}"
         # chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
+
+        self.messages = []
+    def setCurrentImagePath(self, image_path):
+        self.current_image_path = image_path
 
     def send_message(self):
         message = self.chat_input.text()
@@ -249,9 +255,9 @@ class chat(QWidget):
 
         # TODO: Method for recieving model response
 
-        # def receive_message(self, message):
-        #     self.chat_box.appendPlainText(message)
-        #     self.save_message(message)
+    def receive_message(self, message):
+        self.chat_box.appendPlainText(message)
+        self.save_message(message)
 
     def save_message(self, message, sender="User"):
         with open("chat_history.txt", "a") as file:
@@ -265,18 +271,33 @@ class chat(QWidget):
         except FileNotFoundError:
             pass
 
-    def add_dataset(self, _obj, treeWidget):
-        """adds new QTreeWidgetItem when 'addItemSignal' is emitted from ImportDataDialog"""
-        tree_obj = QTreeWidgetItem([_obj.name])
-        tree_obj.setData(1, Qt.ItemDataRole.UserRole, _obj)
-        treeWidget.addTopLevelItem(tree_obj)
 
-    def action_saveworkspace_triggered(self, filename, treeWidget):
+class ChatTabWidget(TabWidget):
+    def __init__(self,app_data_path, chat_history_widget, parent=None):
+        super().__init__(parent=parent)
+        self.addTab2(widget=chat())
+        self.addTab2(widget=chat())
+        #self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
+        self.app_data_path = app_data_path
+        self.addButton.clicked.connect(lambda: self.add_new_chat())
+
+
+    #this will be connected to the  add button.
+    def add_new_chat(self):
+        """adds new QTreeWidgetItem when 'addItemSignal' is emitted from ImportDataDialog"""
+        #get the name from the dialog box, replace _obj.name
+        self.tempWidget = chat()
+        self.addTab2(widget=self.tempWidget)
+        tree_obj = QTreeWidgetItem([self.tempWidget.title_prompt])
+        tree_obj.setData(1, Qt.ItemDataRole.UserRole, self.tempWidget)
+        # tree_widget.addTopLevelItem(tree_obj)
+
+    def action_saveworkspace_triggered(self, filename, tree_widget):
         """Saves current workspace to the selected file"""
         file = QFile(filename)
         file.open(QIODevice.WriteOnly)
         datastream = QDataStream(file)
-        root_item = treeWidget.invisibleRootItem()
+        root_item = tree_widget.invisibleRootItem()
 
         # write the total number of items to be stored
         datastream.writeUInt32(root_item.childCount())
@@ -286,25 +307,17 @@ class chat(QWidget):
             item = root_item.child(n)
             item.write(datastream)
 
-    def action_loadworkspace_triggered(self, filename, treeWidget):
+    def action_loadworkspace_triggered(self, filename, tree_widget):
         """Loads workspace from file"""
 
         # open the file and create datastream
         file = QFile(filename)
         file.open(QIODevice.ReadOnly)
         datastream = QDataStream(file)
-        root_item = treeWidget.invisibleRootItem()
+        root_item = tree_widget.invisibleRootItem()
 
         # read all data from the file and create a TreeWidgetItem for each entry
         for n in range(datastream.readUInt32()):
             item = QTreeWidgetItem(root_item)
             item.read(datastream)
             data = item.data(1, Qt.ItemDataRole.UserRole)
-
-
-class ChatTabWidget(TabWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.addTab2(widget=chat())
-        self.addTab2(widget=chat())
-        self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
