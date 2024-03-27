@@ -7,12 +7,13 @@ from PyQt6.QtCore import pyqtSignal as Signal
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6 import QtWebEngineWidgets
-
 from ipyleaflet import Map, Marker, LayersControl, basemaps
 from ipywidgets import HTML, IntSlider
 from ipywidgets.embed import embed_data
 import folium
 import io
+from pathlib import Path
+
 class interactive_map_widget(QWidget):
     def __init__(self):
         super().__init__()
@@ -67,6 +68,8 @@ class interactive_map_widget(QWidget):
             }
         """)
 
+        self.analyzeButton.clicked.connect(lambda: self.take_screenshot("uploads/screenshot.png"))
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
 
@@ -75,6 +78,10 @@ class interactive_map_widget(QWidget):
         new_x_position = int((self.width() - button_width) // 2)
         new_y_position = int(self.height() - button_height - 10)  
         self.analyzeButton.move(new_x_position, new_y_position)
+
+    def take_screenshot(self, file_path):
+        pixmap = self.w.grab()
+        pixmap.save(file_path, "PNG")
 
 
 # class MapWindow(QWidget):

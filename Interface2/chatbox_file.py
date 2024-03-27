@@ -52,6 +52,7 @@ class UserMessage(QWidget):
 
         self.bottom_layout_spacer = QSpacerItem(55, 0, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
 
+
         self.bottom_layout.addItem(self.bottom_layout_spacer)
         self.bottom_layout.addWidget(self.message_content, Qt.AlignmentFlag.AlignLeft)
 
@@ -231,11 +232,11 @@ class chat(QWidget):
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
 
-            model_message_text = "Blah Blah Blah."  # Your model's response
+            model_message_text = "Blah Blah Blah." 
             model_message_widget = ModelMessage(model_message_text)
             self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
             self.index += 1
-            self.save_message(model_message_text, sender="GEOINT")  # Save model message, specifying sender as "Model"
+            self.save_message(model_message_text, sender="GEOINT")  
             self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
