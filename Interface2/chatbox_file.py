@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox
 
 )
-#from send import sendAndReceive
+from send import send_and_receive
 
 # class AddNewTabDialog(QDialog):
 #     def __init__(self):
@@ -242,6 +242,7 @@ class chat(QWidget):
             self.update()
         # TODO: fill in below sendandrecieve call with the prompt/message from user and
         #  the path to current image being viewed
+        # TODO: have the receive message put loading message up
         # sendAndRecieve(prompt, picturepath as string)
         # TODO: Integrate with model
         # self.receive_message("Model response here...")
