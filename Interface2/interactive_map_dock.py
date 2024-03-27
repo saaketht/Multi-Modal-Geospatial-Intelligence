@@ -8,7 +8,6 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6 import QtWebEngineWidgets
 
-
 from ipyleaflet import Map, Marker, LayersControl, basemaps
 from ipywidgets import HTML, IntSlider
 from ipywidgets.embed import embed_data
@@ -42,6 +41,41 @@ class interactive_map_widget(QWidget):
                     border:2px solid #494949;
                     border-radius:10px;
                 ''')
+        
+        self.analyzeButton = QPushButton('Analyze', self)
+        globe_icon = QIcon('feather/globe.svg')  
+        self.analyzeButton.setIcon(globe_icon)
+        self.analyzeButton.setIconSize(QSize(20, 20))
+        self.analyzeButton.setFixedSize(QSize(109, 32))
+        self.analyzeButton.setStyleSheet("""
+            QPushButton {
+                padding: 6px 8px 6px 8px;
+                border-radius: 10px;
+                background-color: #202020;
+                color: white;
+                border: none;
+                text-align: center;
+                font-weight: bold;  
+                font-size: 14px;    
+                font-family: Arial; 
+            }
+            QPushButton:hover {
+                background:#494949;
+            }
+            QPushButton:pressed {
+                background-color: #03B5A9;
+            }
+        """)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+
+        button_width = self.analyzeButton.width()
+        button_height = self.analyzeButton.height()
+        new_x_position = int((self.width() - button_width) // 2)
+        new_y_position = int(self.height() - button_height - 10)  
+        self.analyzeButton.move(new_x_position, new_y_position)
+
 
 # class MapWindow(QWidget):
 #     def __init__(self, base_coords):

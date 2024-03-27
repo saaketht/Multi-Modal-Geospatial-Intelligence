@@ -143,6 +143,8 @@ class TitleBar(QFrame):
         self.layoutSub.addWidget(self.titlebar_button1)
         self.layoutSub.addWidget(self.titlebar_button2)
         self.layoutSub.addWidget(self.titlebar_button3)
+
+
 class DockTitleBar(QFrame):
     def __init__(self,title='',parent=None):
         super().__init__(parent=parent)

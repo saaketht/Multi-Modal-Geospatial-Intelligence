@@ -61,6 +61,51 @@ class UserMessage(QWidget):
 
         self.setLayout(self.layout)
 
+class ModelMessage(QWidget):
+    def __init__(self, message, parent=None):
+        super().__init__(parent=parent)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        self.icon_label = QLabel(self)
+        icon_pixmap = QIcon('feather/group2.svg').pixmap(QSize(40, 40))  
+        self.icon_label.setPixmap(icon_pixmap)
+        self.icon_label.setFixedSize(40, 40)
+        self.icon_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+
+        self.username_label = QLabel("GEOINT", self) 
+        self.username_label.setFont(QFont('Arial', 14, QFont.Weight.Bold))
+        self.username_label.setStyleSheet("color: #FFFFFF;")
+
+        self.message_content = QLabel(message, self)
+        self.message_content.setFont(QFont('Arial', 14, QFont.Weight.ExtraLight))
+        self.message_content.setWordWrap(True)
+        self.message_content.setStyleSheet("color: #FFFFFF;")
+
+        self.top_layout = QHBoxLayout()
+        self.top_layout.setContentsMargins(0, 0, 0, 0)
+        self.top_layout.addWidget(self.icon_label)
+        self.top_layout.addSpacing(15)
+
+        self.top_layout.addWidget(self.username_label, Qt.AlignmentFlag.AlignLeft)
+
+        self.bottom_layout = QHBoxLayout()
+        self.bottom_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.bottom_layout_spacer = QSpacerItem(55, 0, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+
+        self.bottom_layout.addItem(self.bottom_layout_spacer)
+        self.bottom_layout.addWidget(self.message_content, Qt.AlignmentFlag.AlignLeft)
+
+        self.layout.addLayout(self.top_layout)
+        self.layout.addLayout(self.bottom_layout)
+
+        self.setLayout(self.layout)
+
 
 class chat(QWidget):
     def __init__(self, parent=None):
@@ -76,8 +121,8 @@ class chat(QWidget):
         self.setContentsMargins(20, 20, 20, 20)
         self.tab_layout.setSpacing(20)
 
-        self.chat_box = PlainTextEdit()
-        self.chat_box.setReadOnly(True)
+        #self.chat_box = PlainTextEdit()
+        #self.chat_box.setReadOnly(True)
         self.chat_scroll_area = QScrollArea()
         self.chat_scroll_area.setStyleSheet('''
         QScrollArea
@@ -138,9 +183,9 @@ class chat(QWidget):
         self.chat_scroll_widget = QWidget()
         self.chat_scroll_layout = QVBoxLayout(self.chat_scroll_widget)
         self.chat_scroll_layout.setContentsMargins(0, 15, 0, 15)
-        self.chat_scroll_layout.setSpacing(40)
+        self.chat_scroll_layout.setSpacing(10)
         # self.chat_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop.AlignLeft)
-        self.chat_scroll_layout.addStretch()
+        # self.chat_scroll_layout.addStretch()
 
         # self.chat_scroll_layout.addWidget(self.chat_box)
         self.chat_scroll_area.setWidget(self.chat_scroll_widget)
@@ -181,7 +226,16 @@ class chat(QWidget):
                                                  Qt.AlignmentFlag.AlignLeft.AlignTop)
             self.index += 1
             # TODO: add the dictionary append area
-            self.save_message(message)
+            self.save_message(message, sender="User")
+            self.chat_input.clear()
+            self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+            self.update()
+
+            model_message_text = "Blah Blah Blah."  # Your model's response
+            model_message_widget = ModelMessage(model_message_text)
+            self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+            self.index += 1
+            self.save_message(model_message_text, sender="GEOINT")  # Save model message, specifying sender as "Model"
             self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
@@ -197,9 +251,9 @@ class chat(QWidget):
         #     self.chat_box.appendPlainText(message)
         #     self.save_message(message)
 
-    def save_message(self, message):
+    def save_message(self, message, sender="User"):
         with open("chat_history.txt", "a") as file:
-            file.write(f"{message}\n")
+            file.write(f"{sender}: {message}\n")
 
     def load_chat_history(self):
         try:
