@@ -321,3 +321,5 @@ class ChatTabWidget(TabWidget):
             item = QTreeWidgetItem(root_item)
             item.read(datastream)
             data = item.data(1, Qt.ItemDataRole.UserRole)
+
+
