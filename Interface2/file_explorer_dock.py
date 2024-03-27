@@ -89,7 +89,7 @@ class file_explorer(QWidget):
         self.open_folder_button.clicked.connect(self.open_file_dialog)
 
         self.add_file_button = icon_button(initial_icon='feather/plus.svg', icon_square_len=22, button_square_len=34)
-        self.add_file_button.clicked.connect(self.add_file_to_list)
+        self.add_file_button.clicked.connect(lambda: self.add_file_to_list(self.file_path_line_edit.text()))
 
         self.file_explorer_layout.addWidget(self.open_folder_button)
         self.file_explorer_layout.addWidget(self.file_path_line_edit)
@@ -103,45 +103,51 @@ class file_explorer(QWidget):
         self.setLayout(self.file_explorer_vertical_layout)
 
         #return docks("Map File Explorer", file_explorer_widget, self)
+    
+    def add_new_file(self, file_path):
+        self.add_file_to_list(file_path)
 
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select PNG file", "", "PNG files (*.png)")
         if file_path:
             self.file_path_line_edit.setText(file_path)
 
-    def add_file_to_list(self):
-        file_path = self.file_path_line_edit.text()
+    def add_file_to_list(self, file_path):
+        #file_path = self.file_path_line_edit.text()
         try:
             if file_path and os.path.isfile(file_path):
-                base_name = os.path.basename(file_path)
-                new_file_path = os.path.join(self.uploads_folder, base_name)
+                if os.path.dirname(file_path) == self.uploads_folder:
+                    new_file_path = file_path
+                else:
+                    base_name = os.path.basename(file_path)
+                    new_file_path = os.path.join(self.uploads_folder, base_name)
 
-                file_root, file_extension = os.path.splitext(base_name)
-                counter = 1
-                while os.path.exists(new_file_path):
-                    new_file_name = f"{file_root}_{counter}{file_extension}"
-                    new_file_path = os.path.join(self.uploads_folder, new_file_name)
-                    counter += 1
+                    file_root, file_extension = os.path.splitext(base_name)
+                    counter = 1
+                    while os.path.exists(new_file_path):
+                        new_file_name = f"{file_root}_{counter}{file_extension}"
+                        new_file_path = os.path.join(self.uploads_folder, new_file_name)
+                        counter += 1
 
-                shutil.copy(file_path, new_file_path)
+                    shutil.copy(file_path, new_file_path)
 
-                custom_list_item_widget = CustomListItem(new_file_path, self.image_preview_widget, self.file_list)
+                    custom_list_item_widget = CustomListItem(new_file_path, self.image_preview_widget, self.file_list)
 
-                list_widget_item = QListWidgetItem(self.file_list)
-                list_widget_item.setSizeHint(custom_list_item_widget.sizeHint())
+                    list_widget_item = QListWidgetItem(self.file_list)
+                    list_widget_item.setSizeHint(custom_list_item_widget.sizeHint())
 
-                self.file_list.addItem(list_widget_item)
-                self.file_list.setItemWidget(list_widget_item, custom_list_item_widget)
-                custom_list_item_widget.remove_button.clicked.connect(lambda: self.remove_item(list_widget_item))
+                    self.file_list.addItem(list_widget_item)
+                    self.file_list.setItemWidget(list_widget_item, custom_list_item_widget)
+                    custom_list_item_widget.remove_button.clicked.connect(lambda: self.remove_item(list_widget_item))
 
-                custom_list_item_widget.list_widget_item = list_widget_item
+                    custom_list_item_widget.list_widget_item = list_widget_item
 
-                self.file_path_line_edit.clear()
+                    self.file_path_line_edit.clear()
             else:
                 QMessageBox.information(self, "Error", "Invalid file path.")
         except Exception as e:
-            print(f"An error occurred: {e}")
-            QMessageBox.critical(self, "Error", f"An unexpected error occurred: {e}")
+                print(f"An error occurred: {e}")
+                QMessageBox.critical(self, "Error", f"An unexpected error occurred: {e}")
 
     def remove_item(self, list_widget_item):
         try:

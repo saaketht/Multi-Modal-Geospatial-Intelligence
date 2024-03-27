@@ -13,10 +13,13 @@ from ipywidgets.embed import embed_data
 import folium
 import io
 from pathlib import Path
+from file_explorer_dock import *
 
 class interactive_map_widget(QWidget):
+    screenshotTaken = pyqtSignal(str)
     def __init__(self):
         super().__init__()
+        
         self.m = folium.Map(
             location=[28.598, -81.1974],tiles="openstreetmap",
             zoom_start=15)
@@ -81,7 +84,8 @@ class interactive_map_widget(QWidget):
 
     def take_screenshot(self, file_path):
         pixmap = self.w.grab()
-        pixmap.save(file_path, "PNG")
+        if pixmap.save(file_path, "PNG"):
+            self.screenshotTaken.emit(file_path)
 
 
 # class MapWindow(QWidget):
