@@ -6,12 +6,14 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox
 
 )
+import os, sys
+from datetime import time
+
 #from send import send_and_receive
 
 # class AddNewTabDialog(QDialog):
 #     def __init__(self):
 #         super().__init__()
-#
 
 class UserMessage(QWidget):
     def __init__(self, message, parent=None):
@@ -108,7 +110,7 @@ class ModelMessage(QWidget):
 
 
 class chat(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self,chat_folder_path_name, parent=None):
         super().__init__(parent=parent)
         self.index = 0
 
@@ -273,31 +275,29 @@ class chat(QWidget):
 
 
 class ChatTabWidget(TabWidget):
-    def __init__(self,app_data_path, chat_history_widget, parent=None):
+    def __init__(self,app_data_path_type, chat_history_widget, parent=None):
         super().__init__(parent=parent)
-        self.addTab2(widget=chat())
-        self.addTab2(widget=chat())
+        self.addTab2(widget=chat(""))
+        self.addTab2(widget=chat(""))
         #self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
-        self.app_data_path = app_data_path
+        self.app_data_path = app_data_path_type
         self.addButton.clicked.connect(lambda: self.add_new_chat())
+        self.chat_history_widget = chat_history_widget
 
 
     #this will be connected to the  add button.
     def add_new_chat(self):
         """adds new QTreeWidgetItem when 'addItemSignal' is emitted from ImportDataDialog"""
         #get the name from the dialog box, replace _obj.name
-        self.tempWidget = chat()
+        chat_folder_path_name = self.chat_history_widget.add_new_item("Untitled")
+        self.tempWidget = chat(chat_folder_path_name)
         self.addTab2(widget=self.tempWidget)
-        tree_obj = QTreeWidgetItem([self.tempWidget.title_prompt])
-        tree_obj.setData(1, Qt.ItemDataRole.UserRole, self.tempWidget)
-        # tree_widget.addTopLevelItem(tree_obj)
 
-    def action_saveworkspace_triggered(self, filename, tree_widget):
+    def action_saveworkspace_triggered(self, filename):
         """Saves current workspace to the selected file"""
         file = QFile(filename)
         file.open(QIODevice.WriteOnly)
         datastream = QDataStream(file)
-        root_item = tree_widget.invisibleRootItem()
 
         # write the total number of items to be stored
         datastream.writeUInt32(root_item.childCount())

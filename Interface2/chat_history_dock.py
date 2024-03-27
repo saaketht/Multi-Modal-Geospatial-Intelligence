@@ -5,14 +5,20 @@ from PyQt6.QtWidgets import (
     QPushButton, QLabel, QLineEdit, QDockWidget, QTabWidget, QListWidget,
     QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem, QScrollArea, QSizePolicy
 )
-
+import os, sys
+from datetime import datetime
 class ChatHistoryListWidget(QListWidget):
-    def __init__(self, app_data_path, parent=None):
+    def __init__(self, app_data_path_type, parent=None):
         super().__init__(parent=parent)
 
         #self.file_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+        self.chat_history_widget = None
 
-        self.app_data_path = app_data_path
+        self.app_data_path_type = app_data_path_type
+        temp = QStandardPaths.writableLocation(app_data_path_type)
+        self.app_data_path = os.path.join(temp, "chat_history")
+        if not os.path.exists(self.app_data_path):
+            os.makedirs(self.app_data_path)
 
         self.setStyleSheet('''
         QListWidget 
@@ -22,6 +28,19 @@ class ChatHistoryListWidget(QListWidget):
             border-right: 0;
             border-left: 0;
             border-radius:0;
+        }
+        QListWidget::item
+        {
+            background: #202020; 
+            padding:0;
+        }
+        QListWidget::item:hover
+        {
+            background: #2d2d2d;
+        }
+        QListWidget::item:selected
+        {
+            background: #494949;
         }
 
         QScrollBar:vertical 
@@ -75,8 +94,12 @@ class ChatHistoryListWidget(QListWidget):
         ''')
 
         # return docks("Map File Explorer", file_explorer_widget, self)
+    def setChatTabWidget (self, chat_history_widget):
+        self.chat_history_widget = chat_history_widget
 
     def add_new_item(self, title_prompt):
+        now = datetime.now()
+        chat_folder_name = now.strftime("%m-%d-%Y_%H-%M-%S")
 
         custom_list_item_widget = ChatListItem(title_prompt)
 
@@ -85,16 +108,30 @@ class ChatHistoryListWidget(QListWidget):
 
         self.addItem(list_widget_item)
         self.setItemWidget(list_widget_item, custom_list_item_widget)
-        custom_list_item_widget.remove_button.clicked.connect(lambda: self.remove_item(list_widget_item))
 
+        chat_folder_name_path = os.path.join(self.app_data_path, chat_folder_name)
+
+        custom_list_item_widget.remove_button.clicked.connect(lambda: self.remove_item(list_widget_item,chat_folder_name_path))
         custom_list_item_widget.list_widget_item = list_widget_item
 
-    def remove_item(self, list_widget_item):
+
+        if not os.path.exists(chat_folder_name_path):
+            os.makedirs(chat_folder_name_path)
+        else:
+            chat_folder_name_path = chat_folder_name_path +"1"
+            os.makedirs(chat_folder_name_path)
+
+        return chat_folder_name_path
+
+    def remove_item(self, list_widget_item, path):
         try:
             row = self.row(list_widget_item)
             self.takeItem(row)
         except Exception as e:
             print(f"Error removing item: {e}")
+        os.rmdir(path)
+
+
 
 
 class ChatListItem(QWidget):

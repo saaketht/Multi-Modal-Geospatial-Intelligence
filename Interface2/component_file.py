@@ -450,7 +450,7 @@ class Label (QLabel):
         self.setStyleSheet('''
         Label
         {
-            background: #202020;
+            background: transparent;
             padding: 0 16px;
             border-top:0;
             border-bottom:2px solid #494949;
