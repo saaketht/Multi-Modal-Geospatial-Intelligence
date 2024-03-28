@@ -22,9 +22,18 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("MM-GEOINT")
         self.setDockOptions(QMainWindow.DockOption.AllowTabbedDocks | QMainWindow.DockOption.AllowNestedDocks)
-        self.app_data_path_type = QStandardPaths.StandardLocation.AppDataLocation
-        # self.app_data_path = QStandardPaths.writableLocation(self.app_data_type)
 
+        # chatbox attributes
+        self.titlebar = None
+        self.chatbox_layout = None
+
+        # Set the type of location/path where application data should be stored
+        self.app_data_path_type = QStandardPaths.StandardLocation.AppDataLocation
+        # Get the full path where application data should be written
+        # uncommented by saaketh
+        self.app_data_path = QStandardPaths.writableLocation(self.app_data_path_type)
+
+        # css styles
         self.setStyleSheet('''
                 QMainWindow
                 {
@@ -37,12 +46,12 @@ class MainWindow(QMainWindow):
                 }
                 ''')
 
-        self.setup_ui()
+        self.setup_main_window()
         # self.load_chat_history()
         self.setup_menus()
         self.showMaximized()
 
-    def setup_ui(self):
+    def setup_main_window(self):
         layout = QVBoxLayout()
         self.titlebar = TitleBar("Chat Box")
         self.titlebar.setFixedHeight(38)
@@ -65,17 +74,19 @@ class MainWindow(QMainWindow):
                     border: 2px solid #494949;
                     border-radius:10px;
                 }
-                    ''')
+                ''')
 
         layout.addWidget(chatbox_frame)
 
-        # Chat History Widget Dock Widget
-        self.chat_history_widget = ChatHistoryListWidget(app_data_path_type=self.app_data_path_type)
+        # check paths
+        print("QStandardPaths::StandardLocation type: " + str(self.app_data_path_type))
+        print("App Data Directory: " + str(self.app_data_path))
 
-        print(self.app_data_path_type)
-        print(QStandardPaths.writableLocation(self.app_data_path_type))
+        # from chat_history_dock.py
+        self.chat_history_widget = ChatHistoryListWidget(app_data_path=self.app_data_path)
 
-        self.tabs = ChatTabWidget(parent=None, app_data_path_type=self.app_data_path_type,
+        # from chatbox_file.py
+        self.tabs = ChatTabWidget(parent=None, app_data_path=self.app_data_path,
                                   chat_history_widget=self.chat_history_widget)
         self.chatbox_layout.addWidget(self.tabs)
 
@@ -85,10 +96,10 @@ class MainWindow(QMainWindow):
 
         # layout.addWidget(chatbox_frame)
 
-        widget = QWidget()
-        widget.setLayout(layout)
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
 
-        self.setCentralWidget(widget)
+        self.setCentralWidget(central_widget)
 
         # Interactive Map Dock Widget
         map_placeholder = QLabel("Interactive Map Placeholder")

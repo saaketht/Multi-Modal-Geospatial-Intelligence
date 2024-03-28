@@ -278,12 +278,12 @@ class chat(QWidget):
 
 
 class ChatTabWidget(TabWidget):
-    def __init__(self, app_data_path_type, chat_history_widget, parent=None):
+    def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
         self.addTab2(widget=chat(""))
         self.addTab2(widget=chat(""))
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
-        self.app_data_path = app_data_path_type
+        # self.app_data_path = app_data_path_type
         self.addButton.clicked.connect(lambda: self.add_new_chat())
         self.chat_history_widget = chat_history_widget
 

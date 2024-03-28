@@ -114,7 +114,8 @@ class file_explorer(QWidget):
         self.add_file_to_list(file_path)
 
     def open_file_dialog(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Select PNG file", "", "PNG files (*.png)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select Image file", "", "Image files (*.png *.jpg *.jpeg "
+                                                                                  "*.bmp)")
         if file_path:
             self.file_path_line_edit.setText(file_path)
 

@@ -13,90 +13,90 @@ from datetime import datetime
 
 
 class ChatHistoryListWidget(QListWidget):
-    def __init__(self, app_data_path_type, parent=None):
+    def __init__(self, app_data_path, parent=None):
         super().__init__(parent=parent)
 
         self.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
         self.tabs = None
 
-        self.app_data_path_type = app_data_path_type
-        temp = QStandardPaths.writableLocation(app_data_path_type)
-        self.app_data_path = os.path.join(temp, "chat_history")
-        if not os.path.exists(self.app_data_path):
-            os.makedirs(self.app_data_path)
+        self.chat_data_path = os.path.join(app_data_path, "chat_history")
+        if not os.path.exists(self.chat_data_path):
+            os.makedirs(self.chat_data_path)
 
         self.setStyleSheet('''
-        QListWidget 
-        {
-            border-top: 2px solid #494949;
-            border-bottom: 2px solid #494949;
-            border-right: 0;
-            border-left: 0;
-            border-radius:0;
-        }
-        QListWidget::item
-        {
-            background: #202020; 
-            padding:0;
-        }
-        QListWidget::item:hover
-        {
-            background: #2d2d2d;
-        }
-        QListWidget::item:selected
-        {
-            background: #03B5A9;
-        }
-
-        QScrollBar:vertical 
-        {
-             border: 2px solid transparent;
-             background: transparent;
-             width: 15px;
-             margin: 22px 0 22px 0;
-             border-radius:6px;
-         }
-         QScrollBar::handle:vertical {
-             background: #494949;
-             border:2px solid transparent;
-             min-height: 20px;
-             border-radius:5px;
-         }
-
-         QScrollBar::add-line:vertical {
-             border: 2px solid transparent;
-             background: transparent;
-             height: 20px;
-             border-radius:5px;
-             subcontrol-position: bottom;
-             subcontrol-origin: margin;
-         }
-
-         QScrollBar::sub-line:vertical {
-             border: 2px solid transparent;
-             background: transparent;
-             height: 20px;
-             border-radius:5px;
-             subcontrol-position: top;
-             subcontrol-origin: margin;
-         }
-         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
-             border: 2px solid transparent;
-             width: 3px;
-             height: 3px;
-             border-radius:3px;
-             background: transparent;
-         }
-
-         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-             background: none;
-         }
-
-         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical 
-         {
-             background: none;
-         }
-        ''')
+                QListWidget 
+                {
+                    border-top: 2px solid #494949;
+                    border-bottom: 2px solid #494949;
+                    border-right: 0;
+                    border-left: 0;
+                    border-radius:0;
+                }
+                QListWidget::item
+                {
+                    background: #202020; 
+                    padding:0;
+                }
+                QListWidget::item:hover
+                {
+                    background: #2d2d2d;
+                }
+                QListWidget::item:selected
+                {
+                    background: #03B5A9;
+                }
+        
+                QScrollBar:vertical 
+                {
+                     border: 2px solid transparent;
+                     background: transparent;
+                     width: 15px;
+                     margin: 22px 0 22px 0;
+                     border-radius:6px;
+                 }
+                 
+                QScrollBar::handle:vertical {
+                    background: #494949;
+                    border:2px solid transparent;
+                    min-height: 20px;
+                    border-radius:5px;
+                }
+        
+                QScrollBar::add-line:vertical {
+                    border: 2px solid transparent;
+                    background: transparent;
+                    height: 20px;
+                    border-radius:5px;
+                    subcontrol-position: bottom;
+                    subcontrol-origin: margin;
+                }
+        
+                QScrollBar::sub-line:vertical {
+                    border: 2px solid transparent;
+                    background: transparent;
+                    height: 20px;
+                    border-radius:5px;
+                    subcontrol-position: top;
+                    subcontrol-origin: margin;
+                }
+                
+                QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+                    border: 2px solid transparent;
+                    width: 3px;
+                    height: 3px;
+                    border-radius:3px;
+                    background: transparent;
+                }
+        
+                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                    background: none;
+                }
+        
+                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical 
+                {
+                    background: none;
+                }
+                ''')
 
         # return docks("Map File Explorer", file_explorer_widget, self)
 
@@ -115,7 +115,7 @@ class ChatHistoryListWidget(QListWidget):
         self.addItem(list_widget_item)
         self.setItemWidget(list_widget_item, custom_list_item_widget)
 
-        chat_folder_name_path = os.path.join(self.app_data_path, chat_folder_name)
+        chat_folder_name_path = os.path.join(self.chat_data_path, chat_folder_name)
 
         custom_list_item_widget.remove_button.clicked.connect(
             lambda: self.remove_item(list_widget_item, chat_folder_name_path))
