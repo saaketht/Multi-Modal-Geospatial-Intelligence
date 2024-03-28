@@ -75,7 +75,7 @@ class image_preview_widget(QLabel):
         super().__init__(text=text)
 
         self.currentImage = None
-        self.currentImagePath = None
+        self.currentImagePath = ""
         self.setScaledContents(True)
         self.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)

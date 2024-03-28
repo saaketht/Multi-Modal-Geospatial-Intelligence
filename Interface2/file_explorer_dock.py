@@ -103,6 +103,7 @@ class file_explorer(QWidget):
         self.file_explorer_vertical_layout.addWidget(self.file_list)
 
         self.setLayout(self.file_explorer_vertical_layout)
+        self.tabs.currentChanged.connect(lambda: self.tabs.currentWidget().setCurrentImagePath(self.image_preview_widget.currentImagePath))
 
         #return docks("Map File Explorer", file_explorer_widget, self)
     
@@ -167,7 +168,7 @@ class file_explorer(QWidget):
             self.image_preview_widget.setText(custom_list_item_widget.label_placeholder)
             custom_list_item_widget.world_button.setIcon(QIcon('feather/globe.svg'))
             self.image_preview_widget.currentImage = None
-            self.image_preview_widget.currentImagePath = None
+            self.image_preview_widget.currentImagePath = ""
             custom_list_item_widget.is_image_displayed = False
         elif os.path.isfile(file_path):
             self.test = QPixmap(file_path)
@@ -177,7 +178,7 @@ class file_explorer(QWidget):
             self.image_preview_widget.currentImagePath = file_path
             custom_list_item_widget.world_button.setIcon(QIcon('feather/x.svg'))
             custom_list_item_widget.is_image_displayed = True
-            self.tabs.currentWidget().setCurrentImagePath(file_path)
+            self.tabs.currentWidget().setCurrentImagePath(self.image_preview_widget.currentImagePath)
 
 
 class CustomListItem(QWidget):
