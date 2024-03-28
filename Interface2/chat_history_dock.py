@@ -32,15 +32,18 @@ class ChatHistoryListWidget(QListWidget):
                     border-left: 0;
                     border-radius:0;
                 }
+                
                 QListWidget::item
                 {
                     background: #202020; 
                     padding:0;
                 }
+                
                 QListWidget::item:hover
                 {
                     background: #2d2d2d;
                 }
+                
                 QListWidget::item:selected
                 {
                     background: #03B5A9;

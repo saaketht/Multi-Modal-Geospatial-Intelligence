@@ -111,7 +111,7 @@ class ModelMessage(QWidget):
         self.setLayout(self.layout)
 
 
-class chat(QWidget):
+class Chat(QWidget):
     def __init__(self, chat_folder_path_name, parent=None):
         super().__init__(parent=parent)
         self.index = 0
@@ -132,60 +132,62 @@ class chat(QWidget):
         # self.chat_box.setReadOnly(True)
         self.chat_scroll_area = QScrollArea()
         self.chat_scroll_area.setStyleSheet('''
-        QScrollArea
-        {
-            padding:0;
-            background: #202020;
-            border-top: 2px solid #494949;
-            border-bottom: 2px solid #494949;
-            border-radius:0;
-            margin:0;
-        }
-
-        QScrollBar:vertical 
-        {
-             border: 2px solid transparent;
-             background: transparent;
-             width: 15px;
-             margin: 22px 0 22px 0;
-             border-radius:6px;
-         }
-         QScrollBar::handle:vertical {
-             background: #494949;
-             border:2px solid transparent;
-             min-height: 20px;
-             border-radius:5px;
-         }
-
-         QScrollBar::add-line:vertical {
-             border: 2px solid transparent;
-             background: transparent;
-             height: 20px;
-             border-radius:5px;
-             subcontrol-position: bottom;
-             subcontrol-origin: margin;
-         }
-
-         QScrollBar::sub-line:vertical {
-             border: 2px solid transparent;
-             background: transparent;
-             height: 20px;
-             border-radius:5px;
-             subcontrol-position: top;
-             subcontrol-origin: margin;
-         }
-         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
-             border: 2px solid transparent;
-             width: 3px;
-             height: 3px;
-             border-radius:3px;
-             background: transparent;
-         }
-
-         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-             background: none;
-         }
-        ''')
+                QScrollArea
+                {
+                    padding:0;
+                    background: #202020;
+                    border-top: 2px solid #494949;
+                    border-bottom: 2px solid #494949;
+                    border-radius:0;
+                    margin:0;
+                }
+        
+                QScrollBar:vertical 
+                {
+                     border: 2px solid transparent;
+                     background: transparent;
+                     width: 15px;
+                     margin: 22px 0 22px 0;
+                     border-radius:6px;
+                }
+                 
+                QScrollBar::handle:vertical {
+                    background: #494949;
+                    border:2px solid transparent;
+                    min-height: 20px;
+                    border-radius:5px;
+                }
+        
+                QScrollBar::add-line:vertical {
+                    border: 2px solid transparent;
+                    background: transparent;
+                    height: 20px;
+                    border-radius:5px;
+                    subcontrol-position: bottom;
+                    subcontrol-origin: margin;
+                }
+        
+                QScrollBar::sub-line:vertical {
+                    border: 2px solid transparent;
+                    background: transparent;
+                    height: 20px;
+                    border-radius:5px;
+                    subcontrol-position: top;
+                    subcontrol-origin: margin;
+                }
+                 
+                QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+                    border: 2px solid transparent;
+                    width: 3px;
+                    height: 3px;
+                    border-radius:3px;
+                    background: transparent;
+                }
+        
+                QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                    background: none;
+                }
+                ''')
         self.chat_scroll_area.setWidgetResizable(True)
         self.chat_scroll_widget = QWidget()
         self.chat_scroll_layout = QVBoxLayout(self.chat_scroll_widget)
@@ -280,8 +282,7 @@ class chat(QWidget):
 class ChatTabWidget(TabWidget):
     def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
-        self.addTab2(widget=chat(""))
-        self.addTab2(widget=chat(""))
+        self.addTab2(widget=Chat(""))
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         # self.app_data_path = app_data_path_type
         self.addButton.clicked.connect(lambda: self.add_new_chat())
@@ -296,7 +297,7 @@ class ChatTabWidget(TabWidget):
 
         if ok and tab_name:
             chat_folder_path_name = self.chat_history_widget.add_new_item(tab_name)
-            self.tempWidget = chat(chat_folder_path_name)
+            self.tempWidget = Chat(chat_folder_path_name)
             self.addTab2(widget=self.tempWidget, title=tab_name)
 
     def action_saveworkspace_triggered(self, filename):

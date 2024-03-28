@@ -1,20 +1,11 @@
-import sys
-import os
-import shutil
-from component_file import *
-from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget,
-    QPushButton, QLabel, QLineEdit, QDockWidget, QTabWidget, QListWidget,
-    QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem, QScrollArea, QSizePolicy
-)
-from PyQt6.QtCore import Qt, QSize, QEvent, QTimer, QDataStream, QIODevice, QFile
-from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFontMetrics
-import platform, ctypes
+import ctypes
+import platform
+
+from chat_history_dock import *
+from chatbox_file import *
 from file_explorer_dock import *
 from image_preview_dock import *
 from interactive_map_dock import *
-from chatbox_file import *
-from chat_history_dock import *
 
 
 class MainWindow(QMainWindow):
@@ -23,14 +14,23 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MM-GEOINT")
         self.setDockOptions(QMainWindow.DockOption.AllowTabbedDocks | QMainWindow.DockOption.AllowNestedDocks)
 
-        # chatbox attributes
+        # chatbox/dock attributes - subject to change
         self.titlebar = None
         self.chatbox_layout = None
+        self.image_preview_label = None
+        # widget attributes - subject to change
+        self.chat_history_list_widget = None
+        self.tabs = None
+        self.chat_history_dock_widget = None
+        self.map_dock_widget = None
+        self.image_preview_dock_widget = None
+        self.file_explorer_widget = None
+        self.file_explorer_dock_widget = None
 
         # Set the type of location/path where application data should be stored
         self.app_data_path_type = QStandardPaths.StandardLocation.AppDataLocation
         # Get the full path where application data should be written
-        # uncommented by saaketh
+        # uncommented below
         self.app_data_path = QStandardPaths.writableLocation(self.app_data_path_type)
 
         # css styles
@@ -52,15 +52,17 @@ class MainWindow(QMainWindow):
         self.showMaximized()
 
     def setup_main_window(self):
-        layout = QVBoxLayout()
         self.titlebar = TitleBar("Chat Box")
         self.titlebar.setFixedHeight(38)
 
+        # layout for main_window
+        layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(self.titlebar)
 
+        # create QFrame for chatbox QVBoxLayout
         chatbox_frame = QFrame()
         self.chatbox_layout = QVBoxLayout(chatbox_frame)
         chatbox_frame.setLayout(self.chatbox_layout)
@@ -82,20 +84,23 @@ class MainWindow(QMainWindow):
         print("QStandardPaths::StandardLocation type: " + str(self.app_data_path_type))
         print("App Data Directory: " + str(self.app_data_path))
 
-        # from chat_history_dock.py
-        self.chat_history_widget = ChatHistoryListWidget(app_data_path=self.app_data_path)
+        # instantiate Chat History List Widget
+        # chat_history_dock.py
+        self.chat_history_list_widget = ChatHistoryListWidget(app_data_path=self.app_data_path)
 
-        # from chatbox_file.py
+        # instantiate ChatTabWidget (chat tabs) and pass Chat History List Widget
+        # chatbox_file.py
         self.tabs = ChatTabWidget(parent=None, app_data_path=self.app_data_path,
-                                  chat_history_widget=self.chat_history_widget)
+                                  chat_history_widget=self.chat_history_list_widget)
+        # add ChatTabWidget to chatbox QVBoxLayout
         self.chatbox_layout.addWidget(self.tabs)
 
-        self.chat_history_widget.setChatTabWidget(self.tabs)
+        # access ChatTabWidget from Chat History List Widget
+        self.chat_history_list_widget.setChatTabWidget(self.tabs)
+        # instantiate Chat History DockWidget to display Chat History List Widget
+        self.chat_history_dock_widget = DockWidget("Chat History", self.chat_history_list_widget, self)
 
-        self.chat_history_widget_dock = DockWidget("Chat History", self.chat_history_widget, self)
-
-        # layout.addWidget(chatbox_frame)
-
+        # create central_widget
         central_widget = QWidget()
         central_widget.setLayout(layout)
 
@@ -115,7 +120,8 @@ class MainWindow(QMainWindow):
         self.image_preview_label = image_preview_widget("Image Preview/Selection")
         self.image_preview_dock_widget = DockWidget("Image Preview", self.image_preview_label, self)
 
-        # The following 2 lines of code add the QDockWidget (the  self.map_dock_widget and self.image_preview_dock_widget) to the Main Window
+        # The following 2 lines of code add the QDockWidget
+        # (the map_dock_widget and image_preview_dock_widget) to MainWindow
         # self.splitDockWidget(self.map_dock_widget, self.image_preview_dock_widget, Qt.Orientation.Vertical)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.image_preview_dock_widget)
@@ -127,7 +133,7 @@ class MainWindow(QMainWindow):
 
         # Add the self.file_explorer_dock_widget to main window.
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.file_explorer_dock_widget)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.chat_history_widget_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.chat_history_dock_widget)
 
         interactive_map.screenshotTaken.connect(self.file_explorer_widget.add_new_file)
         # Dock configuration settings
@@ -137,17 +143,15 @@ class MainWindow(QMainWindow):
     def setup_menus(self):
         menubar = self.menuBar()
 
-        viewMenu = menubar.addMenu("&View")
+        view_menu = menubar.addMenu("&View")
 
-        self.add_view_menu_action(viewMenu, "Interactive Map", self.map_dock_widget)
-        self.add_view_menu_action(viewMenu, "Image Preview", self.image_preview_dock_widget)
-        self.add_view_menu_action(viewMenu, "Map File Explorer", self.file_explorer_dock_widget)
+        self.add_view_menu_action(view_menu, "Interactive Map", self.map_dock_widget)
+        self.add_view_menu_action(view_menu, "Image Preview", self.image_preview_dock_widget)
+        self.add_view_menu_action(view_menu, "Map File Explorer", self.file_explorer_dock_widget)
 
     def add_view_menu_action(self, menu, title, dock_widget):
         action = QAction(title, self, checkable=True)
-
         action.setChecked(dock_widget.isVisible())
-
         action.triggered.connect(lambda checked: dock_widget.setVisible(checked))
 
         dock_widget.visibilityChanged.connect(action.setChecked)
@@ -155,16 +159,18 @@ class MainWindow(QMainWindow):
         menu.addAction(action)
 
 
-# def main():
-app = QApplication(sys.argv)
-app.setApplicationName("GEOINT")
-app.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-if platform.system() == "Windows":
-    if int(platform.release()) >= 8:
-        print(platform.release())
-        ctypes.windll.shcore.SetProcessDpiAwareness(True)
-window = MainWindow()
-window.show()
-sys.exit(app.exec())
-# if __name__ == "__main__":
-#     main()
+def main():
+    geoint_app = QApplication(sys.argv)
+    geoint_app.setApplicationName("GEOINT")
+    geoint_app.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    if platform.system() == "Windows":
+        if int(platform.release()) >= 8:
+            print(platform.release())
+            ctypes.windll.shcore.SetProcessDpiAwareness(True)
+    window = MainWindow()
+    window.show()
+    sys.exit(geoint_app.exec())
+
+
+if __name__ == "__main__":
+    main()
