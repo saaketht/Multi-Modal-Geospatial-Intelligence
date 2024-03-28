@@ -109,7 +109,7 @@ class MainWindow(QMainWindow):
 
         # File Explorer Dock Widget
         #self.file_explorer_dock_widget = self.createFileExplorerWidget()
-        self.file_explorer_widget = file_explorer(self.image_preview_label)
+        self.file_explorer_widget = file_explorer(self.image_preview_label, self.tabs)
         self.file_explorer_dock_widget = DockWidget("File Explorer", self.file_explorer_widget, self)
 
         #Add the self.file_explorer_dock_widget to main window.

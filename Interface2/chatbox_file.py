@@ -224,6 +224,7 @@ class chat(QWidget):
 
     def setCurrentImagePath(self, image_path):
         self.current_image_path = image_path
+        print(self.current_image_path)
 
     def send_message(self):
         message = self.chat_input.text()
