@@ -707,9 +707,11 @@ class CustomInputDialog(QInputDialog):
                 border: 2px solid #494949;
                 border-radius: 10px;
             }
-            QFrame {
+            QFrame 
+            {
                background-color: #202020;            
             }
+
             QLabel {
                 color: #FFFFFF;
                 font-family: Arial;
