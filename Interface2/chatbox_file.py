@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 )
 import os, sys
 from datetime import time
+from component_file import CustomInputDialog
 
 #from send import send_and_receive
 
@@ -288,8 +289,10 @@ class ChatTabWidget(TabWidget):
     #this will be connected to the  add button.
     def add_new_chat(self):
         """adds new QTreeWidgetItem when 'addItemSignal' is emitted from ImportDataDialog"""
-        #get the name from the dialog box, replace _obj.name
-        tab_name, ok = QInputDialog.getText(self, "New Tab", "Enter tab name:")
+        input_dialog = CustomInputDialog(self)
+        ok = input_dialog.exec()
+        tab_name = input_dialog.textValue()
+
         if ok and tab_name:
             chat_folder_path_name = self.chat_history_widget.add_new_item(tab_name)
             self.tempWidget = chat(chat_folder_path_name)

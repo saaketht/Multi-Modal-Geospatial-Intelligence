@@ -37,7 +37,8 @@ from PyQt6.QtWidgets import (
     QGridLayout,
     QFrame,
     QTabWidget,
-    QPlainTextEdit
+    QPlainTextEdit,
+    QInputDialog
 )
 class TreeWidget(QTreeWidget):
     def __init__(self, parent=None):
@@ -691,3 +692,52 @@ class icon_button (QPushButton):
                 background-color: #03B5A9;
             }
             ''')
+class CustomInputDialog(QInputDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("New Tab")
+        self.setLabelText("<b>Enter tab name:</b>")
+        self.setOkButtonText("Apply")
+
+        self.setStyleSheet("""
+            QInputDialog {
+                background-color: #202020;
+                color: #FFFFFF;
+                border: 2px solid #494949;
+                border-radius: 10px;
+            }
+            QFrame {
+               background-color: #202020;            
+            }
+            QLabel {
+                color: #FFFFFF;
+                font-family: Arial;
+                font-size: 14px;
+            }
+            QLineEdit {
+                background-color: #494949;
+                color: #FFFFFF;
+                border: 2px solid #202020;
+                border-radius: 10px;
+                padding: 6px;
+                font-family: Arial;
+                font-size: 14px;
+            }
+            QPushButton {
+                background-color: #202020;
+                color: #FFFFFF;
+                border: none;
+                border-radius: 10px;
+                padding: 8px 16px;
+                font-family: Arial;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #494949;
+            }
+            QPushButton:pressed {
+                background-color: #03B5A9;
+            }
+        """)
