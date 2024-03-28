@@ -15,24 +15,25 @@ import io
 from pathlib import Path
 from file_explorer_dock import *
 
+
 class interactive_map_widget(QWidget):
     screenshotTaken = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
-        
+
         self.m = folium.Map(
-            location=[28.598, -81.1974],tiles="openstreetmap",
+            location=[28.598, -81.1974], tiles="openstreetmap",
             zoom_start=15)
-        
+
         folium.TileLayer(attr="<a href=''></a>",
-            tiles="https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png").add_to(self.m)
+                         tiles="https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png").add_to(self.m)
         self.data = io.BytesIO()
         self.m.save(self.data, close_file=False)
 
         self.w = QtWebEngineWidgets.QWebEngineView(self)
         self.w.setWindowFlag(Qt.WindowType.FramelessWindowHint)
         self.w.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-
 
         self.w.setHtml(self.data.getvalue().decode())
 
@@ -45,9 +46,9 @@ class interactive_map_widget(QWidget):
                     border:2px solid #494949;
                     border-radius:10px;
                 ''')
-        
+
         self.analyzeButton = QPushButton('Analyze', self)
-        globe_icon = QIcon('feather/globe.svg')  
+        globe_icon = QIcon('feather/globe.svg')
         self.analyzeButton.setIcon(globe_icon)
         self.analyzeButton.setIconSize(QSize(20, 20))
         self.analyzeButton.setFixedSize(QSize(109, 32))
@@ -79,14 +80,13 @@ class interactive_map_widget(QWidget):
         button_width = self.analyzeButton.width()
         button_height = self.analyzeButton.height()
         new_x_position = int((self.width() - button_width) // 2)
-        new_y_position = int(self.height() - button_height - 10)  
+        new_y_position = int(self.height() - button_height - 10)
         self.analyzeButton.move(new_x_position, new_y_position)
 
     def take_screenshot(self, file_path):
         pixmap = self.w.grab()
         if pixmap.save(file_path, "PNG"):
             self.screenshotTaken.emit(file_path)
-
 
 # class MapWindow(QWidget):
 #     def __init__(self, base_coords):

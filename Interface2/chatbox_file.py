@@ -10,7 +10,8 @@ import os, sys
 from datetime import time
 from component_file import CustomInputDialog
 
-#from send import send_and_receive
+
+# from send import send_and_receive
 
 # class AddNewTabDialog(QDialog):
 #     def __init__(self):
@@ -54,7 +55,6 @@ class UserMessage(QWidget):
 
         self.bottom_layout_spacer = QSpacerItem(55, 0, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
 
-
         self.bottom_layout.addItem(self.bottom_layout_spacer)
         self.bottom_layout.addWidget(self.message_content, Qt.AlignmentFlag.AlignLeft)
 
@@ -63,6 +63,7 @@ class UserMessage(QWidget):
         # self.layout.addWidget(self.message_content)
 
         self.setLayout(self.layout)
+
 
 class ModelMessage(QWidget):
     def __init__(self, message, parent=None):
@@ -75,12 +76,12 @@ class ModelMessage(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
         self.icon_label = QLabel(self)
-        icon_pixmap = QIcon('feather/group2.svg').pixmap(QSize(40, 40))  
+        icon_pixmap = QIcon('feather/group2.svg').pixmap(QSize(40, 40))
         self.icon_label.setPixmap(icon_pixmap)
         self.icon_label.setFixedSize(40, 40)
         self.icon_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
 
-        self.username_label = QLabel("GEOINT", self) 
+        self.username_label = QLabel("GEOINT", self)
         self.username_label.setFont(QFont('Arial', 14, QFont.Weight.Bold))
         self.username_label.setStyleSheet("color: #FFFFFF;")
 
@@ -111,7 +112,7 @@ class ModelMessage(QWidget):
 
 
 class chat(QWidget):
-    def __init__(self,chat_folder_path_name, parent=None):
+    def __init__(self, chat_folder_path_name, parent=None):
         super().__init__(parent=parent)
         self.index = 0
 
@@ -127,8 +128,8 @@ class chat(QWidget):
         self.setContentsMargins(20, 20, 20, 20)
         self.tab_layout.setSpacing(20)
 
-        #self.chat_box = PlainTextEdit()
-        #self.chat_box.setReadOnly(True)
+        # self.chat_box = PlainTextEdit()
+        # self.chat_box.setReadOnly(True)
         self.chat_scroll_area = QScrollArea()
         self.chat_scroll_area.setStyleSheet('''
         QScrollArea
@@ -234,7 +235,7 @@ class chat(QWidget):
         if message:
             user_message_widget = UserMessage(message)
             self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
-            #self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,Qt.AlignmentFlag.AlignLeft.AlignTop)
+            # self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,Qt.AlignmentFlag.AlignLeft.AlignTop)
             self.index += 1
             # TODO: add the dictionary append area
             self.save_message(message, sender="User")
@@ -242,12 +243,12 @@ class chat(QWidget):
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
 
-            model_message_text = "Blah Blah Blah." 
+            model_message_text = "Blah Blah Blah."
             model_message_widget = ModelMessage(model_message_text)
             self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
             self.index += 1
-            self.save_message(model_message_text, sender="GEOINT")  
-            #self.chat_input.clear()
+            self.save_message(model_message_text, sender="GEOINT")
+            # self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
         # TODO: fill in below sendandrecieve call with the prompt/message from user and
@@ -277,17 +278,16 @@ class chat(QWidget):
 
 
 class ChatTabWidget(TabWidget):
-    def __init__(self,app_data_path_type, chat_history_widget, parent=None):
+    def __init__(self, app_data_path_type, chat_history_widget, parent=None):
         super().__init__(parent=parent)
         self.addTab2(widget=chat(""))
         self.addTab2(widget=chat(""))
-        #self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
+        # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         self.app_data_path = app_data_path_type
         self.addButton.clicked.connect(lambda: self.add_new_chat())
         self.chat_history_widget = chat_history_widget
 
-
-    #this will be connected to the  add button.
+    # this will be connected to the  add button.
     def add_new_chat(self):
         """adds new QTreeWidgetItem when 'addItemSignal' is emitted from ImportDataDialog"""
         input_dialog = CustomInputDialog(self)
@@ -327,5 +327,3 @@ class ChatTabWidget(TabWidget):
             item = QTreeWidgetItem(root_item)
             item.read(datastream)
             data = item.data(1, Qt.ItemDataRole.UserRole)
-
-

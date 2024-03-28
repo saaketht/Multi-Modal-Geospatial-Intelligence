@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QLabel, QLineEdit, QDockWidget, QTabWidget, QListWidget,
     QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem, QScrollArea, QSizePolicy
 )
-from PyQt6.QtCore import Qt, QSize, QEvent, QTimer,QDataStream,QIODevice, QFile
+from PyQt6.QtCore import Qt, QSize, QEvent, QTimer, QDataStream, QIODevice, QFile
 from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFontMetrics
 import platform, ctypes
 from file_explorer_dock import *
@@ -16,10 +16,11 @@ from interactive_map_dock import *
 from chatbox_file import *
 from chat_history_dock import *
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("GEOINT")
+        self.setWindowTitle("MM-GEOINT")
         self.setDockOptions(QMainWindow.DockOption.AllowTabbedDocks | QMainWindow.DockOption.AllowNestedDocks)
         self.app_data_path_type = QStandardPaths.StandardLocation.AppDataLocation
         # self.app_data_path = QStandardPaths.writableLocation(self.app_data_type)
@@ -37,7 +38,7 @@ class MainWindow(QMainWindow):
                 ''')
 
         self.setup_ui()
-        #self.load_chat_history()
+        # self.load_chat_history()
         self.setup_menus()
         self.showMaximized()
 
@@ -74,14 +75,15 @@ class MainWindow(QMainWindow):
         print(self.app_data_path_type)
         print(QStandardPaths.writableLocation(self.app_data_path_type))
 
-        self.tabs = ChatTabWidget(parent=None, app_data_path_type=self.app_data_path_type, chat_history_widget=self.chat_history_widget)
+        self.tabs = ChatTabWidget(parent=None, app_data_path_type=self.app_data_path_type,
+                                  chat_history_widget=self.chat_history_widget)
         self.chatbox_layout.addWidget(self.tabs)
 
         self.chat_history_widget.setChatTabWidget(self.tabs)
 
         self.chat_history_widget_dock = DockWidget("Chat History", self.chat_history_widget, self)
 
-        #layout.addWidget(chatbox_frame)
+        # layout.addWidget(chatbox_frame)
 
         widget = QWidget()
         widget.setLayout(layout)
@@ -93,31 +95,31 @@ class MainWindow(QMainWindow):
         map_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
         interactive_map = interactive_map_widget()
 
-        #map_placeholder.setStyleSheet("border: none; background-color: #202020;")
+        # map_placeholder.setStyleSheet("border: none; background-color: #202020;")
         self.map_dock_widget = DockWidget("Interactive Map", interactive_map, self)
-        self.map_dock_widget.frame_layout.setContentsMargins(0,0,0,0)
+        self.map_dock_widget.frame_layout.setContentsMargins(0, 0, 0, 0)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
 
         # Image Preview Dock Widget
         self.image_preview_label = image_preview_widget("Image Preview/Selection")
         self.image_preview_dock_widget = DockWidget("Image Preview", self.image_preview_label, self)
 
-        #The following 2 lines of code add the QDockWidget (the  self.map_dock_widget and self.image_preview_dock_widget) to the Main Window
-        #self.splitDockWidget(self.map_dock_widget, self.image_preview_dock_widget, Qt.Orientation.Vertical)
+        # The following 2 lines of code add the QDockWidget (the  self.map_dock_widget and self.image_preview_dock_widget) to the Main Window
+        # self.splitDockWidget(self.map_dock_widget, self.image_preview_dock_widget, Qt.Orientation.Vertical)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.image_preview_dock_widget)
 
         # File Explorer Dock Widget
-        #self.file_explorer_dock_widget = self.createFileExplorerWidget()
+        # self.file_explorer_dock_widget = self.createFileExplorerWidget()
         self.file_explorer_widget = file_explorer(self.image_preview_label, self.tabs)
         self.file_explorer_dock_widget = DockWidget("File Explorer", self.file_explorer_widget, self)
 
-        #Add the self.file_explorer_dock_widget to main window.
+        # Add the self.file_explorer_dock_widget to main window.
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.file_explorer_dock_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.chat_history_widget_dock)
 
         interactive_map.screenshotTaken.connect(self.file_explorer_widget.add_new_file)
-        #Dock configuration settings
+        # Dock configuration settings
         # self.setDockNestingEnabled(True)
         # self.resizeDocks([self.map_dock_widget, self.image_preview_dock_widget], [1, 1], Qt.Orientation.Vertical)
 

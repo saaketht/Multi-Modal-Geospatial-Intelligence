@@ -10,9 +10,10 @@ from image_preview_dock import *
 from chatbox_file import *
 import os, sys, shutil
 
+
 # This is the file explorer widget that will be hosted within a qdockwidget,specifically the "docks" variant
 class file_explorer(QWidget):
-    def __init__(self, image_preview_widget, tabs:ChatTabWidget, parent=None):
+    def __init__(self, image_preview_widget, tabs: ChatTabWidget, parent=None):
         super().__init__(parent=parent)
         self.uploads_folder = os.path.join(os.getcwd(), "uploads")
         if not os.path.exists(self.uploads_folder):
@@ -87,7 +88,8 @@ class file_explorer(QWidget):
          }
         ''')
 
-        self.open_folder_button = icon_button(initial_icon='feather/folder.svg', icon_square_len=22, button_square_len=34)
+        self.open_folder_button = icon_button(initial_icon='feather/folder.svg', icon_square_len=22,
+                                              button_square_len=34)
         self.open_folder_button.clicked.connect(self.open_file_dialog)
 
         self.add_file_button = icon_button(initial_icon='feather/plus.svg', icon_square_len=22, button_square_len=34)
@@ -103,10 +105,11 @@ class file_explorer(QWidget):
         self.file_explorer_vertical_layout.addWidget(self.file_list)
 
         self.setLayout(self.file_explorer_vertical_layout)
-        self.tabs.currentChanged.connect(lambda: self.tabs.currentWidget().setCurrentImagePath(self.image_preview_widget.currentImagePath))
+        self.tabs.currentChanged.connect(
+            lambda: self.tabs.currentWidget().setCurrentImagePath(self.image_preview_widget.currentImagePath))
 
-        #return docks("Map File Explorer", file_explorer_widget, self)
-    
+        # return docks("Map File Explorer", file_explorer_widget, self)
+
     def add_new_file(self, file_path):
         self.add_file_to_list(file_path)
 
@@ -116,7 +119,7 @@ class file_explorer(QWidget):
             self.file_path_line_edit.setText(file_path)
 
     def add_file_to_list(self, file_path):
-        #file_path = self.file_path_line_edit.text()
+        # file_path = self.file_path_line_edit.text()
         try:
             if file_path and os.path.isfile(file_path):
                 if os.path.dirname(file_path) == self.uploads_folder:
@@ -143,7 +146,8 @@ class file_explorer(QWidget):
                     self.file_list.setItemWidget(list_widget_item, custom_list_item_widget)
                     custom_list_item_widget.remove_button.clicked.connect(lambda: self.remove_item(list_widget_item))
 
-                    custom_list_item_widget.world_button.clicked.connect(lambda: self.toggle_image_preview(custom_list_item_widget))
+                    custom_list_item_widget.world_button.clicked.connect(
+                        lambda: self.toggle_image_preview(custom_list_item_widget))
 
                     custom_list_item_widget.list_widget_item = list_widget_item
 
@@ -151,8 +155,8 @@ class file_explorer(QWidget):
             else:
                 QMessageBox.information(self, "Error", "Invalid file path.")
         except Exception as e:
-                print(f"An error occurred: {e}")
-                QMessageBox.critical(self, "Error", f"An unexpected error occurred: {e}")
+            print(f"An error occurred: {e}")
+            QMessageBox.critical(self, "Error", f"An unexpected error occurred: {e}")
 
     def remove_item(self, list_widget_item):
         try:
@@ -187,7 +191,7 @@ class CustomListItem(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 11, 0, 11)
         layout.setSpacing(5)
-        self.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
 
         self.remove_button = icon_button(initial_icon='feather/image.svg', icon_square_len=22, button_square_len=34)
 
@@ -199,7 +203,7 @@ class CustomListItem(QWidget):
 
         self.label = Label(text)
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
-        self.label.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
+        self.label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
 
         self.image_preview_widget = image_preview_widget
         self.list_widget = list_widget
@@ -207,16 +211,16 @@ class CustomListItem(QWidget):
         self.eye_button.clicked.connect(self.toggle_eye_icon)
         self.is_eye_icon = True
 
-        #self.remove_button.clicked.connect(self.remove_item)
+        # self.remove_button.clicked.connect(self.remove_item)
         self.remove_button.installEventFilter(self)
 
-       # self.world_button.clicked.connect(self.toggle_image_preview)
+        # self.world_button.clicked.connect(self.toggle_image_preview)
         self.is_image_displayed = False
 
         layout.addWidget(self.remove_button)
         layout.addWidget(self.label, 1)
         # layout.addStretch()
-        #layout.addWidget(self.eye_button)
+        # layout.addWidget(self.eye_button)
         layout.addWidget(self.world_button)
 
     def preview_image(self):
@@ -244,7 +248,6 @@ class CustomListItem(QWidget):
             elif event.type() == QEvent.Type.MouseButtonRelease:
                 self.remove_button.setStyleSheet("border:0px;")
         return super().eventFilter(source, event)
-
 
     def toggle_eye_icon(self):
         if self.is_eye_icon:

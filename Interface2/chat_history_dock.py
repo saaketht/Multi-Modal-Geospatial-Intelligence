@@ -10,6 +10,8 @@ from PyQt6.QtWidgets import (
 # from PyQt6.QtCore import PYQT_SIGNAL
 import os, sys, shutil
 from datetime import datetime
+
+
 class ChatHistoryListWidget(QListWidget):
     def __init__(self, app_data_path_type, parent=None):
         super().__init__(parent=parent)
@@ -97,7 +99,8 @@ class ChatHistoryListWidget(QListWidget):
         ''')
 
         # return docks("Map File Explorer", file_explorer_widget, self)
-    def setChatTabWidget (self, tabs):
+
+    def setChatTabWidget(self, tabs):
         self.tabs = tabs
 
     def add_new_item(self, title_prompt):
@@ -114,14 +117,14 @@ class ChatHistoryListWidget(QListWidget):
 
         chat_folder_name_path = os.path.join(self.app_data_path, chat_folder_name)
 
-        custom_list_item_widget.remove_button.clicked.connect(lambda: self.remove_item(list_widget_item,chat_folder_name_path))
+        custom_list_item_widget.remove_button.clicked.connect(
+            lambda: self.remove_item(list_widget_item, chat_folder_name_path))
         custom_list_item_widget.list_widget_item = list_widget_item
-
 
         if not os.path.exists(chat_folder_name_path):
             os.makedirs(chat_folder_name_path)
         else:
-            chat_folder_name_path = chat_folder_name_path +"1"
+            chat_folder_name_path = chat_folder_name_path + "1"
             os.makedirs(chat_folder_name_path)
 
         return chat_folder_name_path
@@ -135,8 +138,6 @@ class ChatHistoryListWidget(QListWidget):
         shutil.rmtree(path)
 
 
-
-
 class ChatListItem(QWidget):
     def __init__(self, text, parent=None):
         super().__init__(parent)
@@ -147,13 +148,12 @@ class ChatListItem(QWidget):
 
         self.open_button = icon_button(initial_icon="feather/eye.svg", icon_square_len=22, button_square_len=34)
 
-
         self.remove_button = icon_button(exit=True, icon_square_len=22, button_square_len=34)
         self.remove_button.setIcon(QIcon("feather/trash-2.svg"))
 
         self.label = Label(text)
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
-        self.label.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
+        self.label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
 
         layout.addWidget(self.open_button)
         layout.addWidget(self.label, 1)
