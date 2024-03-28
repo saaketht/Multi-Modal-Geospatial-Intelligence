@@ -6,12 +6,16 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox,
     QInputDialog
 )
-import os, sys
+import os
+import sys
 from datetime import time
+
+import json
 from component_file import CustomInputDialog
+from PyQt6.QtCore import QThreadPool
+from model_runnable import ModelRunnable
+from send import send_and_receive
 
-
-# from send import send_and_receive
 
 # class AddNewTabDialog(QDialog):
 #     def __init__(self):
@@ -33,7 +37,7 @@ class UserMessage(QWidget):
         self.icon_label.setFixedSize(40, 40)
         self.icon_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
 
-        self.username_label = QLabel("You", self)
+        self.username_label = QLabel("User", self)
         self.username_label.setFont(QFont('Arial', 14, QFont.Weight.Bold))
         self.username_label.setStyleSheet("color: #FFFFFF;")
 
@@ -122,7 +126,9 @@ class Chat(QWidget):
         self.font1.setWeight(1000)
         self.setFont(self.font1)
 
+        # model inputs
         self.current_image_path = ""
+        self.history_dict = []
 
         self.tab_layout = QVBoxLayout()
         self.setContentsMargins(20, 20, 20, 20)
@@ -224,6 +230,8 @@ class Chat(QWidget):
         # tab_title = f"Tab {chat_widget.count() + 1}"
         # chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
 
+        self.load_chat_history()
+
         self.messages = []
 
     def setCurrentImagePath(self, image_path):
@@ -232,51 +240,80 @@ class Chat(QWidget):
 
     def send_message(self):
         message = self.chat_input.text()
-        # TODO: check for chat history here, if none call sendandreceive with no chat history else
-        # call with chat history
         if message:
             user_message_widget = UserMessage(message)
             self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
             # self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,Qt.AlignmentFlag.AlignLeft.AlignTop)
             self.index += 1
+
             # TODO: add the dictionary append area
+            self.history_dict.append(f"User: {message}")
             self.save_message(message, sender="User")
             self.chat_input.clear()
+
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
 
-            model_message_text = "Blah Blah Blah."
+            model_runnable = ModelRunnable(message, self.current_image_path, self.history_dict)
+            model_runnable.signals.response_received.connect(self.handle_model_response)
+            QThreadPool.globalInstance().start(model_runnable)
+
+            """
+            model_output = send_and_receive(message, self.current_image_path, self.history_dict)
+            print(model_output)
+            model_message_text = ""
+            for item in model_output:
+                model_message_text += item
+            
+            
             model_message_widget = ModelMessage(model_message_text)
             self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
             self.index += 1
+            self.history_dict.append(f"GEOINT: {model_message_text}")
             self.save_message(model_message_text, sender="GEOINT")
             # self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
-        # TODO: fill in below sendandrecieve call with the prompt/message from user and
-        #  the path to current image being viewed
-        # TODO: have the receive message put loading message up
-        # sendAndRecieve(prompt, picturepath as string)
-        # TODO: Integrate with model
-        # self.receive_message("Model response here...")
-
-        # TODO: Method for recieving model response
+            """
 
     def receive_message(self, message):
         self.chat_box.appendPlainText(message)
         self.save_message(message)
 
     def save_message(self, message, sender="User"):
-        with open("chat_history.txt", "a") as file:
-            file.write(f"{sender}: {message}\n")
+        with open("chat_history.json", "w") as file:
+            json.dump(self.history_dict, file)
 
     def load_chat_history(self):
         try:
-            with open("chat_history.txt", "r") as file:
-                for line in file:
-                    self.chat_box.appendPlainText(line.strip())
+            with open("chat_history.json", "r") as file:
+                self.history_dict = json.load(file)
+                for message_text in self.history_dict:
+                    if message_text.startswith("User:"):
+                        user_message_text = message_text[len("User:"):].strip()
+                        user_message_widget = UserMessage(user_message_text)
+                        self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                        self.index += 1
+                    elif message_text.startswith("GEOINT:"):
+                        model_message_text = message_text[len("GEOINT:"):].strip()
+                        model_message_widget = ModelMessage(model_message_text)
+                        self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                        self.index += 1
+                self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
         except FileNotFoundError:
             pass
+
+    def handle_model_response(self, model_message_text):
+        if model_message_text.startswith("GEOINT:"):
+            model_message_text = model_message_text[len("GEOINT:"):].strip()
+
+        chat_model_message_widget = ModelMessage(model_message_text)
+        self.chat_scroll_layout.addWidget(chat_model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+        self.index += 1
+        self.history_dict.append(f"GEOINT: {model_message_text}")
+        self.save_message(model_message_text, sender="GEOINT")
+        self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+        self.update()
 
 
 class ChatTabWidget(TabWidget):

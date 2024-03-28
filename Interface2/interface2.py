@@ -120,8 +120,8 @@ class MainWindow(QMainWindow):
         self.image_preview_label = image_preview_widget("Image Preview/Selection")
         self.image_preview_dock_widget = DockWidget("Image Preview", self.image_preview_label, self)
 
-        # The following 2 lines of code add the QDockWidget
-        # (the map_dock_widget and image_preview_dock_widget) to MainWindow
+        # The following 2 lines of code add these QDockWidgets to MainWindow
+        # (the map_dock_widget and image_preview_dock_widget)
         # self.splitDockWidget(self.map_dock_widget, self.image_preview_dock_widget, Qt.Orientation.Vertical)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.image_preview_dock_widget)
