@@ -659,7 +659,7 @@ class icon_button (QPushButton):
             self.setStyleSheet('''
             icon_button
             {
-                background-color: #202020;
+                background-color: transparent;
                 margin:0px;
                 border-radius: 10px;
                 border:0px;
