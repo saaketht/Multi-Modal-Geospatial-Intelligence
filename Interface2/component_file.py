@@ -1,8 +1,8 @@
 import sys
-from PyQt6.QtCore import Qt, QSize,QRect, pyqtSignal
-from PyQt6.QtGui import QIcon,QFont, QFontDatabase, QPainter,QBrush,QColor
+from PyQt6.QtCore import Qt, QSize, QRect, pyqtSignal
+from PyQt6.QtGui import QIcon, QFont, QFontDatabase, QPainter, QBrush, QColor
 from PyQt6.QtWidgets import QStyleOptionTabWidgetFrame
-#from send import sendAndReceive
+# from send import sendAndReceive
 from PyQt6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
@@ -40,6 +40,8 @@ from PyQt6.QtWidgets import (
     QPlainTextEdit,
     QInputDialog
 )
+
+
 class TreeWidget(QTreeWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -47,7 +49,7 @@ class TreeWidget(QTreeWidget):
 
 
 class PlainTextEdit(QPlainTextEdit):
-    def __init__(self, parent =None):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
 
         self.setStyleSheet('''
@@ -62,6 +64,8 @@ class PlainTextEdit(QPlainTextEdit):
         }
         
         ''')
+
+
 class Slider(QSlider):
     def __init__(self, Orientation, parent=None):
         super().__init__(parent=parent, orientation=Orientation)
@@ -93,8 +97,9 @@ class Slider(QSlider):
         }
         ''')
 
+
 class TitleBar(QFrame):
-    def __init__(self,title='',parent=None):
+    def __init__(self, title='', parent=None):
         super().__init__(parent=parent)
         self.setStyleSheet('''
                 background-color: #2D2D2D;
@@ -115,9 +120,9 @@ class TitleBar(QFrame):
         self.layoutSub.addStretch()
 
         self.titlebar_button1 = icon_button(icon_square_len=16, initial_icon='feather(3px)/help-circle.svg',
-                                       button_square_len=28, type='type2')
+                                            button_square_len=28, type='type2')
         self.titlebar_button2 = icon_button(icon_square_len=16, initial_icon='feather(3px)/sliders.svg',
-                                       button_square_len=28, type='type2')
+                                            button_square_len=28, type='type2')
         self.titlebar_button3 = icon_button(icon_square_len=16, initial_icon='feather(3px)/settings.svg',
                                             button_square_len=28, type='type2')
 
@@ -128,12 +133,11 @@ class TitleBar(QFrame):
                     border: 0px;
                     ''')
         self.titlebar_title.setFont(self.font1)
-        #note 3 spacers are added becasue there are 3 buttons on the right that are 28px by 28px, but the spacing between them
-        #is 4px, so the spacer item size must be 32 px bc there isn't any space between the spacers.
+        # note 3 spacers are added becasue there are 3 buttons on the right that are 28px by 28px, but the spacing between them
+        # is 4px, so the spacer item size must be 32 px bc there isn't any space between the spacers.
         self.spacer1 = QSpacerItem(32, 32, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.spacer2 = QSpacerItem(32, 32, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.spacer3 = QSpacerItem(32, 32, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-
 
         self.layoutSub.addItem(self.spacer1)
         self.layoutSub.addItem(self.spacer2)
@@ -147,7 +151,7 @@ class TitleBar(QFrame):
 
 
 class DockTitleBar(QFrame):
-    def __init__(self,title='',parent=None):
+    def __init__(self, title='', parent=None):
         super().__init__(parent=parent)
         self.setStyleSheet('''
                 background-color: #2D2D2D;
@@ -164,12 +168,12 @@ class DockTitleBar(QFrame):
         self.layoutSub = QHBoxLayout(self)
         self.layoutSub.setContentsMargins(0, 0, 0, 0)
         self.layoutSub.setSpacing(4)
-        #self.layoutSub.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        # self.layoutSub.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
         self.titlebar_exit = icon_button(icon_square_len=16, initial_icon='feather(3px)/x.svg',
-                                       button_square_len=28, type='type2', exit=True)
+                                         button_square_len=28, type='type2', exit=True)
         self.titlebar_float = icon_button(icon_square_len=16, initial_icon='feather(3px)/arrow-up-right.svg',
-                                       button_square_len=28, type='type2')
+                                          button_square_len=28, type='type2')
 
         self.titlebar_title = QLabel(title)
         self.titlebar_title.setStyleSheet('''
@@ -178,8 +182,8 @@ class DockTitleBar(QFrame):
                     border: 0px;
                     ''')
         self.titlebar_title.setFont(self.font1)
-        #note 3 spacers are added becasue there are 3 buttons on the right that are 28px by 28px, but the spacing between them
-        #is 4px, so the spacer item size must be 32 px bc there isn't any space between the spacers.
+        # note 3 spacers are added becasue there are 3 buttons on the right that are 28px by 28px, but the spacing between them
+        # is 4px, so the spacer item size must be 32 px bc there isn't any space between the spacers.
         self.spacer1 = QSpacerItem(32, 32, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.spacer2 = QSpacerItem(32, 32, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
 
@@ -191,15 +195,16 @@ class DockTitleBar(QFrame):
         self.layoutSub.addItem(self.spacer2)
         self.layoutSub.addStretch()
 
+
 class TabWidget(QTabWidget):
-    def __init__(self,parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.font1 = QFont('Arial')
         self.font1.setPixelSize(14)
         self.font1.setWeight(1000)
         self.setMovable(True)
         self.setFont(self.font1)
-        self.setContentsMargins(0,0,0,0)
+        self.setContentsMargins(0, 0, 0, 0)
         self.setStyleSheet('''
         QTabWidget QWidget
         {
@@ -369,23 +374,23 @@ class TabWidget(QTabWidget):
         self.tabCloseRequested.connect(self.removeTab2)
         self.index = 0
 
-        #delete from here
+        # delete from here
         # self.addTab2(widget=chat())
         # self.addTab2(widget=chat())
-        #to here
+        # to here
 
-        self.addButton = icon_button(initial_icon='feather(3px)/plus.svg',icon_square_len=16, button_square_len=34)
+        self.addButton = icon_button(initial_icon='feather(3px)/plus.svg', icon_square_len=16, button_square_len=34)
 
         corner_widget = QWidget()
-        corner_widget.setContentsMargins(0,0,0,0)
+        corner_widget.setContentsMargins(0, 0, 0, 0)
         corner_widget_layout = QHBoxLayout()
-        corner_widget_layout.setContentsMargins(0,0,4,4)
+        corner_widget_layout.setContentsMargins(0, 0, 4, 4)
         corner_widget_layout.setSpacing(0)
         corner_widget_layout.addWidget(self.addButton, alignment=Qt.AlignmentFlag.AlignBottom)
         corner_widget.setLayout(corner_widget_layout)
         self.setCornerWidget(corner_widget, Qt.Corner.TopRightCorner)
 
-        #DELETE THIS, CONNEC THSI WHEN YOU CREATE A A CHAT BOX FILE
+        # DELETE THIS, CONNEC THSI WHEN YOU CREATE A A CHAT BOX FILE
         # self.addButton.clicked.connect(lambda : self.addTab2(widget=chat()))
 
         # self.test = QHBoxLayout()
@@ -394,17 +399,16 @@ class TabWidget(QTabWidget):
         # self.test.addItem(spacer)
 
         self.setUsesScrollButtons(True)
-        
 
     def removeTab2(self, index):
         self.removeTab(index)
-        self.index= self.index - 1
-    
-    #defauly value of "Tab" with an optional title parameter
-    def addTab2(self, widget = None, title='Tab'):
-        #if title=='Tab':
-            #title = title + " " + str(self.index +1)
-        if widget is None:  
+        self.index = self.index - 1
+
+    # default value of "Tab" with an optional title parameter
+    def addTab2(self, widget=None, title='Tab'):
+        # if title=='Tab':
+        # title = title + " " + str(self.index +1)
+        if widget is None:
             widget = QWidget(parent=None)
         temp = self.index
 
@@ -413,11 +417,12 @@ class TabWidget(QTabWidget):
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
         self.index += 1
 
-class LineEdit (QLineEdit):
-    enter_pressed = pyqtSignal()
-    def __init__(self):
-        super().__init__(parent = None)
 
+class LineEdit(QLineEdit):
+    enter_pressed = pyqtSignal()
+
+    def __init__(self):
+        super().__init__(parent=None)
 
         self.setFixedHeight(34)
         self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
@@ -441,9 +446,10 @@ class LineEdit (QLineEdit):
         else:
             super().keyPressEvent(event)
 
-class Label (QLabel):
-    def __init__(self,text=""):
-        super().__init__(text=text,parent = None)
+
+class Label(QLabel):
+    def __init__(self, text=""):
+        super().__init__(text=text, parent=None)
 
         self.setFixedHeight(34)
         font1 = QFont('Arial')
@@ -464,9 +470,11 @@ class Label (QLabel):
             color: #FFFFFF;
         }
         ''')
+
+
 class DockWidget(QDockWidget):
     def __init__(self, title, widget_to_dock, parent=None):
-        super().__init__(title,parent)
+        super().__init__(title, parent)
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
         self.setWindowTitle(title)
 
@@ -474,7 +482,7 @@ class DockWidget(QDockWidget):
         font1.setPixelSize(13)
         font1.setWeight(1000)
         self.setFont(font1)
-        self.setMinimumSize(300,200)
+        self.setMinimumSize(300, 200)
 
         self.frame = QFrame()
         self.frame_layout = QVBoxLayout(self.frame)
@@ -482,8 +490,8 @@ class DockWidget(QDockWidget):
         # self.frame.setLayout(self.frame_layout)
         self.frame.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.frame.setContentsMargins(0,0,0,0)
-        self.frame_layout.setContentsMargins(10,10,10,10,)
+        self.frame.setContentsMargins(0, 0, 0, 0)
+        self.frame_layout.setContentsMargins(10, 10, 10, 10, )
         self.frame_layout.setSpacing(0)
         self.frame_layout.addWidget(widget_to_dock)
         self.setWidget(self.frame)
@@ -583,6 +591,7 @@ class DockWidget(QDockWidget):
             background:#ff0000;
         }*/
         ''')
+
     def floatHandler(self, x):
         if x:
             self.setTitleBarWidget(None)
@@ -591,14 +600,15 @@ class DockWidget(QDockWidget):
             self.titlebar.titlebar_exit.clicked.connect(lambda: self.close())
             self.titlebar.titlebar_float.clicked.connect(lambda: self.setFloating(True))
 
-class icon_button (QPushButton):
 
-    #constructor for the icon_button object
-    #parameters configure the button's style
-    def __init__(self, initial_icon='feather/activity.svg', icon_square_len = 20, button_square_len= 34, type='type1',exit=False, toggle=False):
+class icon_button(QPushButton):
 
+    # constructor for the icon_button object
+    # parameters configure the button's style
+    def __init__(self, initial_icon='feather/activity.svg', icon_square_len=20, button_square_len=34, type='type1',
+                 exit=False, toggle=False):
 
-        #call parent constructor, QPushButton
+        # call parent constructor, QPushButton
         super().__init__()
 
         # FONTS
@@ -608,10 +618,10 @@ class icon_button (QPushButton):
         # families = QFontDatabase.applicationFontFamilies(id)
         # self.setFont(QFont(families[0], 12))
 
-        self.initial_icon = initial_icon #set icon path parameter to object attribute
-        self.setIcon(QIcon(self.initial_icon)) #set icon for button
-        self.setIconSize(QSize(icon_square_len, icon_square_len)) #set icon size
-        self.setFixedSize(QSize(button_square_len,button_square_len)) #set button size
+        self.initial_icon = initial_icon  # set icon path parameter to object attribute
+        self.setIcon(QIcon(self.initial_icon))  # set icon for button
+        self.setIconSize(QSize(icon_square_len, icon_square_len))  # set icon size
+        self.setFixedSize(QSize(button_square_len, button_square_len))  # set button size
 
         # if the button is an exit button, style it this way
         if (exit == True and type == 'type1'):
@@ -655,8 +665,8 @@ class icon_button (QPushButton):
             }
             ''')
 
-        #all other buttons are styled this way
-        elif (exit==False and type=='type1'):
+        # all other buttons are styled this way
+        elif (exit == False and type == 'type1'):
             self.setStyleSheet('''
             icon_button
             {
@@ -692,6 +702,8 @@ class icon_button (QPushButton):
                 background-color: #03B5A9;
             }
             ''')
+
+
 class CustomInputDialog(QInputDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
