@@ -398,14 +398,17 @@ class TabWidget(QTabWidget):
     def removeTab2(self, index):
         self.removeTab(index)
         self.index= self.index - 1
-    def addTab2(self,title=('Tab'),widget =None):
-        if title=='Tab':
-            title = title + " " + str(self.index +1)
-        if widget == None:  widget = QWidget(parent=None)
+    
+    #defauly value of "Tab" with an optional title parameter
+    def addTab2(self, widget = None, title='Tab'):
+        #if title=='Tab':
+            #title = title + " " + str(self.index +1)
+        if widget is None:  
+            widget = QWidget(parent=None)
         temp = self.index
 
         icon = QIcon('feather(2.5px)/globe.svg')
-        self.insertTab(temp,widget, icon, title)
+        self.insertTab(temp, widget, icon, title)
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
         self.index += 1
 

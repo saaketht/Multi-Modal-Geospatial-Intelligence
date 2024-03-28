@@ -3,8 +3,8 @@ from pyqtconfig import ConfigManager
 from PyQt6.QtCore import QFile, QDataStream, QIODevice, Qt, QStandardPaths
 from PyQt6.QtWidgets import (
     QDialog,
-    QDialogButtonBox
-
+    QDialogButtonBox,
+    QInputDialog
 )
 import os, sys
 from datetime import time
@@ -221,6 +221,7 @@ class chat(QWidget):
         # chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
 
         self.messages = []
+
     def setCurrentImagePath(self, image_path):
         self.current_image_path = image_path
 
@@ -231,8 +232,7 @@ class chat(QWidget):
         if message:
             user_message_widget = UserMessage(message)
             self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
-            self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,
-                                                 Qt.AlignmentFlag.AlignLeft.AlignTop)
+            #self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,Qt.AlignmentFlag.AlignLeft.AlignTop)
             self.index += 1
             # TODO: add the dictionary append area
             self.save_message(message, sender="User")
@@ -245,7 +245,7 @@ class chat(QWidget):
             self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
             self.index += 1
             self.save_message(model_message_text, sender="GEOINT")  
-            self.chat_input.clear()
+            #self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
         # TODO: fill in below sendandrecieve call with the prompt/message from user and
@@ -289,9 +289,11 @@ class ChatTabWidget(TabWidget):
     def add_new_chat(self):
         """adds new QTreeWidgetItem when 'addItemSignal' is emitted from ImportDataDialog"""
         #get the name from the dialog box, replace _obj.name
-        chat_folder_path_name = self.chat_history_widget.add_new_item("Untitled")
-        self.tempWidget = chat(chat_folder_path_name)
-        self.addTab2(widget=self.tempWidget)
+        tab_name, ok = QInputDialog.getText(self, "New Tab", "Enter tab name:")
+        if ok and tab_name:
+            chat_folder_path_name = self.chat_history_widget.add_new_item(tab_name)
+            self.tempWidget = chat(chat_folder_path_name)
+            self.addTab2(widget=self.tempWidget, title=tab_name)
 
     def action_saveworkspace_triggered(self, filename):
         """Saves current workspace to the selected file"""
