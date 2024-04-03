@@ -29,7 +29,19 @@ class interactive_map_widget(QWidget):
 
         self.tabs = TabWidget(parent=None)
         self.tabs.setTabsClosable(False)
-        self.tabs.setCornerWidget(None, Qt.Corner.TopRightCorner)
+
+        testwidget = QWidget()
+        testlayout = QHBoxLayout()
+        testlayout.setContentsMargins(0,0,4,4)
+        testlayout.setSpacing(2)
+        testbutton = icon_button(initial_icon="feather/eye.svg")
+        testbutton2 = icon_button(initial_icon="feather/camera.svg")
+        testlayout.addWidget(testbutton2)
+        testlayout.addWidget(testbutton)
+        testwidget.setLayout(testlayout)
+
+
+        self.tabs.setCornerWidget(testwidget, Qt.Corner.TopRightCorner)
         self.tabs.setUsesScrollButtons(False)
 
 
@@ -104,6 +116,7 @@ class interactive_map_widget(QWidget):
         # new_x_position = int((self.width() - button_width) // 2)
         # new_y_position = int(self.height() - button_height - 10)
         # self.analyzeButton.move(new_x_position, new_y_position)
+
 
     def take_screenshot(self, file_path):
         pixmap = self.w.grab()
