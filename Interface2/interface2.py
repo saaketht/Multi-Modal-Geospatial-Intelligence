@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
         chatbox_frame.setLayout(self.chatbox_layout)
         chatbox_frame.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.chatbox_layout.setContentsMargins(0, 14, 0, 0)
+        self.chatbox_layout.setContentsMargins(0, 12, 0, 0)
         self.chatbox_layout.setSpacing(0)
         chatbox_frame.setStyleSheet('''
                 QFrame {
@@ -109,10 +109,10 @@ class MainWindow(QMainWindow):
         # Interactive Map Dock Widget
         map_placeholder = QLabel("Interactive Map Placeholder")
         map_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        interactive_map = interactive_map_widget()
+        self.interactive_map = interactive_map_widget()
 
         # map_placeholder.setStyleSheet("border: none; background-color: #202020;")
-        self.map_dock_widget = DockWidget("Interactive Map", interactive_map, self)
+        self.map_dock_widget = DockWidget("Interactive Map", self.interactive_map, self)
         self.map_dock_widget.frame_layout.setContentsMargins(0, 0, 0, 0)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
 
@@ -127,15 +127,19 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.image_preview_dock_widget)
 
         # File Explorer Dock Widget
-        # self.file_explorer_dock_widget = self.createFileExplorerWidget()
-        self.file_explorer_widget = file_explorer(self.image_preview_label, self.tabs)
+        self.file_explorer_widget = file_explorer(self.image_preview_label, self.tabs, self.app_data_path)
         self.file_explorer_dock_widget = DockWidget("File Explorer", self.file_explorer_widget, self)
 
         # Add the self.file_explorer_dock_widget to main window.
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.file_explorer_dock_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.chat_history_dock_widget)
 
-        interactive_map.screenshotTaken.connect(self.file_explorer_widget.add_new_file)
+        #connections
+        self.file_explorer_widget.toggleImagePreviewWidget.connect(lambda image_path, list_widget_item_index, already_displayed, exists_in_file_explorer
+                                                                   :self.handle_image_changed(image_path, list_widget_item_index ,already_displayed, exists_in_file_explorer))
+        self.image_preview_label.toggleOffFileExplorerButton.connect(lambda list_widget_item_index: self.file_explorer_widget.radio_reset_for_custom_list_item(list_widget_item_index))
+
+        self.interactive_map.screenshotTaken.connect(self.file_explorer_widget.add_new_file)
         # Dock configuration settings
         # self.setDockNestingEnabled(True)
         # self.resizeDocks([self.map_dock_widget, self.image_preview_dock_widget], [1, 1], Qt.Orientation.Vertical)
@@ -157,6 +161,38 @@ class MainWindow(QMainWindow):
         dock_widget.visibilityChanged.connect(action.setChecked)
 
         menu.addAction(action)
+
+    def handle_image_changed(self, image_path:str, list_widget_item_index, already_displayed:bool, exists_in_file_explorer:bool):
+        if exists_in_file_explorer:
+            #if button has not been toggled and the no image is displayed in image_preview
+            if not already_displayed and not self.image_preview_label.is_an_image:
+                image = QPixmap(image_path)
+                self.image_preview_label.setPixmap2(image)
+                self.image_preview_label.currentImagePath = image_path
+                self.image_preview_label.list_widget_item_index = list_widget_item_index
+                self.image_preview_label.is_an_image = True
+                self.tabs.currentWidget().setCurrentImagePath(image_path)
+
+            #if button has already been toggled and an image is displayed
+            elif already_displayed and self.image_preview_label.is_an_image:
+                self.image_preview_label.clear()
+                self.image_preview_label.setText(self.image_preview_label.placeholder)
+                self.image_preview_label.list_widget_item_index = -1
+                self.tabs.currentWidget().setCurrentImagePath("")
+                self.image_preview_label.is_an_image = False
+                self.image_preview_label.currentImagePath = ""
+
+            #if button has not been toggled but there an image is displayed, untoggle that button and then toggle the new one.
+            elif not already_displayed and self.image_preview_label.is_an_image:
+                self.image_preview_label.toggleOffFileExplorerButton.emit(self.image_preview_label.list_widget_item_index)
+                image = QPixmap(image_path)
+                self.image_preview_label.setPixmap2(image)
+                self.image_preview_label.is_an_image = True
+                self.image_preview_label.list_widget_item_index =list_widget_item_index
+                self.image_preview_label.currentImagePath = image_path
+                self.tabs.currentWidget().setCurrentImagePath(image_path)
+
+
 
 
 def main():

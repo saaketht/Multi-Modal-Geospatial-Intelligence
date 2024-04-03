@@ -219,7 +219,7 @@ class Chat(QWidget):
         self.send_button = icon_button(initial_icon='feather/arrow-up.svg', icon_square_len=22, button_square_len=34)
         self.send_button.clicked.connect(self.send_message)
 
-        self.chat_input_layout.addWidget(self.attach_icon_button)
+        # self.chat_input_layout.addWidget(self.attach_icon_button)
         self.chat_input_layout.addWidget(self.chat_input)
         self.chat_input_layout.addWidget(self.send_button)
 
@@ -236,6 +236,7 @@ class Chat(QWidget):
 
     def setCurrentImagePath(self, image_path):
         self.current_image_path = image_path
+        #TODO:"Copy image to the chat folder when a new image is being added"
         print(self.current_image_path)
 
     def send_message(self):

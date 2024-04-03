@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QLabel, QGridLayout
 )
 from PyQt6.QtGui import QPixmap, QPainter
-from PyQt6.QtCore import QPoint,Qt
+from PyQt6.QtCore import QPoint,Qt, QModelIndex
 # class image_preview_widget(QWidget):
 #     def __init__(self, text=None):
 #         super().__init__()
@@ -71,14 +71,19 @@ from PyQt6.QtCore import QPoint,Qt
 
 
 class image_preview_widget(QLabel):
+    # signal returns path name, index of widget to toggle off
+    toggleOffFileExplorerButton = pyqtSignal(QModelIndex)
     def __init__(self, text=None):
-        super().__init__(text=text)
-
-        self.currentImage = None
+        super().__init__()
+        self.placeholder = text
+        self.setText(self.placeholder)
+        self.list_widget_item_index = -1
         self.currentImagePath = ""
+        self.is_an_image = False
         self.setScaledContents(True)
         self.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setStyleSheet("color: #FFFFFF;")
 
         # self.setMaximumSize(315, 317)
     def setPixmap2(self, pixmap):
