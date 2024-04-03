@@ -258,10 +258,10 @@ class TabWidget(QTabWidget):
         }
         
         /*commented because it does not render fast enough when moving tabs around*/
-        /*QTabBar::tab::first
+        /*
+        QTabBar::tab::last
         {
-            margin-left: 8px;
-            margin-right:1.5px;
+            margin-right: 6px;
         }
         QTabBar::tab::only-one
         {
@@ -491,7 +491,7 @@ class DockWidget(QDockWidget):
         self.frame.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.frame.setContentsMargins(0, 0, 0, 0)
-        self.frame_layout.setContentsMargins(10, 10, 10, 10, )
+        self.frame_layout.setContentsMargins(10, 10, 10, 10)
         self.frame_layout.setSpacing(0)
         self.frame_layout.addWidget(widget_to_dock)
         self.setWidget(self.frame)
@@ -526,13 +526,13 @@ class DockWidget(QDockWidget):
         /*this will change the contents of the qdock widget too bc all widgets are QWidgets 
         I STRONGLY recommend changing/styling those widgets instead of inheriting this stylesheet
         so THIS MUST BE FIXED*/
-        QDockWidget QWidget
+        QDockWidget QListWidget
         {
             color:#ffffff;
             background: #202020;
             border: 2px solid transparent;
             border-radius:8px;
-        } 
+        }
         
         /*QDockWidget::title 
         {
