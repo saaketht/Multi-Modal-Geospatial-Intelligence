@@ -169,9 +169,10 @@ class MainWindow(QMainWindow):
         temp_chat = self.tabs.currentWidget()
         image_name =  temp_chat.current_image_name
         image_path = temp_chat.current_image_path
-        print("0")
+        if image_path == self.image_preview_label.currentImagePath:
+            test="DO NOTHING"
 
-        if os.path.isfile(image_path) and image_path != "":
+        elif os.path.isfile(image_path) and image_path != "":
             list_widget_item = self.file_explorer_widget.get_list_widget_item(image_path)
             custom_list_item_widget = self.file_explorer_widget.file_list.itemWidget(list_widget_item)
 
