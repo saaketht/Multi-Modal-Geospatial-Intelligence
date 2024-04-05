@@ -5,7 +5,7 @@ from chatbox_file import *
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget,
     QPushButton, QLabel, QLineEdit, QDockWidget, QTabWidget, QListWidget,
-    QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem, QScrollArea, QSizePolicy
+    QPlainTextEdit, QFileDialog, QMessageBox, QGridLayout, QToolBar, QListWidgetItem, QScrollArea, QSizePolicy,QAbstractItemView
 )
 # from PyQt6.QtCore import PYQT_SIGNAL
 import os, sys, shutil
@@ -16,7 +16,7 @@ class ChatHistoryListWidget(QListWidget):
     def __init__(self, app_data_path, parent=None):
         super().__init__(parent=parent)
 
-        self.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.tabs = None
 
         self.chat_data_path = os.path.join(app_data_path, "chat_history")
@@ -33,7 +33,7 @@ class ChatHistoryListWidget(QListWidget):
                     border-radius:0;
                 }
                 
-                QListWidget::item
+                QListWidget::item:!selected
                 {
                     background: #202020; 
                     padding:0;
@@ -118,19 +118,19 @@ class ChatHistoryListWidget(QListWidget):
         self.addItem(list_widget_item)
         self.setItemWidget(list_widget_item, custom_list_item_widget)
 
-        chat_folder_name_path = os.path.join(self.chat_data_path, chat_folder_name)
+        chat_folder_path = os.path.join(self.chat_data_path, chat_folder_name)
 
         custom_list_item_widget.remove_button.clicked.connect(
-            lambda: self.remove_item(list_widget_item, chat_folder_name_path))
+            lambda: self.remove_item(list_widget_item, chat_folder_path))
         custom_list_item_widget.list_widget_item = list_widget_item
 
-        if not os.path.exists(chat_folder_name_path):
-            os.makedirs(chat_folder_name_path)
+        if not os.path.exists(chat_folder_path):
+            os.makedirs(chat_folder_path)
         else:
-            chat_folder_name_path = chat_folder_name_path + "1"
-            os.makedirs(chat_folder_name_path)
+            chat_folder_path = chat_folder_path + "1"
+            os.makedirs(chat_folder_path)
 
-        return chat_folder_name_path
+        return chat_folder_path
 
     def remove_item(self, list_widget_item, path):
         try:

@@ -16,20 +16,17 @@ import os, sys, shutil
 class file_explorer(QWidget):
     #signal returns path name, index of widget, if image is already displayed, and if image that
     # is being displayed exists in file explorer (always true for files in file explorer).
-    toggleImagePreviewWidget = pyqtSignal(str, QModelIndex, bool,bool)
-    def __init__(self, image_preview_widget, tabs: ChatTabWidget, app_data_path, parent=None):
+    toggleImagePreviewWidget = pyqtSignal(str, QListWidgetItem, bool,bool)
+    def __init__(self, app_data_path, parent=None):
         super().__init__(parent=parent)
         self.uploads_folder = os.path.join(app_data_path, "uploads")
         if not os.path.exists(self.uploads_folder):
             os.makedirs(self.uploads_folder)
-        self.tabs = tabs
         self.file_list = QListWidget()
         self.file_path_line_edit = LineEdit()
         self.file_path_line_edit.setPlaceholderText("Enter Path to Image Here!")
 
         self.file_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
-
-        self.image_preview_widget = image_preview_widget
 
         self.file_explorer_layout = QHBoxLayout()
         self.file_explorer_layout.setContentsMargins(0, 0, 0, 0)
@@ -111,8 +108,6 @@ class file_explorer(QWidget):
         self.file_explorer_vertical_layout.addWidget(self.file_list)
 
         self.setLayout(self.file_explorer_vertical_layout)
-        self.tabs.currentChanged.connect(
-            lambda: self.tabs.currentWidget().setCurrentImagePath(self.image_preview_widget.currentImagePath))
 
         self.load_existing_data()
 
@@ -147,7 +142,7 @@ class file_explorer(QWidget):
                     list_widget_item_index = self.file_list.indexFromItem(list_widget_item)
 
                     custom_list_item_widget.world_button.clicked.connect(
-                        lambda: self.world_button_signal(custom_list_item_widget,list_widget_item_index))
+                        lambda: self.world_button_signal(custom_list_item_widget,list_widget_item))
 
                     custom_list_item_widget.list_widget_item = list_widget_item
                 else:
@@ -175,7 +170,7 @@ class file_explorer(QWidget):
                     list_widget_item_index = self.file_list.indexFromItem(list_widget_item)
 
                     custom_list_item_widget.world_button.clicked.connect(
-                        lambda: self.world_button_signal(custom_list_item_widget, list_widget_item_index))
+                        lambda: self.world_button_signal(custom_list_item_widget, list_widget_item))
 
                     custom_list_item_widget.list_widget_item = list_widget_item
 
@@ -197,42 +192,31 @@ class file_explorer(QWidget):
         except Exception as e:
             print(f"Error removing item: {e}")
 
-    def world_button_signal(self, custom_list_item_widget, list_widget_item_index):
+    def world_button_signal(self, custom_list_item_widget, list_widget_item):
         file_path = custom_list_item_widget.image_path
-        temp_list_widget_item_index = list_widget_item_index
+        temp_list_widget_item = list_widget_item
         if custom_list_item_widget.is_image_displayed:
             custom_list_item_widget.world_button.setIcon(QIcon('feather/globe.svg'))
 
             image_file_path = custom_list_item_widget.image_path
-            self.toggleImagePreviewWidget.emit(image_file_path, temp_list_widget_item_index, custom_list_item_widget.is_image_displayed,True)
-
-
-            # self.image_preview_widget.clear()
-            # self.image_preview_widget.setText(custom_list_item_widget.label_placeholder)
-            # self.image_preview_widget.currentImage = None
-            # self.image_preview_widget.currentImagePath = ""
+            self.toggleImagePreviewWidget.emit(image_file_path,temp_list_widget_item , custom_list_item_widget.is_image_displayed,True)
 
             custom_list_item_widget.is_image_displayed = False
         else:
-            # self.test = QPixmap(file_path)
-            # self.image_preview_widget.setPixmap2(self.test)
-            # self.image_preview_widget.currentImage = QPixmap(file_path)
-            # self.image_preview_widget.currentImagePath = file_path
             custom_list_item_widget.world_button.setIcon(QIcon('feather/x.svg'))
 
             image_file_path = custom_list_item_widget.image_path
-            self.toggleImagePreviewWidget.emit(image_file_path, temp_list_widget_item_index, custom_list_item_widget.is_image_displayed, True)
+            self.toggleImagePreviewWidget.emit(image_file_path, temp_list_widget_item, custom_list_item_widget.is_image_displayed, True)
 
             custom_list_item_widget.is_image_displayed = True
+    def radio_reset_for_custom_list_item(self, list_widget_item):
 
-            self.tabs.currentWidget().setCurrentImagePath(self.image_preview_widget.currentImagePath)
-    def radio_reset_for_custom_list_item(self, index):
-
-        item_at_index = self.file_list.itemFromIndex(index)
-        widget_at_index = self.file_list.itemWidget(item_at_index)
+        item = list_widget_item
+        widget_at_index = self.file_list.itemWidget(item)
 
         widget_at_index.world_button.setIcon(QIcon('feather/globe.svg'))
         widget_at_index.is_image_displayed = False
+        widget_at_index.remove_button.setEnabled(True)
 
     def load_existing_data(self):
         directory = os.fsencode(self.uploads_folder)
@@ -241,7 +225,13 @@ class file_explorer(QWidget):
             filename = os.fsdecode(file)
             path = os.path.join(self.uploads_folder, filename)
             self.add_file_to_list(path)
-
+    def get_list_widget_item(self, image_path):
+        for index in range(self.file_list.count()):
+            list_widget_item = self.file_list.item(index)
+            custom_list_item = self.file_list.itemWidget(list_widget_item)
+            if image_path == custom_list_item.image_path:
+                return list_widget_item
+        return None
 
 
 

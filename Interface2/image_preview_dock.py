@@ -1,6 +1,6 @@
 from component_file import *
 from PyQt6.QtWidgets import (
-    QLabel, QGridLayout
+    QLabel, QGridLayout,QListWidgetItem
 )
 from PyQt6.QtGui import QPixmap, QPainter
 from PyQt6.QtCore import QPoint,Qt, QModelIndex
@@ -72,7 +72,7 @@ from PyQt6.QtCore import QPoint,Qt, QModelIndex
 
 class image_preview_widget(QLabel):
     # signal returns path name, index of widget to toggle off
-    toggleOffFileExplorerButton = pyqtSignal(QModelIndex)
+    toggleOffFileExplorerButton = pyqtSignal(QListWidgetItem)
     def __init__(self, text=None):
         super().__init__()
         self.placeholder = text

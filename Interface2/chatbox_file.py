@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
 )
 import os
 import sys
+import shutil
 from datetime import time
 
 import json
@@ -116,7 +117,7 @@ class ModelMessage(QWidget):
 
 
 class Chat(QWidget):
-    def __init__(self, chat_folder_path_name, parent=None):
+    def __init__(self, app_data_path, chat_folder_path, parent=None):
         super().__init__(parent=parent)
         self.index = 0
 
@@ -125,6 +126,10 @@ class Chat(QWidget):
         self.font1.setPixelSize(13)
         self.font1.setWeight(1000)
         self.setFont(self.font1)
+
+        self.app_data_path = app_data_path
+        self.chat_folder_path = chat_folder_path
+        self.current_image_name = ""
 
         # model inputs
         self.current_image_path = ""
@@ -236,8 +241,11 @@ class Chat(QWidget):
 
     def setCurrentImagePath(self, image_path):
         self.current_image_path = image_path
-        #TODO:"Copy image to the chat folder when a new image is being added"
-        print(self.current_image_path)
+        if image_path!= "" and self.chat_folder_path != "":
+            shutil.copy(image_path, self.chat_folder_path)
+
+        self.current_image_name = os.path.basename(self.current_image_path)
+
 
     def send_message(self):
         message = self.chat_input.text()
@@ -320,9 +328,10 @@ class Chat(QWidget):
 class ChatTabWidget(TabWidget):
     def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
-        self.addTab2(widget=Chat(""))
+        self.addTab2(widget=Chat(app_data_path,""))
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         # self.app_data_path = app_data_path_type
+        self.app_data_path = app_data_path
         self.addButton.clicked.connect(lambda: self.add_new_chat())
         self.chat_history_widget = chat_history_widget
 
@@ -334,8 +343,8 @@ class ChatTabWidget(TabWidget):
         tab_name = input_dialog.textValue()
 
         if ok and tab_name:
-            chat_folder_path_name = self.chat_history_widget.add_new_item(tab_name)
-            self.tempWidget = Chat(chat_folder_path_name)
+            chat_folder_path = self.chat_history_widget.add_new_item(tab_name)
+            self.tempWidget = Chat(self.app_data_path, chat_folder_path)
             self.addTab2(widget=self.tempWidget, title=tab_name)
 
     def action_saveworkspace_triggered(self, filename):
