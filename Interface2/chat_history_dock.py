@@ -33,20 +33,10 @@ class ChatHistoryListWidget(QListWidget):
                     border-radius:0;
                 }
                 
-                QListWidget::item:!selected
+                QListWidget::item
                 {
                     background: #202020; 
                     padding:0;
-                }
-                
-                QListWidget::item:hover
-                {
-                    background: #2d2d2d;
-                }
-                
-                QListWidget::item:selected
-                {
-                    background: #03B5A9;
                 }
         
                 QScrollBar:vertical 
@@ -130,15 +120,19 @@ class ChatHistoryListWidget(QListWidget):
             chat_folder_path = chat_folder_path + "1"
             os.makedirs(chat_folder_path)
 
-        return chat_folder_path
+        return chat_folder_path, list_widget_item
 
     def remove_item(self, list_widget_item, path):
-        try:
-            row = self.row(list_widget_item)
-            self.takeItem(row)
-        except Exception as e:
-            print(f"Error removing item: {e}")
-        shutil.rmtree(path)
+        chat_list_item = self.itemWidget(list_widget_item)
+        if(chat_list_item.is_open):
+            QMessageBox.critical(self, "Error", "This chat is open, please close tab before deleting!")
+        else:
+            try:
+                row = self.row(list_widget_item)
+                self.takeItem(row)
+            except Exception as e:
+                print(f"Error removing item: {e}")
+            shutil.rmtree(path)
 
 
 class ChatListItem(QWidget):
@@ -147,6 +141,7 @@ class ChatListItem(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(4, 4, 4, 4)
         layout.setSpacing(5)
+        self.is_open = True
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
 
         self.open_button = icon_button(initial_icon="feather/eye.svg", icon_square_len=22, button_square_len=34)

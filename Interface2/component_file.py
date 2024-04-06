@@ -371,7 +371,7 @@ class TabWidget(QTabWidget):
         }
         ''')
         self.setTabsClosable(True)
-        self.tabCloseRequested.connect(self.removeTab2)
+        # self.tabCloseRequested.connect(self.removeTab2)
         self.index = 0
 
         # delete from here

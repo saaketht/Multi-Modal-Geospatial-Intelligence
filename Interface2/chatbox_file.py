@@ -117,7 +117,7 @@ class ModelMessage(QWidget):
 
 
 class Chat(QWidget):
-    def __init__(self, app_data_path, chat_folder_path, parent=None):
+    def __init__(self, chat_folder_path, list_widget_item, parent=None):
         super().__init__(parent=parent)
         self.index = 0
 
@@ -127,7 +127,7 @@ class Chat(QWidget):
         self.font1.setWeight(1000)
         self.setFont(self.font1)
 
-        self.app_data_path = app_data_path
+        self.list_widget_item = list_widget_item
         self.chat_folder_path = chat_folder_path
         self.current_image_name = ""
 
@@ -326,14 +326,23 @@ class Chat(QWidget):
 
 
 class ChatTabWidget(TabWidget):
+    changeCloseAttribute = pyqtSignal(str)
     def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
-        self.addTab2(widget=Chat(app_data_path,""))
+        self.addTab2(widget=Chat(app_data_path,None))
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         # self.app_data_path = app_data_path_type
         self.app_data_path = app_data_path
         self.addButton.clicked.connect(lambda: self.add_new_chat())
         self.chat_history_widget = chat_history_widget
+        self.tabCloseRequested.connect(self.removeTab3)
+
+    def removeTab3(self,index):
+        temp_widget = self.widget(index)
+        list_widget_item = temp_widget.list_widget_item
+        chat_list_item = self.chat_history_widget.itemWidget(list_widget_item)
+        chat_list_item.is_open = False
+        self.removeTab2(index)
 
     # this will be connected to the  add button.
     def add_new_chat(self):
@@ -343,8 +352,8 @@ class ChatTabWidget(TabWidget):
         tab_name = input_dialog.textValue()
 
         if ok and tab_name:
-            chat_folder_path = self.chat_history_widget.add_new_item(tab_name)
-            self.tempWidget = Chat(self.app_data_path, chat_folder_path)
+            chat_folder_path, list_widget_item = self.chat_history_widget.add_new_item(tab_name)
+            self.tempWidget = Chat(chat_folder_path,list_widget_item)
             self.addTab2(widget=self.tempWidget, title=tab_name)
 
     def action_saveworkspace_triggered(self, filename):
@@ -375,3 +384,8 @@ class ChatTabWidget(TabWidget):
             item = QTreeWidgetItem(root_item)
             item.read(datastream)
             data = item.data(1, Qt.ItemDataRole.UserRole)
+
+class json_handler:
+    def __init__(self, json_file):
+        test = ""
+
