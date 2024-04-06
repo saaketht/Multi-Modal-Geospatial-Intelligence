@@ -153,6 +153,6 @@ class ChatListItem(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
         self.label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
 
-        layout.addWidget(self.open_button)
-        layout.addWidget(self.label, 1)
         layout.addWidget(self.remove_button)
+        layout.addWidget(self.label, 1)
+        layout.addWidget(self.open_button)

@@ -636,7 +636,7 @@ class icon_button(QPushButton):
             }
             
             icon_button:hover {
-                background-color: #494949;
+                background-color: #2d2d2d;
             }
             
             icon_button:pressed
