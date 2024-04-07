@@ -117,30 +117,41 @@ class ModelMessage(QWidget):
 
 
 class Chat(QWidget):
-    def __init__(self, chat_folder_path, list_widget_item, parent=None):
+    def __init__(self, title, chat_folder_path, list_widget_item, parent=None):
         super().__init__(parent=parent)
         self.index = 0
-
-        self.title_prompt = "Untitled"
+        self.title = title
         self.font1 = QFont('Arial')
         self.font1.setPixelSize(13)
         self.font1.setWeight(1000)
         self.setFont(self.font1)
 
+        #Attributes
         self.list_widget_item = list_widget_item
         self.chat_folder_path = chat_folder_path
-        self.current_image_name = ""
 
-        # model inputs
+        self.current_image_name = ""
         self.current_image_path = ""
+        self.current_image_path_in_chat_folder = ""
+        self.app_data_path = os.path.dirname(self.chat_folder_path)
+        self.uploads_folder = os.path.join(self.app_data_path,"uploads")
+
+        self.json_file_name = "data.json"
+        self.json_file_path = os.path.join(self.chat_folder_path , self.json_file_name)
+
+        self.data_dict = {}
+        self.messages = []
+
+        #load history/json data if data exists
+        self.load_chat_history()
+
         self.history_dict = []
 
+        #Widget UI setup
         self.tab_layout = QVBoxLayout()
         self.setContentsMargins(20, 20, 20, 20)
         self.tab_layout.setSpacing(20)
 
-        # self.chat_box = PlainTextEdit()
-        # self.chat_box.setReadOnly(True)
         self.chat_scroll_area = QScrollArea()
         self.chat_scroll_area.setStyleSheet('''
                 QScrollArea
@@ -235,16 +246,19 @@ class Chat(QWidget):
         # tab_title = f"Tab {chat_widget.count() + 1}"
         # chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
 
-        self.load_chat_history()
-
-        self.messages = []
-
     def setCurrentImagePath(self, image_path):
         self.current_image_path = image_path
         if image_path!= "" and self.chat_folder_path != "":
-            shutil.copy(image_path, self.chat_folder_path)
-
+            self.current_image_path_in_chat_folder = shutil.copy(image_path, self.chat_folder_path)
         self.current_image_name = os.path.basename(self.current_image_path)
+        try:
+            with open (self.json_file_path, "w") as file:
+                self.data_dict.update({"image_url":self.current_image_path})
+                json.dump(self.data_dict, file)
+
+        except FileNotFoundError:
+            pass
+
 
 
     def send_message(self):
@@ -256,61 +270,108 @@ class Chat(QWidget):
             self.index += 1
 
             # TODO: add the dictionary append area
-            self.history_dict.append(f"User: {message}")
+            self.messages.append(f"User: {message}")
+            print(self.messages)
             self.save_message(message, sender="User")
             self.chat_input.clear()
 
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
 
-            model_runnable = ModelRunnable(message, self.current_image_path, self.history_dict)
+            self.send_button.setEnabled(False)
+            model_runnable = ModelRunnable(message, self.current_image_path, self.messages)
             model_runnable.signals.response_received.connect(self.handle_model_response)
             QThreadPool.globalInstance().start(model_runnable)
 
             """
-            model_output = send_and_receive(message, self.current_image_path, self.history_dict)
+            model_output = send_and_receive(message, self.current_image_path, self.messages)
             print(model_output)
             model_message_text = ""
             for item in model_output:
                 model_message_text += item
-            
-            
+
+
             model_message_widget = ModelMessage(model_message_text)
             self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
             self.index += 1
-            self.history_dict.append(f"GEOINT: {model_message_text}")
+            self.messages.append(f"GEOINT: {model_message_text}")
             self.save_message(model_message_text, sender="GEOINT")
             # self.chat_input.clear()
             self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             self.update()
             """
 
-    def receive_message(self, message):
-        self.chat_box.appendPlainText(message)
-        self.save_message(message)
-
     def save_message(self, message, sender="User"):
-        with open("chat_history.json", "w") as file:
-            json.dump(self.history_dict, file)
-
-    def load_chat_history(self):
         try:
-            with open("chat_history.json", "r") as file:
-                self.history_dict = json.load(file)
-                for message_text in self.history_dict:
-                    if message_text.startswith("User:"):
-                        user_message_text = message_text[len("User:"):].strip()
-                        user_message_widget = UserMessage(user_message_text)
-                        self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
-                        self.index += 1
-                    elif message_text.startswith("GEOINT:"):
-                        model_message_text = message_text[len("GEOINT:"):].strip()
-                        model_message_widget = ModelMessage(model_message_text)
-                        self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
-                        self.index += 1
-                self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+            with open(self.json_file_path, "w") as file:
+                self.data_dict.update({"history":self.messages})
+                json.dump(self.data_dict, file)
+
         except FileNotFoundError:
             pass
+
+    def load_chat_history(self):
+        if os.path.exists(self.json_file_path) and self.chat_folder_path!="":
+            try:
+                with open(self.json_file_path, "r") as file:
+                    self.data_dict = json.load(file)
+                    self.messages = self.data_dict["messages"]
+                    for message_text in self.messages:
+                        if message_text.startswith("User:"):
+                            user_message_text = message_text[len("User:"):].strip()
+                            user_message_widget = UserMessage(user_message_text)
+                            self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                            self.index += 1
+                        elif message_text.startswith("GEOINT:"):
+                            model_message_text = message_text[len("GEOINT:"):].strip()
+                            model_message_widget = ModelMessage(model_message_text)
+                            self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                            self.index += 1
+                    self.current_image_path_in_chat_folder = self.data_dict["image_url"]
+                    self.current_image_name = os.path.basename(self.current_image_path)
+                    self.current_image_path = os.path.join(self.uploads_folder, self.current_image_name)
+
+                    self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+            except FileNotFoundError:
+                pass
+
+        elif self.chat_folder_path!="":
+            try:
+                with open(self.json_file_path, "x") as file:
+                    self.data_dict = {
+                        "chat_id":self.title,
+                        "image_url": "",
+                        "prompt": "",
+                        "history": self.messages,
+                        "model_params": {
+                            "top_p": 1,
+                            "max_tokens": 1024,
+                            "temperature": 0.2
+                        }
+                    }
+                    json.dump(self.data_dict, file)
+
+            except FileNotFoundError:
+                pass
+
+
+            # try:
+            #     with open("chat_history.json", "r") as file:
+            #         self.history_dict = json.load(file)
+            #         for message_text in self.history_dict:
+            #             if message_text.startswith("User:"):
+            #                 user_message_text = message_text[len("User:"):].strip()
+            #                 user_message_widget = UserMessage(user_message_text)
+            #                 self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+            #                 self.index += 1
+            #             elif message_text.startswith("GEOINT:"):
+            #                 model_message_text = message_text[len("GEOINT:"):].strip()
+            #                 model_message_widget = ModelMessage(model_message_text)
+            #                 self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+            #                 self.index += 1
+            #         self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+            # except FileNotFoundError:
+            #     pass
 
     def handle_model_response(self, model_message_text):
         if model_message_text.startswith("GEOINT:"):
@@ -319,7 +380,7 @@ class Chat(QWidget):
         chat_model_message_widget = ModelMessage(model_message_text)
         self.chat_scroll_layout.addWidget(chat_model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
         self.index += 1
-        self.history_dict.append(f"GEOINT: {model_message_text}")
+        self.messages.append(f"GEOINT: {model_message_text}")
         self.save_message(model_message_text, sender="GEOINT")
         self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
         self.update()
@@ -329,10 +390,11 @@ class ChatTabWidget(TabWidget):
     changeCloseAttribute = pyqtSignal(str)
     def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
-        self.addTab2(widget=Chat(app_data_path,None))
+        self.addTab2(widget=Chat("","", None))
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         # self.app_data_path = app_data_path_type
         self.app_data_path = app_data_path
+        self.chat_history_path = os.path.join(app_data_path,"chat_history")
         self.addButton.clicked.connect(lambda: self.add_new_chat())
         self.chat_history_widget = chat_history_widget
         self.tabCloseRequested.connect(self.removeTab3)
@@ -353,39 +415,42 @@ class ChatTabWidget(TabWidget):
 
         if ok and tab_name:
             chat_folder_path, list_widget_item = self.chat_history_widget.add_new_item(tab_name)
-            self.tempWidget = Chat(chat_folder_path,list_widget_item)
+            self.tempWidget = Chat(tab_name, chat_folder_path,list_widget_item)
             self.addTab2(widget=self.tempWidget, title=tab_name)
 
-    def action_saveworkspace_triggered(self, filename):
-        """Saves current workspace to the selected file"""
-        file = QFile(filename)
-        file.open(QIODevice.WriteOnly)
-        datastream = QDataStream(file)
 
-        # write the total number of items to be stored
-        datastream.writeUInt32(root_item.childCount())
-
-        # write all data (= all elements of the TreeWidget) to the file
-        for n in range(root_item.childCount()):
-            item = root_item.child(n)
-            item.write(datastream)
-
-    def action_loadworkspace_triggered(self, filename, tree_widget):
-        """Loads workspace from file"""
-
-        # open the file and create datastream
-        file = QFile(filename)
-        file.open(QIODevice.ReadOnly)
-        datastream = QDataStream(file)
-        root_item = tree_widget.invisibleRootItem()
-
-        # read all data from the file and create a TreeWidgetItem for each entry
-        for n in range(datastream.readUInt32()):
-            item = QTreeWidgetItem(root_item)
-            item.read(datastream)
-            data = item.data(1, Qt.ItemDataRole.UserRole)
+    # def action_saveworkspace_triggered(self, filename):
+    #     """Saves current workspace to the selected file"""
+    #     file = QFile(filename)
+    #     file.open(QIODevice.WriteOnly)
+    #     datastream = QDataStream(file)
+    #
+    #     # write the total number of items to be stored
+    #     datastream.writeUInt32(root_item.childCount())
+    #
+    #     # write all data (= all elements of the TreeWidget) to the file
+    #     for n in range(root_item.childCount()):
+    #         item = root_item.child(n)
+    #         item.write(datastream)
+    #
+    # def action_loadworkspace_triggered(self, filename, tree_widget):
+    #     """Loads workspace from file"""
+    #
+    #     # open the file and create datastream
+    #     file = QFile(filename)
+    #     file.open(QIODevice.ReadOnly)
+    #     datastream = QDataStream(file)
+    #     root_item = tree_widget.invisibleRootItem()
+    #
+    #     # read all data from the file and create a TreeWidgetItem for each entry
+    #     for n in range(datastream.readUInt32()):
+    #         item = QTreeWidgetItem(root_item)
+    #         item.read(datastream)
+    #         data = item.data(1, Qt.ItemDataRole.UserRole)
 
 class json_handler:
-    def __init__(self, json_file):
-        test = ""
+    def __init__(self, json_file_path):
+        self.json_file_path = json_file_path
+
+
 

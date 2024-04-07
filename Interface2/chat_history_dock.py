@@ -90,6 +90,7 @@ class ChatHistoryListWidget(QListWidget):
                     background: none;
                 }
                 ''')
+        self.load_items()
 
         # return docks("Map File Explorer", file_explorer_widget, self)
 
@@ -133,6 +134,30 @@ class ChatHistoryListWidget(QListWidget):
             except Exception as e:
                 print(f"Error removing item: {e}")
             shutil.rmtree(path)
+
+    def load_items(self):
+        for root, dir, file in os.walk(self.chat_data_path):
+            print(root)
+            print(dir)
+            print(file)
+            filename = "data.json"
+            if filename in file:
+
+                root_dir = os.path.join(root, filename)
+
+                try:
+                    with open(root_dir,"r") as json_file:
+                        test_dic = json.load(json_file)
+                        title_prompt = test_dic["chat_id"]
+                        self.add_new_item(title_prompt)
+
+
+                except FileNotFoundError:
+                    pass
+
+
+
+
 
 
 class ChatListItem(QWidget):

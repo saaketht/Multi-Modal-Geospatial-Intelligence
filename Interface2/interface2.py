@@ -180,7 +180,8 @@ class MainWindow(QMainWindow):
             self.file_explorer_widget.world_button_signal(custom_list_item_widget,list_widget_item)
 
         elif temp_chat.current_image_name != "" and not os.path.isfile(image_path):
-            image_path_in_chat_folder = os.path.join(temp_chat.chat_folder_path, image_name)
+            # image_path_in_chat_folder = os.path.join(temp_chat.chat_folder_path, image_name)
+            image_path_in_chat_folder = temp_chat.current_image_path_in_chat_folder
             image_path_in_uploads_folder= shutil.copy(image_path_in_chat_folder,self.file_explorer_widget.uploads_folder)
             self.file_explorer_widget.add_new_file(image_path_in_uploads_folder)
 
@@ -200,7 +201,7 @@ class MainWindow(QMainWindow):
         #if the file exists in the uploads folder
         if exists_in_file_explorer:
             #if button has not been toggled and the no image is displayed in image_preview
-            if not already_displayed and not self.image_preview_label.is_an_image:
+            if not already_displayed and not self.imagepreview_label.is_an_image:
                 image = QPixmap(image_path)
                 self.image_preview_label.setPixmap2(image)
                 self.image_preview_label.currentImagePath = image_path
