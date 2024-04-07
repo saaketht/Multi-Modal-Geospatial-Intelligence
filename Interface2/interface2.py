@@ -186,6 +186,8 @@ class MainWindow(QMainWindow):
         elif temp_chat.current_image_name != "" and not os.path.isfile(image_path):
             # image_path_in_chat_folder = os.path.join(temp_chat.chat_folder_path, image_name)
             image_path_in_chat_folder = temp_chat.current_image_path_in_chat_folder
+            print("image_path_in_chat_folder  :",image_path_in_chat_folder)
+            print("self.file_explorer_widget  :",self.file_explorer_widget)
             image_path_in_uploads_folder= shutil.copy(image_path_in_chat_folder,self.file_explorer_widget.uploads_folder)
             self.file_explorer_widget.add_new_file(image_path_in_uploads_folder)
 

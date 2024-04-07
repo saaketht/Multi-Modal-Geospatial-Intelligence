@@ -278,7 +278,9 @@ class Chat(QWidget):
     def setCurrentImagePath(self, image_path):
         self.current_image_path = image_path
         if image_path!= "" and self.chat_folder_path != "":
-            self.current_image_path_in_chat_folder = shutil.copy(image_path, self.chat_folder_path)
+            shutil.copy(image_path, self.chat_folder_path)
+            self.current_image_name = os.path.basename(image_path)
+            self.current_image_path_in_chat_folder = os.path.join(self.chat_folder_path,self.current_image_name)
         self.current_image_name = os.path.basename(self.current_image_path)
         try:
             with open (self.json_file_path, "w") as file:
@@ -360,10 +362,8 @@ class Chat(QWidget):
                             self.index += 1
                     self.current_image_path = self.data_dict["image_url"]
                     self.current_image_name = os.path.basename(self.current_image_path)
+                    self.current_image_path_in_chat_folder = os.path.join(self.chat_folder_path,self.current_image_name)
 
-                    print(self.current_image_path)
-                    print(self.current_image_name)
-                    print(self.current_image_path_in_chat_folder)
 
                     self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             except FileNotFoundError:
