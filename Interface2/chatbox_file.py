@@ -4,7 +4,8 @@ from PyQt6.QtCore import QFile, QDataStream, QIODevice, Qt, QStandardPaths
 from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
-    QInputDialog
+    QInputDialog,
+    QMessageBox
 )
 import os
 import sys
@@ -26,6 +27,7 @@ class AboutWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
+        self.list_widget_item = None
 
         self.current_image_name = ""
         self.current_image_path = ""
@@ -169,7 +171,6 @@ class Chat(QWidget):
         self.messages = []
 
         #load history/json data if data exists
-        self.load_chat_history()
 
         self.history_dict = []
 
@@ -268,7 +269,9 @@ class Chat(QWidget):
         self.tab_layout.addWidget(self.chat_scroll_area)
         self.tab_layout.addLayout(self.chat_input_layout)
         self.setLayout(self.tab_layout)
-        #
+
+        self.load_chat_history()
+
         # tab_title = f"Tab {chat_widget.count() + 1}"
         # chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
 
@@ -287,44 +290,47 @@ class Chat(QWidget):
 
 
     def send_message(self):
-        message = self.chat_input.text()
-        if message:
-            user_message_widget = UserMessage(message)
-            self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
-            # self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,Qt.AlignmentFlag.AlignLeft.AlignTop)
-            self.index += 1
+        if (self.current_image_path == ""):
+            QMessageBox.critical(None, "Error", "Image not found")
+        else:
+            message = self.chat_input.text()
+            if message:
+                user_message_widget = UserMessage(message)
+                self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                # self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,Qt.AlignmentFlag.AlignLeft.AlignTop)
+                self.index += 1
 
-            # TODO: add the dictionary append area
-            self.messages.append(f"User: {message}")
-            print(self.messages)
-            self.save_message(message, sender="User")
-            self.chat_input.clear()
+                # TODO: add the dictionary append area
+                self.messages.append(f"User: {message}")
+                print(self.messages)
+                self.save_message(message, sender="User")
+                self.chat_input.clear()
 
-            self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
-            self.update()
+                self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+                self.update()
 
-            self.send_button.setEnabled(False)
-            model_runnable = ModelRunnable(message, self.current_image_path, self.messages)
-            model_runnable.signals.response_received.connect(self.handle_model_response)
-            QThreadPool.globalInstance().start(model_runnable)
+                self.send_button.setEnabled(False)
+                model_runnable = ModelRunnable(message, self.current_image_path, self.messages)
+                model_runnable.signals.response_received.connect(self.handle_model_response)
+                QThreadPool.globalInstance().start(model_runnable)
 
-            """
-            model_output = send_and_receive(message, self.current_image_path, self.messages)
-            print(model_output)
-            model_message_text = ""
-            for item in model_output:
-                model_message_text += item
-
-
-            model_message_widget = ModelMessage(model_message_text)
-            self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
-            self.index += 1
-            self.messages.append(f"GEOINT: {model_message_text}")
-            self.save_message(model_message_text, sender="GEOINT")
-            # self.chat_input.clear()
-            self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
-            self.update()
-            """
+                """
+                model_output = send_and_receive(message, self.current_image_path, self.messages)
+                print(model_output)
+                model_message_text = ""
+                for item in model_output:
+                    model_message_text += item
+    
+    
+                model_message_widget = ModelMessage(model_message_text)
+                self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                self.index += 1
+                self.messages.append(f"GEOINT: {model_message_text}")
+                self.save_message(model_message_text, sender="GEOINT")
+                # self.chat_input.clear()
+                self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+                self.update()
+                """
 
     def save_message(self, message, sender="User"):
         try:
@@ -340,7 +346,7 @@ class Chat(QWidget):
             try:
                 with open(self.json_file_path, "r") as file:
                     self.data_dict = json.load(file)
-                    self.messages = self.data_dict["messages"]
+                    self.messages = self.data_dict["history"]
                     for message_text in self.messages:
                         if message_text.startswith("User:"):
                             user_message_text = message_text[len("User:"):].strip()
@@ -352,9 +358,12 @@ class Chat(QWidget):
                             model_message_widget = ModelMessage(model_message_text)
                             self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
                             self.index += 1
-                    self.current_image_path_in_chat_folder = self.data_dict["image_url"]
+                    self.current_image_path = self.data_dict["image_url"]
                     self.current_image_name = os.path.basename(self.current_image_path)
-                    self.current_image_path = os.path.join(self.uploads_folder, self.current_image_name)
+
+                    print(self.current_image_path)
+                    print(self.current_image_name)
+                    print(self.current_image_path_in_chat_folder)
 
                     self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
             except FileNotFoundError:
@@ -425,6 +434,9 @@ class ChatTabWidget(TabWidget):
         self.chat_history_widget = chat_history_widget
         self.tabCloseRequested.connect(self.removeTab3)
 
+        self.chat_history_widget.loadExistingChat.connect(
+            lambda tab_name, chat_folder_path, list_widget_item: self.add_existing_chat(tab_name,chat_folder_path,list_widget_item))
+
     def removeTab3(self,index):
         temp_widget = self.widget(index)
         list_widget_item = temp_widget.list_widget_item
@@ -443,6 +455,23 @@ class ChatTabWidget(TabWidget):
             chat_folder_path, list_widget_item = self.chat_history_widget.create_item_from_new_chat(tab_name)
             self.tempWidget = Chat(tab_name, chat_folder_path,list_widget_item)
             self.addTab2(widget=self.tempWidget, title=tab_name)
+
+    def add_existing_chat(self, tab_name, chat_folder_path, list_widget_item):
+        chat_list_item = self.chat_history_widget.itemWidget(list_widget_item)
+        if not chat_list_item.is_open:
+            chat_list_item.is_open =True
+            self.tempWidget = Chat(tab_name, chat_folder_path, list_widget_item)
+            self.addTab2(widget=self.tempWidget, title=tab_name)
+
+        elif chat_list_item.is_open:
+            for index in range(self.count()):
+                temp_chat = self.widget(index)
+                temp_chat_list_widget_item = temp_chat.list_widget_item
+                if temp_chat_list_widget_item == list_widget_item:
+                    self.setCurrentIndex(index)
+
+
+
 
 
     # def action_saveworkspace_triggered(self, filename):

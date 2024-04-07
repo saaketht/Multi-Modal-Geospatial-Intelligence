@@ -13,6 +13,9 @@ from datetime import datetime
 
 
 class ChatHistoryListWidget(QListWidget):
+    #this signal will be emmited from the open button click signal in the custom list widget, and will be connected to
+    # the add_existing_chat function in the ChatTabWidget class,
+    loadExistingChat = pyqtSignal(str, str, QListWidgetItem)
     def __init__(self, app_data_path, parent=None):
         super().__init__(parent=parent)
 
@@ -114,6 +117,10 @@ class ChatHistoryListWidget(QListWidget):
 
         custom_list_item_widget.remove_button.clicked.connect(
             lambda: self.remove_item(list_widget_item, chat_folder_path))
+
+        custom_list_item_widget.open_button.clicked.connect(
+            lambda: self.loadExistingChat.emit(title_prompt,chat_folder_path,list_widget_item))
+
         custom_list_item_widget.list_widget_item = list_widget_item
 
         if not os.path.exists(chat_folder_path):
@@ -137,6 +144,10 @@ class ChatHistoryListWidget(QListWidget):
 
         custom_list_item_widget.remove_button.clicked.connect(
             lambda: self.remove_item(list_widget_item, chat_folder_path))
+
+        custom_list_item_widget.open_button.clicked.connect(
+            lambda: self.loadExistingChat.emit(title_prompt, chat_folder_path, list_widget_item))
+
         custom_list_item_widget.list_widget_item = list_widget_item
 
     def remove_item(self, list_widget_item, path):
@@ -158,22 +169,15 @@ class ChatHistoryListWidget(QListWidget):
             print(file)
             filename = "data.json"
             if filename in file:
-
                 root_dir = os.path.join(root, filename)
-
                 try:
                     with open(root_dir,"r") as json_file:
                         test_dic = json.load(json_file)
                         title_prompt = test_dic["chat_id"]
                         self.create_item_from_existing_chat(title_prompt, root)
 
-
                 except FileNotFoundError:
                     pass
-
-
-
-
 
 
 class ChatListItem(QWidget):
@@ -185,7 +189,7 @@ class ChatListItem(QWidget):
         self.is_open = True
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
 
-        self.open_button = icon_button(initial_icon="feather/eye.svg", icon_square_len=22, button_square_len=34)
+        self.open_button = icon_button(initial_icon="feather/message-circle.svg", icon_square_len=22, button_square_len=34)
 
         self.remove_button = icon_button(exit=True, icon_square_len=22, button_square_len=34)
         self.remove_button.setIcon(QIcon("feather/trash-2.svg"))
@@ -194,6 +198,6 @@ class ChatListItem(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
         self.label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
 
-        layout.addWidget(self.remove_button)
-        layout.addWidget(self.label, 1)
         layout.addWidget(self.open_button)
+        layout.addWidget(self.label, 1)
+        layout.addWidget(self.remove_button)

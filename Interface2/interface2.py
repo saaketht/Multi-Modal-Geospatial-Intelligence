@@ -167,12 +167,12 @@ class MainWindow(QMainWindow):
 
     def load_image_from_chat(self):
         #TODO: AVOID ABOUT TAB!!!!
-        image_path = ""
         temp_chat = self.tabs.currentWidget()
-        
-        if not isinstance(temp_chat, AboutWidget):
-            image_name = temp_chat.current_image_name
-            image_path = temp_chat.current_image_path
+        image_name = temp_chat.current_image_name
+        image_path = temp_chat.current_image_path
+        # if not isinstance(temp_chat, AboutWidget):
+        #     image_name = temp_chat.current_image_name
+        #     image_path = temp_chat.current_image_path
 
         if image_path == self.image_preview_label.currentImagePath:
             test="DO NOTHING"
