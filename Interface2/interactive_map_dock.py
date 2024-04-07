@@ -94,7 +94,7 @@ class interactive_map_widget(QWidget):
 
         self.w.setHtml(self.data.getvalue().decode())
         self.w1 = QtWebEngineWidgets.QWebEngineView(self)
-        self.w1.setUrl(QUrl("ghttps://earth.google.com/web/"))
+        self.w1.setUrl(QUrl("https://earth.google.com/web/"))
 
         self.w1_layout = QVBoxLayout()
         self.w1_layout.setContentsMargins(10,10,10,10)
