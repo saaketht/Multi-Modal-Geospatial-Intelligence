@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
         # Interactive Map Dock Widget
         map_placeholder = QLabel("Interactive Map Placeholder")
         map_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.interactive_map = interactive_map_widget()
+        self.interactive_map = interactive_map_widget(self.app_data_path)
 
         # map_placeholder.setStyleSheet("border: none; background-color: #202020;")
         self.map_dock_widget = DockWidget("Interactive Map", self.interactive_map, self)
