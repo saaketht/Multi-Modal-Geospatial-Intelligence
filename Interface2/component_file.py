@@ -414,6 +414,10 @@ class TabWidget(QTabWidget):
 
         icon = QIcon('feather(2.5px)/globe.svg')
         self.insertTab(temp, widget, icon, title)
+
+        if title == "About":
+            tab_index = self.indexOf(widget)
+            self.tabBar().setTabButton(tab_index, QTabBar.ButtonPosition.RightSide, None)
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
         self.index += 1
 

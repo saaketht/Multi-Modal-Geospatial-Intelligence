@@ -22,6 +22,27 @@ from send import send_and_receive
 #     def __init__(self):
 #         super().__init__()
 
+class AboutWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+
+        title_label = QLabel("About GEOINT")
+        title_label.setStyleSheet("font-weight: bold; font-size: 18px; color: #FFFFFF;")
+        description_label = QLabel("This is a multi-modal geospatial intelligence application.\n\nVersion: 1.0.0\nDeveloped by: L03 GEOINT TEAM")
+        description_label.setStyleSheet("color: #FFFFFF;")
+        description_label.setWordWrap(True)
+
+        layout.addWidget(title_label)
+        layout.addWidget(description_label)
+        layout.addStretch()
+
+        self.setLayout(layout)
+
+    def setCurrentImagePath(self, path):
+        # left blank to avoid image path error
+        pass
+
 class UserMessage(QWidget):
     def __init__(self, message, parent=None):
         super().__init__(parent=parent)
@@ -390,6 +411,8 @@ class ChatTabWidget(TabWidget):
     changeCloseAttribute = pyqtSignal(str)
     def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
+        self.about_widget = AboutWidget(self)
+        self.addTab2(widget=self.about_widget, title="About")
         self.addTab2(widget=Chat("","", None))
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         # self.app_data_path = app_data_path_type
