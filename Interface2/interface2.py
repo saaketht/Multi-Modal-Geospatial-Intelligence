@@ -166,10 +166,14 @@ class MainWindow(QMainWindow):
         menu.addAction(action)
 
     def load_image_from_chat(self):
-        #TODO: AVOID ABOUT TAB!!!!!
+        #TODO: AVOID ABOUT TAB!!!!
+        image_path = ""
         temp_chat = self.tabs.currentWidget()
-        image_name =  temp_chat.current_image_name
-        image_path = temp_chat.current_image_path
+        
+        if not isinstance(temp_chat, AboutWidget):
+            image_name = temp_chat.current_image_name
+            image_path = temp_chat.current_image_path
+
         if image_path == self.image_preview_label.currentImagePath:
             test="DO NOTHING"
 
@@ -201,7 +205,7 @@ class MainWindow(QMainWindow):
         #if the file exists in the uploads folder
         if exists_in_file_explorer:
             #if button has not been toggled and the no image is displayed in image_preview
-            if not already_displayed and not self.imagepreview_label.is_an_image:
+            if not already_displayed and not self.image_preview_label.is_an_image:
                 image = QPixmap(image_path)
                 self.image_preview_label.setPixmap2(image)
                 self.image_preview_label.currentImagePath = image_path

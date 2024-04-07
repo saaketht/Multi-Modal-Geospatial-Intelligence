@@ -22,6 +22,32 @@ from send import send_and_receive
 #     def __init__(self):
 #         super().__init__()
 
+class AboutWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+
+        self.current_image_name = ""
+        self.current_image_path = ""
+        self.current_image_path_in_chat_folder = ""
+
+        title_label = QLabel("About GEOINT")
+        title_label.setStyleSheet("font-weight: bold; font-size: 18px; color: #FFFFFF;")
+        description_label = QLabel("This is a multi-modal geospatial intelligence application.\n\nVersion: 1.0.0\nDeveloped by: L03 GEOINT TEAM")
+        description_label.setStyleSheet("color: #FFFFFF;")
+        description_label.setWordWrap(True)
+
+        layout.addWidget(title_label)
+        layout.addWidget(description_label)
+        layout.addStretch()
+
+        self.setLayout(layout)
+
+    def setCurrentImagePath(self, path):
+        # left blank to avoid image path error
+        self.current_image_path = path
+
+
 class UserMessage(QWidget):
     def __init__(self, message, parent=None):
         super().__init__(parent=parent)
@@ -260,7 +286,6 @@ class Chat(QWidget):
             pass
 
 
-
     def send_message(self):
         message = self.chat_input.text()
         if message:
@@ -390,7 +415,8 @@ class ChatTabWidget(TabWidget):
     changeCloseAttribute = pyqtSignal(str)
     def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
-        self.addTab2(widget=Chat("","", None))
+        self.about_widget = AboutWidget(self)
+        self.addTab2(widget=self.about_widget, title="About")
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         # self.app_data_path = app_data_path_type
         self.app_data_path = app_data_path
@@ -414,7 +440,7 @@ class ChatTabWidget(TabWidget):
         tab_name = input_dialog.textValue()
 
         if ok and tab_name:
-            chat_folder_path, list_widget_item = self.chat_history_widget.add_new_item(tab_name)
+            chat_folder_path, list_widget_item = self.chat_history_widget.create_item_from_new_chat(tab_name)
             self.tempWidget = Chat(tab_name, chat_folder_path,list_widget_item)
             self.addTab2(widget=self.tempWidget, title=tab_name)
 

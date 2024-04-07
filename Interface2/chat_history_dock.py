@@ -102,7 +102,7 @@ class ChatHistoryListWidget(QListWidget):
         chat_folder_name = now.strftime("%m-%d-%Y_%H-%M-%f")
 
         custom_list_item_widget = ChatListItem(title_prompt)
-        custom_list_item_widget.is_open = False
+        custom_list_item_widget.is_open = True
 
         list_widget_item = QListWidgetItem(self, type=QListWidgetItem.ItemType.UserType)
         list_widget_item.setSizeHint(custom_list_item_widget.sizeHint())

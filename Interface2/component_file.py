@@ -414,6 +414,11 @@ class TabWidget(QTabWidget):
 
         icon = QIcon('feather(2.5px)/globe.svg')
         self.insertTab(temp, widget, icon, title)
+
+        #TODO: SINCE THIS IS AS CUSTOM FEATURE MOVE TO CHATWIDGETTAB IN CHATBOX.py UNDER CREATE NEW TAB METHOD
+        if title == "About":
+            tab_index = self.indexOf(widget)
+            self.tabBar().setTabButton(tab_index, QTabBar.ButtonPosition.RightSide, None)
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
         self.index += 1
 
@@ -730,9 +735,9 @@ class CustomInputDialog(QInputDialog):
                 font-size: 14px;
             }
             QLineEdit {
-                background-color: #494949;
+                background-color: #202020;
                 color: #FFFFFF;
-                border: 2px solid #202020;
+                border: 2px solid #494949;
                 border-radius: 10px;
                 padding: 6px;
                 font-family: Arial;
