@@ -97,11 +97,12 @@ class ChatHistoryListWidget(QListWidget):
     def setChatTabWidget(self, tabs):
         self.tabs = tabs
 
-    def add_new_item(self, title_prompt):
+    def create_item_from_new_chat(self, title_prompt):
         now = datetime.now()
         chat_folder_name = now.strftime("%m-%d-%Y_%H-%M-%f")
 
         custom_list_item_widget = ChatListItem(title_prompt)
+        custom_list_item_widget.is_open = False
 
         list_widget_item = QListWidgetItem(self, type=QListWidgetItem.ItemType.UserType)
         list_widget_item.setSizeHint(custom_list_item_widget.sizeHint())
@@ -122,6 +123,21 @@ class ChatHistoryListWidget(QListWidget):
             os.makedirs(chat_folder_path)
 
         return chat_folder_path, list_widget_item
+
+    def create_item_from_existing_chat(self, title_prompt, chat_folder_path):
+
+        custom_list_item_widget = ChatListItem(title_prompt)
+        custom_list_item_widget.is_open = False
+
+        list_widget_item = QListWidgetItem(self, type=QListWidgetItem.ItemType.UserType)
+        list_widget_item.setSizeHint(custom_list_item_widget.sizeHint())
+
+        self.addItem(list_widget_item)
+        self.setItemWidget(list_widget_item, custom_list_item_widget)
+
+        custom_list_item_widget.remove_button.clicked.connect(
+            lambda: self.remove_item(list_widget_item, chat_folder_path))
+        custom_list_item_widget.list_widget_item = list_widget_item
 
     def remove_item(self, list_widget_item, path):
         chat_list_item = self.itemWidget(list_widget_item)
@@ -149,7 +165,7 @@ class ChatHistoryListWidget(QListWidget):
                     with open(root_dir,"r") as json_file:
                         test_dic = json.load(json_file)
                         title_prompt = test_dic["chat_id"]
-                        self.add_new_item(title_prompt)
+                        self.create_item_from_existing_chat(title_prompt, root)
 
 
                 except FileNotFoundError:
