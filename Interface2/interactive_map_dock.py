@@ -94,7 +94,7 @@ class interactive_map_widget(QWidget):
 
         self.w.setHtml(self.data.getvalue().decode())
         self.w1 = QtWebEngineWidgets.QWebEngineView(self)
-        self.w1.setUrl(QUrl("https://earth.google.com/web/"))
+        self.w1.setUrl(QUrl("https://www.arcgis.com/home/webscene/viewer.html?webscene=0560e29930dc4d5ebeb58c635c0909c9"))
 
         self.w1_layout = QVBoxLayout()
         self.w1_layout.setContentsMargins(10,10,10,10)
@@ -117,7 +117,7 @@ class interactive_map_widget(QWidget):
         # self.setLayout(self.map_dock_layout)
         self.setLayout(self.layout)
 
-        self.tabs.addTab2(self.w1_widget,"Google Earth")
+        self.tabs.addTab2(self.w1_widget,"ArcGIS")
         self.tabs.addTab2( self.w_widget,"Tile Server")
         self.tabs.setMovable(False)
 
@@ -167,7 +167,8 @@ class interactive_map_widget(QWidget):
             self.center_capture_frame()
 
     def take_screenshot(self):
-            pixmap = self.w.grab(self.capture_frame.geometry())
+            widget = self.tabs.currentWidget()
+            pixmap = widget.grab(self.capture_frame.geometry())
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')  
             screenshot_filename = f"screenshot_{timestamp}.png"  
             file_path = os.path.join(self.uploads_folder, screenshot_filename)
