@@ -241,7 +241,7 @@ class Chat(QWidget):
         self.chat_scroll_widget = QWidget()
         self.chat_scroll_layout = QVBoxLayout(self.chat_scroll_widget)
         self.chat_scroll_layout.setContentsMargins(0, 15, 0, 15)
-        self.chat_scroll_layout.setSpacing(10)
+        self.chat_scroll_layout.setSpacing(20)
         # self.chat_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop.AlignLeft)
         self.chat_scroll_layout.addStretch()
 
