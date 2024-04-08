@@ -311,7 +311,7 @@ class Chat(QWidget):
                 self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
                 self.update()
 
-                # self.send_button.setEnabled(False)
+                self.send_button.setEnabled(False)
                 model_runnable = ModelRunnable(message, self.current_image_path, self.messages)
                 model_runnable.signals.response_received.connect(self.handle_model_response)
                 QThreadPool.globalInstance().start(model_runnable)
@@ -409,6 +409,7 @@ class Chat(QWidget):
             #     pass
 
     def handle_model_response(self, model_message_text):
+        self.send_button.setEnabled(True)
         if model_message_text.startswith("GEOINT:"):
             model_message_text = model_message_text[len("GEOINT:"):].strip()
 
