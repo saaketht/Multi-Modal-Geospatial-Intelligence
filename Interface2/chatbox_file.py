@@ -315,6 +315,8 @@ class Chat(QWidget):
                 model_runnable = ModelRunnable(message, self.current_image_path, self.messages)
                 model_runnable.signals.response_received.connect(self.handle_model_response)
                 QThreadPool.globalInstance().start(model_runnable)
+                self.chat_input.enter_pressed.disconnect()
+
 
 
                 """
@@ -409,6 +411,7 @@ class Chat(QWidget):
             #     pass
 
     def handle_model_response(self, model_message_text):
+        self.chat_input.enter_pressed.connect(self.send_message)
         self.send_button.setEnabled(True)
         if model_message_text.startswith("GEOINT:"):
             model_message_text = model_message_text[len("GEOINT:"):].strip()
@@ -464,6 +467,7 @@ class ChatTabWidget(TabWidget):
             chat_list_item.is_open =True
             self.tempWidget = Chat(tab_name, chat_folder_path, list_widget_item)
             self.addTab2(widget=self.tempWidget, title=tab_name)
+            self.setCurrentIndex(self.count()-1)
 
         elif chat_list_item.is_open:
             for index in range(self.count()):

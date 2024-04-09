@@ -96,8 +96,6 @@ class MainWindow(QMainWindow):
         # add ChatTabWidget to chatbox QVBoxLayout
         self.chatbox_layout.addWidget(self.tabs)
 
-        # access ChatTabWidget from Chat History List Widget
-        self.chat_history_list_widget.setChatTabWidget(self.tabs)
         # instantiate Chat History DockWidget to display Chat History List Widget
         self.chat_history_dock_widget = DockWidget("Chat History", self.chat_history_list_widget, self)
 
@@ -108,8 +106,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         # Interactive Map Dock Widget
-        map_placeholder = QLabel("Interactive Map Placeholder")
-        map_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.interactive_map = interactive_map_widget(self.app_data_path)
 
         # map_placeholder.setStyleSheet("border: none; background-color: #202020;")

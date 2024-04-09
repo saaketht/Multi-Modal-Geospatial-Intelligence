@@ -20,7 +20,6 @@ class ChatHistoryListWidget(QListWidget):
         super().__init__(parent=parent)
 
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        self.tabs = None
 
         self.chat_data_path = os.path.join(app_data_path, "chat_history")
         if not os.path.exists(self.chat_data_path):
@@ -97,8 +96,6 @@ class ChatHistoryListWidget(QListWidget):
 
         # return docks("Map File Explorer", file_explorer_widget, self)
 
-    def setChatTabWidget(self, tabs):
-        self.tabs = tabs
 
     def create_item_from_new_chat(self, title_prompt):
         now = datetime.now()
