@@ -7,7 +7,7 @@ import os
 api_token = os.environ.get('REPLICATE_API_TOKEN')
 
 
-def send_and_receive(prompt, image_path, history_dict, top_p=1, max_tokens=1024, temperature=0.2):
+def send_and_receive(prompt, image_path, history_dict, top_p=1, max_tokens=256, temperature=0.2):
     replicate = Client(api_token="r8_K7OeRgMDxgzymwR5efTRg9fjdBgr9Pz1yk7Nz")
     image = open(image_path, "rb")
     output = replicate.run(

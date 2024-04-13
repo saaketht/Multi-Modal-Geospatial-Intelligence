@@ -84,9 +84,10 @@ class interactive_map_widget(QWidget):
         self.tabs.setCornerWidget(testwidget, Qt.Corner.TopRightCorner)
         self.tabs.setUsesScrollButtons(False)
 
-
+        #https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png
+        #https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
         folium.TileLayer(attr="<a href=''></a>",
-                         tiles="https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png").add_to(self.m)
+                         tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}").add_to(self.m)
         self.data = io.BytesIO()
         self.m.save(self.data, close_file=False)
 

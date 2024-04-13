@@ -151,6 +151,7 @@ class MainWindow(QMainWindow):
         self.add_view_menu_action(view_menu, "Interactive Map", self.map_dock_widget)
         self.add_view_menu_action(view_menu, "Image Preview", self.image_preview_dock_widget)
         self.add_view_menu_action(view_menu, "Map File Explorer", self.file_explorer_dock_widget)
+        self.add_view_menu_action(view_menu, "Chat History", self.chat_history_dock_widget)
 
     def add_view_menu_action(self, menu, title, dock_widget):
         action = QAction(title, self, checkable=True)

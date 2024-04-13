@@ -261,6 +261,7 @@ class Chat(QWidget):
         self.chat_input.setPlaceholderText("Type here!")
         self.send_button = icon_button(initial_icon='feather/arrow-up.svg', icon_square_len=22, button_square_len=34)
         self.send_button.clicked.connect(self.send_message)
+        self.send_button.setToolTip("Send")
 
         # self.chat_input_layout.addWidget(self.attach_icon_button)
         self.chat_input_layout.addWidget(self.chat_input)
@@ -460,6 +461,8 @@ class ChatTabWidget(TabWidget):
             chat_folder_path, list_widget_item = self.chat_history_widget.create_item_from_new_chat(tab_name)
             self.tempWidget = Chat(tab_name, chat_folder_path,list_widget_item)
             self.addTab2(widget=self.tempWidget, title=tab_name)
+
+        self.setCurrentIndex(self.count()-1)
 
     def add_existing_chat(self, tab_name, chat_folder_path, list_widget_item):
         chat_list_item = self.chat_history_widget.itemWidget(list_widget_item)
