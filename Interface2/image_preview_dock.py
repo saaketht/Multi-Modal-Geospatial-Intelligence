@@ -2,75 +2,10 @@ from component_file import *
 from PyQt6.QtWidgets import (
     QLabel, QGridLayout,QListWidgetItem
 )
-from PyQt6.QtGui import QPixmap, QPainter
+from PyQt6.QtGui import QPixmap, QPainter,QImage
 from PyQt6.QtCore import QPoint,Qt, QModelIndex
-# class image_preview_widget(QWidget):
-#     def __init__(self, text=None):
-#         super().__init__()
-#         # self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-#         # self.setScaledContents(True)
-#         # #self.setMaximumSize(315, 317)
-#         self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
-#         self.currentImage = None
-#         self.currentImagePath = None
-#         self.p = QPixmap()
-#     def setPixmap(self, p):
-#         self.p = p
-#         self.update()
-#     def clear(self):
-#         self.p = QPixmap()
-#         self.update()
-#
-#     def paintEvent(self, event):
-#         if not self.p.isNull():
-#             painter = QPainter(self)
-#             painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
-#             painter.drawPixmap(self.rect(), self.p)
-# class image_preview_widget(QWidget):
-#     def __init__(self, text=None):
-#         super().__init__()
-#
-#         self.currentImage = None
-#         self.currentImagePath = None
-#         self.h = self.height()
-#         self.w = self.width()
-#
-#         self.layout = QGridLayout()
-#         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-#         self.layout.setContentsMargins(0,0,0,0)
-#         self.layout.setHorizontalSpacing(0)
-#         self.layout.setVerticalSpacing(0)
-#
-#         self.label = QLabel(text)
-#         self.label.setScaledContents(True)
-#         #self.label.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
-#
-#         self.layout.addWidget(self.label, 1, 1)
-#         # self.layout.setRowStretch(0,0)
-#         # self.layout.setRowStretch(2,0)
-#         # self.layout.setColumnStretch(0,0)
-#         # self.layout.setColumnStretch(2,0)
-#
-#         self.setLayout(self.layout)
-#         #self.setMaximumSize(315, 317)
-#
-#     def setPixmap (self, p):
-#         self.label.setPixmap(p)
-#         h = p.height()
-#         w = p.width()
-#         self.label.resize(0.001*self.label.pixmap().size())
-#         self.label.update()
-#
-#
-#
-#     def clear (self):
-#         self.label.clear()
 
-    # def resizeEvent(self, e):
-    #     #.label.resize()
-
-
-class image_preview_widget(QLabel):
+class image_preview_widget2(QLabel):
     # signal returns path name, index of widget to toggle off
     toggleOffFileExplorerButton = pyqtSignal(QListWidgetItem)
     def __init__(self, text=None):
@@ -79,6 +14,7 @@ class image_preview_widget(QLabel):
         self.setText(self.placeholder)
         self.list_widget_item_index = -1
         self.currentImagePath = ""
+        self.currentImage = None
         self.is_an_image = False
         self.setScaledContents(True)
         self.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
@@ -86,26 +22,136 @@ class image_preview_widget(QLabel):
         self.setStyleSheet("color: #FFFFFF;")
 
         # self.setMaximumSize(315, 317)
+
     def setPixmap2(self, pixmap):
         self.setPixmap(pixmap)
-        self.adjustSize()
+        self.currentImage = pixmap
+
+    def heightForWidth2(self, initial_height, initial_width,height):
+        ratio = int(initial_height/initial_width)
+        return int(ratio*height)
+
+    def widthForHeight2(self, initial_height, initial_width,width):
+        ratio = int(initial_width/initial_height)
+        return int(ratio*width)
 
 
-        # labelRatio = self.height()/self.width()
-        # if labelRatio>ratio:
-        #     self.resize(int(self.width()), int(self.width()*ratio))
-        # elif labelRatio <= ratio:
-        #     self.resize(int(self.height()/ratio), int(self.height()))
+    def resizeEvent(self, e):
+        if (self.is_an_image):
+            # image_pixmap = QPixmap(self.currentImagePath)
+            event_width = e.size().width()
+            event_height = e.size().height()
+            event_h_w_ratio = event_height/event_width
 
+            height = self.currentImage.height()
+            width = self.currentImage.width()
+            image_h_w_ratio = height/width
+
+            if image_h_w_ratio > event_h_w_ratio:
+                new_width = self.heightForWidth2(height,width, event_height)
+                self.resize(new_width,event_height)
+            elif image_h_w_ratio <= event_h_w_ratio:
+                new_height = self.widthForHeight2(height,width, event_width)
+                self.resize(event_width,new_height)
+    #the two functions below rescales the image, but it messes with image quality as it is scaled.
     # def resizeEvent(self, e):
-    #     h = self.pixmap()height()
-    #     w = p.width()
-    #     ratio = h/w
-    #     labelRatio = self.height()/self.width()
-    #     if labelRatio>ratio:
-    #         self.resize(int(self.width()), int(self.width()*ratio))
-    #     elif labelRatio <= ratio:
-    #         self.resize(int(self.height()/ratio), int(self.height()))
+    #     if (self.is_an_image):
+    #         self.currentImagePath
+    #         pixmaptemp = self.currentImagePath
+    #         size = e.size()
+    #         self.setPixmap(pixmaptemp,size)
+    #         # self.resize(100,100)
+    # def setPixmap(self, pixmap: QPixmap, size: QSize = None):
+    #     self.currentImagePath = pixmap
+    #     self.is_an_image = True
+    #     if size:
+    #
+    #         pixmaptemp = self.currentImagePath.scaled(size, Qt.AspectRatioMode.KeepAspectRatio,
+    #                                                   Qt.TransformationMode.FastTransformation)
+    #     else:
+    #         pixmaptemp = pixmap
+    #     super().setPixmap(pixmaptemp)
+class image_preview_widget(QWidget):
+    # signal returns path name, index of widget to toggle off
+    toggleOffFileExplorerButton = pyqtSignal(QListWidgetItem)
+    def __init__(self, text=None):
+        super().__init__()
+        self.lable = QLabel()
+        self.lable.placeholder = text
+        self.lable.setText(self.lable.placeholder)
+        self.list_widget_item_index = -1
+        self.currentImagePath = ""
+        self.currentImage = None
+        self.currentImageHeight = 0
+        self.currentImageWidth = 0
+        self.is_an_image = False
+        self.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
+        self.lable.setScaledContents(True)
+        self.lable.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
+        self.lable.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lable.setStyleSheet("color: #FFFFFF;")
+        # self.lable.setFixedSize(100,100)
+
+        self.Layout = QVBoxLayout()
+        self.Layout.addWidget(self.lable, Qt.AlignmentFlag.AlignCenter)
+        self.Layout.setContentsMargins(0,0,0,0)
+        self.Layout.setSpacing(0)
+        self.superLayout = QHBoxLayout()
+        self.superLayout.setSpacing(0)
+        self.superLayout.setContentsMargins(0,0,0,0)
+        self.superLayout.addLayout(self.Layout)
+        self.setLayout(self.superLayout)
+
+        # self.setMaximumSize(315, 317)
+
+    def setPixmap2(self, pixmap):
+        self.currentImage = pixmap
+        self.currentImageHeight = pixmap.height()
+        self.currentImageWidth = pixmap.width()
+
+        self.lable.setPixmap(pixmap)
+
+        current_width = self.size().width()
+        current_height = self.size().height()
+        current_h_w_ratio = current_height / current_width
+
+        height = self.currentImageHeight
+        width = self.currentImageWidth
+        image_h_w_ratio = height / width
+
+        if image_h_w_ratio > current_h_w_ratio:
+            new_width = self.heightForWidth2(height, width, current_height)
+            self.lable.setFixedSize(new_width, current_height)
+        elif image_h_w_ratio <= current_h_w_ratio:
+            new_height = self.widthForHeight2(height, width, current_width)
+            self.lable.setFixedSize(current_width, new_height)
+
+    def heightForWidth2(self, initial_height, initial_width,height):
+        ratio = initial_width/initial_height
+        return int(ratio*height)
+
+    def widthForHeight2(self, initial_height, initial_width,width):
+        ratio = initial_height/initial_width
+        return int(ratio*width)
+
+    def resizeEvent(self, e):
+        if (self.is_an_image):
+            # image_pixmap = QPixmap(self.currentImagePath)
+            event_width = e.size().width()
+            event_height = e.size().height()
+            event_h_w_ratio = event_height / event_width
+
+            height = self.currentImageHeight
+            width = self.currentImageWidth
+            image_h_w_ratio = height / width
+
+            if image_h_w_ratio > event_h_w_ratio:
+                new_width = self.heightForWidth2(height, width, event_height)
+                self.lable.setFixedSize(new_width, event_height)
+            elif image_h_w_ratio <= event_h_w_ratio:
+                new_height = self.widthForHeight2(height, width, event_width)
+                self.lable.setFixedSize(event_width, new_height)
+        super().resizeEvent(e)
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage, QPixmap, QPalette, QPainter, QAction
@@ -130,7 +176,32 @@ class QImageViewer(QMainWindow):
         self.scrollArea.setWidget(self.imageLabel)
         self.scrollArea.setVisible(False)
 
-        self.setCentralWidget(self.scrollArea)
+        self.testSuper = QWidget()
+        self.testLayout =  QHBoxLayout()
+        self.testLayout.setSpacing(0)
+        self.testLayout.setContentsMargins(0,0,0,0)
+        self.testSuper.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
+
+        # self.test = QLabel()
+        # tet = QPixmap("/Users/basmattiejamaludin/Desktop/Images/test.jpg")
+        # tet2= tet.scaled(500,500)
+        # self.test.setPixmap(tet2)
+        # self.test.setBaseSize(100,100)
+        # # self.test.resize(100,100)
+        #/Users/basmattiejamaludin/Desktop/Images/test.jpg
+        #/Users/basmattiejamaludin/Desktop/demo1.jpg
+        self.test = image_preview_widget()
+        self.test.setPixmap2(QPixmap("/Users/basmattiejamaludin/Desktop/demo1.jpg"))
+        self.test.is_an_image =True
+        self.test.currentImagePath = "/Users/basmattiejamaludin/Desktop/demo1.jpg"
+
+
+        self.testLayout.addWidget(self.test,Qt.AlignmentFlag.AlignHCenter)
+        self.testSuper.setLayout(self.testLayout)
+
+        self.setCentralWidget(self.test)
+
+        # self.setCentralWidget(self.scrollArea)
 
         self.createActions()
         self.createMenus()
@@ -294,6 +365,7 @@ if __name__ == '__main__':
     from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
+    app.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     imageViewer = QImageViewer()
     imageViewer.show()
     sys.exit(app.exec())

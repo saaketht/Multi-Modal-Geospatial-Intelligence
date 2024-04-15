@@ -219,8 +219,8 @@ class MainWindow(QMainWindow):
 
             #if button has already been toggled and an image is displayed
             elif already_displayed and self.image_preview_label.is_an_image:
-                self.image_preview_label.clear()
-                self.image_preview_label.setText(self.image_preview_label.placeholder)
+                self.image_preview_label.lable.clear()
+                self.image_preview_label.lable.setText(self.image_preview_label.lable.placeholder)
 
                 item = list_widget_item
                 widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
