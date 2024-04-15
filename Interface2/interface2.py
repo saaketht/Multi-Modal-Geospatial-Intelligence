@@ -7,6 +7,7 @@ from chatbox_file import *
 from file_explorer_dock import *
 from image_preview_dock import *
 from interactive_map_dock import *
+from PyQt6.QtWidgets import QSplashScreen
 
 
 class MainWindow(QMainWindow):
@@ -250,12 +251,18 @@ def main():
     geoint_app = QApplication(sys.argv)
     geoint_app.setApplicationName("GEOINT")
     geoint_app.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    splashScreen = QPixmap('image 1@2x.png')
+    splash = QSplashScreen(splashScreen)
+    splash.show()
+    geoint_app.processEvents()
+
     if platform.system() == "Windows":
         if int(platform.release()) >= 8:
             print(platform.release())
             ctypes.windll.shcore.SetProcessDpiAwareness(True)
     window = MainWindow()
     window.show()
+    splash.finish(window)
     sys.exit(geoint_app.exec())
 
 
