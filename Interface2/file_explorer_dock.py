@@ -1,4 +1,5 @@
 from component_file import *
+from PIL import Image
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget,
     QPushButton, QLabel, QLineEdit, QDockWidget, QTabWidget, QListWidget,
@@ -118,7 +119,7 @@ class file_explorer(QWidget):
 
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select Image file", "", "Image files (*.png *.jpg *.jpeg "
-                                                                                  "*.bmp)")
+                                                                                  "*.bmp *.tiff)")
         if file_path:
             self.file_path_line_edit.setText(file_path)
 
@@ -152,8 +153,9 @@ class file_explorer(QWidget):
                     file_root, file_extension = os.path.splitext(base_name)
                     counter = 1
                     while os.path.exists(new_file_path):
-                        new_file_name = f"{file_root}_{counter}{file_extension}"
+                        new_file_name = f"{file_root}({counter}){file_extension}"
                         new_file_path = os.path.join(self.uploads_folder, new_file_name)
+                        base_name = new_file_name
                         counter += 1
 
                     shutil.copy(file_path, new_file_path)

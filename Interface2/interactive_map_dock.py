@@ -7,20 +7,43 @@ from PyQt6.QtCore import pyqtSignal as Signal
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6 import QtWebEngineWidgets
-from ipyleaflet import Map, Marker, LayersControl, basemaps
+# from ipyleaflet import Map, Marker, LayersControl, basemaps
 from ipywidgets import HTML, IntSlider
 from ipywidgets.embed import embed_data
-import folium
+from  folium import Map, TileLayer
+# from localtileserver import get_folium_tile_layer, TileClient
 import io
 from pathlib import Path
 from datetime import datetime
 from file_explorer_dock import *
-
+# class localTileServer (QWidget):
+#     def __init__(self, parent=None):
+#         super().__init__(parent=parent)
+#         self.Layout =  QVBoxLayout()
+#         self.Layout.setContentsMargins(10,10,10,10)
+#         self.Layout.setSpacing(0)
+#
+#         client = TileClient("/Users/basmattiejamaludin/Desktop/sample2.tiff")
+#         self.t = get_folium_tile_layer(client)
+#
+#         self.m = Map(location=client.center(), zoom_start=16)
+#         self.m.add_child(self.t)
+#
+#         self.data = io.BytesIO()
+#         self.m.save(self.data, close_file=False)
+#
+#         self.w = QtWebEngineWidgets.QWebEngineView(self)
+#
+#         self.w.setHtml(self.data.getvalue().decode())
+#
+#         self.Layout.addWidget(self.w)
+#
+#         self.setLayout(self.Layout)
 class CaptureFrame(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
-        self.setStyleSheet("background-color: rgba(0, 0, 0, 0.5); border: 2px solid white;")
+        self.setStyleSheet("background-color: rgba(0, 0, 0, 0.5); border: 2px dotted white;")
         self.setWindowOpacity(0.5)
         self.resize(300, 200)  
         self.setMouseTracking(True)  
@@ -58,7 +81,7 @@ class interactive_map_widget(QWidget):
         if not os.path.exists(self.uploads_folder):
                 os.makedirs(self.uploads_folder)
 
-        self.m = folium.Map(
+        self.m = Map(
             location=[28.598, -81.1974], tiles="openstreetmap",
             zoom_start=15)
 
@@ -86,8 +109,8 @@ class interactive_map_widget(QWidget):
 
         #https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png
         #https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
-        folium.TileLayer(attr="<a href=''></a>",
-                         tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}").add_to(self.m)
+        TileLayer(attr="<a href=''></a>",
+                         tiles="https://geoint-bucket.s3.amazonaws.com/tileserv/{z}/{x}/{y}.png").add_to(self.m)
         self.data = io.BytesIO()
         self.m.save(self.data, close_file=False)
 
@@ -117,9 +140,11 @@ class interactive_map_widget(QWidget):
         # self.map_dock_layout.addWidget(self.tabs)
         # self.setLayout(self.map_dock_layout)
         self.setLayout(self.layout)
+        # self.w3_widget = localTileServer()
 
         self.tabs.addTab2(self.w1_widget,"ArcGIS")
         self.tabs.addTab2( self.w_widget,"Tile Server")
+        # self.tabs.addTab2(self.w3_widget, "LocalTileServer")
         self.tabs.setMovable(False)
 
         # self.analyzeButton = QPushButton('Analyze', self)
