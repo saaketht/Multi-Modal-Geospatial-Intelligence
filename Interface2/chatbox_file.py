@@ -62,7 +62,7 @@ class UserMessage(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 
         self.icon_label = QLabel(self)
         icon_pixmap = QIcon('feather/group1.svg').pixmap(QSize(40, 40))
@@ -71,11 +71,15 @@ class UserMessage(QWidget):
         self.icon_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
 
         self.username_label = QLabel("User", self)
+        self.username_label.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
         self.username_label.setFont(QFont('Arial', 14, QFont.Weight.Bold))
         self.username_label.setStyleSheet("color: #FFFFFF;")
 
         self.message_content = QLabel(message, self)
         self.message_content.setFont(QFont('Arial', 14, QFont.Weight.ExtraLight))
+        self.message_content.setContentsMargins(0,0,0,0)
+        # self.message_content.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
+
         self.message_content.setWordWrap(True)
         self.message_content.setStyleSheet("color: #FFFFFF;")
 
@@ -85,7 +89,7 @@ class UserMessage(QWidget):
         self.top_layout.addSpacing(15)
 
         self.top_layout.addWidget(self.username_label, Qt.AlignmentFlag.AlignLeft)
-        # self.top_layout.addStretch()
+        self.top_layout.addStretch()
 
         self.bottom_layout = QHBoxLayout()
         self.bottom_layout.setContentsMargins(0, 0, 0, 0)
@@ -110,7 +114,7 @@ class ModelMessage(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 
         self.icon_label = QLabel(self)
         icon_pixmap = QIcon('feather/group2.svg').pixmap(QSize(40, 40))
@@ -119,11 +123,13 @@ class ModelMessage(QWidget):
         self.icon_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
 
         self.username_label = QLabel("GEOINT", self)
+        self.username_label.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
         self.username_label.setFont(QFont('Arial', 14, QFont.Weight.Bold))
         self.username_label.setStyleSheet("color: #FFFFFF;")
 
         self.message_content = QLabel(message, self)
         self.message_content.setFont(QFont('Arial', 14, QFont.Weight.ExtraLight))
+        # self.message_content.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
         self.message_content.setWordWrap(True)
         self.message_content.setStyleSheet("color: #FFFFFF;")
 
@@ -133,6 +139,7 @@ class ModelMessage(QWidget):
         self.top_layout.addSpacing(15)
 
         self.top_layout.addWidget(self.username_label, Qt.AlignmentFlag.AlignLeft)
+        self.top_layout.addStretch()
 
         self.bottom_layout = QHBoxLayout()
         self.bottom_layout.setContentsMargins(0, 0, 0, 0)
@@ -185,6 +192,8 @@ class Chat(QWidget):
         self.chat_list = QListWidget()
         # self.chat_scroll_area.setStyleSheet
         self.chat_list.setResizeMode(QListView.ResizeMode.Adjust)
+        self.chat_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+        self.chat_list.setSpacing(15)
         self.chat_list.setStyleSheet('''
                 QScrollArea
                 {
@@ -461,7 +470,7 @@ class Chat(QWidget):
         self.index += 1
         self.messages.append(f"GEOINT: {model_message_text}")
         self.save_message(model_message_text, sender="GEOINT")
-        self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
+        # self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
         self.update()
 
 
