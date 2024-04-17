@@ -1,14 +1,16 @@
 import replicate
 from replicate.client import Client
 import os
+from dotenv import load_dotenv
+
 
 # Get the API token from the environment variable
-
-api_token = os.environ.get('REPLICATE_API_TOKEN')
+load_dotenv()
+api_token = os.getenv('REPLICATE_API_KEY')
 
 
 def send_and_receive(prompt, image_path, history_dict, top_p=1, max_tokens=256, temperature=0.2):
-    replicate = Client(api_token="")
+    replicate = Client(api_token=api_token)
     image = open(image_path, "rb")
     output = replicate.run(
         "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
