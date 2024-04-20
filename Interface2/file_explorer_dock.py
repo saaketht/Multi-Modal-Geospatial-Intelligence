@@ -18,6 +18,7 @@ class file_explorer(QWidget):
     #signal returns path name, index of widget, if image is already displayed, and if image that
     # is being displayed exists in file explorer (always true for files in file explorer).
     toggleImagePreviewWidget = pyqtSignal(str, QListWidgetItem, bool,bool)
+    toggleImagePreviewWidget2 = pyqtSignal(str, QListWidgetItem, bool,bool)
     def __init__(self, app_data_path, parent=None):
         super().__init__(parent=parent)
         self.uploads_folder = os.path.join(app_data_path, "uploads")
@@ -105,6 +106,8 @@ class file_explorer(QWidget):
 
         self.file_explorer_vertical_layout = QVBoxLayout()
         self.file_explorer_vertical_layout.setSpacing(8)
+        self.file_explorer_vertical_layout.setContentsMargins(0,10,0,0)
+
         self.file_explorer_vertical_layout.addLayout(self.file_explorer_layout)
         self.file_explorer_vertical_layout.addWidget(self.file_list)
 
@@ -145,6 +148,9 @@ class file_explorer(QWidget):
                     custom_list_item_widget.world_button.clicked.connect(
                         lambda: self.world_button_signal(custom_list_item_widget,list_widget_item))
 
+                    custom_list_item_widget.eye_button.clicked.connect(
+                        lambda: self.eye_button_signal(custom_list_item_widget, list_widget_item))
+
                     custom_list_item_widget.list_widget_item = list_widget_item
                 else:
                     base_name = os.path.basename(file_path)
@@ -174,6 +180,9 @@ class file_explorer(QWidget):
                     custom_list_item_widget.world_button.clicked.connect(
                         lambda: self.world_button_signal(custom_list_item_widget, list_widget_item))
 
+                    custom_list_item_widget.eye_button.clicked.connect(
+                        lambda: self.eye_button_signal(custom_list_item_widget, list_widget_item))
+
                     custom_list_item_widget.list_widget_item = list_widget_item
 
                     self.file_path_line_edit.clear()
@@ -193,6 +202,25 @@ class file_explorer(QWidget):
             self.file_list.takeItem(row)
         except Exception as e:
             print(f"Error removing item: {e}")
+    def eye_button_signal(self,custom_list_item_widget, list_widget_item):
+
+        temp_list_widget_item = list_widget_item
+        if custom_list_item_widget.is_preview_image_displayed:
+            custom_list_item_widget.eye_button.setIcon(QIcon('feather/eye.svg'))
+
+            image_file_path = custom_list_item_widget.image_path
+            self.toggleImagePreviewWidget2.emit(image_file_path, temp_list_widget_item,
+                                               custom_list_item_widget.is_preview_image_displayed, True)
+
+            custom_list_item_widget.is_preview_image_displayed = False
+        else:
+            custom_list_item_widget.eye_button.setIcon(QIcon('feather/eye-off.svg'))
+
+            image_file_path = custom_list_item_widget.image_path
+            self.toggleImagePreviewWidget2.emit(image_file_path, temp_list_widget_item,
+                                               custom_list_item_widget.is_preview_image_displayed, True)
+            custom_list_item_widget.is_preview_image_displayed = True
+
 
     def world_button_signal(self, custom_list_item_widget, list_widget_item):
         file_path = custom_list_item_widget.image_path
@@ -211,6 +239,7 @@ class file_explorer(QWidget):
             self.toggleImagePreviewWidget.emit(image_file_path, temp_list_widget_item, custom_list_item_widget.is_image_displayed, True)
 
             custom_list_item_widget.is_image_displayed = True
+
     def radio_reset_for_custom_list_item(self, list_widget_item):
 
         item = list_widget_item
@@ -218,7 +247,20 @@ class file_explorer(QWidget):
 
         widget_at_index.world_button.setIcon(QIcon('feather/globe.svg'))
         widget_at_index.is_image_displayed = False
-        widget_at_index.remove_button.setEnabled(True)
+
+        if widget_at_index.is_preview_image_displayed == False:
+            widget_at_index.remove_button.setEnabled(True)
+
+    def radio_reset_for_custom_list_item2(self, list_widget_item):
+
+        item = list_widget_item
+        widget_at_index = self.file_list.itemWidget(item)
+
+        widget_at_index.eye_button.setIcon(QIcon('feather/eye.svg'))
+        widget_at_index.is_preview_image_displayed = False
+
+        if widget_at_index.is_image_displayed == False:
+            widget_at_index.remove_button.setEnabled(True)
 
     def load_existing_data(self):
         directory = os.fsencode(self.uploads_folder)
@@ -259,27 +301,19 @@ class CustomListItem(QWidget):
 
         self.list_widget = list_widget
 
-        self.eye_button.clicked.connect(self.toggle_eye_icon)
         self.is_eye_icon = True
 
-        # self.remove_button.clicked.connect(self.remove_item)
         self.remove_button.installEventFilter(self)
 
-        # self.world_button.clicked.connect(self.toggle_image_preview)
+        self.is_preview_image_displayed = False
         self.is_image_displayed = False
 
         layout.addWidget(self.remove_button)
         layout.addWidget(self.label, 1)
         # layout.addStretch()
-        # layout.addWidget(self.eye_button)
+        layout.addWidget(self.eye_button)
         layout.addWidget(self.world_button)
 
-    # def remove_item(self):
-    #     try:
-    #         row = self.list_widget.row(self.list_widget_item)
-    #         self.list_widget.takeItem(row)
-    #     except Exception as e:
-    #         print(f"Error removing item: {e}")
 
     def eventFilter(self, source, event):
         if source == self.remove_button:
@@ -295,10 +329,3 @@ class CustomListItem(QWidget):
                 self.remove_button.setStyleSheet("border:0px; border-radius:10px;")
         return super().eventFilter(source, event)
 
-    def toggle_eye_icon(self):
-        if self.is_eye_icon:
-            self.eye_button.setIcon(QIcon('feather/eye-off.svg'))
-            self.is_eye_icon = False
-        else:
-            self.eye_button.setIcon(QIcon('feather/eye.svg'))
-            self.is_eye_icon = True

@@ -38,9 +38,35 @@ from PyQt6.QtWidgets import (
     QFrame,
     QTabWidget,
     QPlainTextEdit,
-    QInputDialog
+    QInputDialog,
+    QSplitter
 )
 
+class Splitter (QSplitter):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+
+        self.setStyleSheet('''
+        QSplitter::handle {
+            background-color: #2d2d2d;
+        }
+        
+        QSplitter::handle:horizontal {
+            width: 4px;
+        }
+        
+        QSplitter::handle:vertical {
+            height: 4px;
+        }
+        
+        QSplitter::handle:hover {
+            background-color: #494949;
+        }
+        QSplitter::handle:pressed {
+            background-color: #03B5A9;
+        }
+        
+        ''')
 
 class TreeWidget(QTreeWidget):
     def __init__(self, parent=None):

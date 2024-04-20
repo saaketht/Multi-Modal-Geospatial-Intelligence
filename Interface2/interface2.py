@@ -2,6 +2,8 @@ import ctypes
 import platform
 import shutil
 
+from PyQt6.QtCore import pyqtSlot, QVariant,QEasingCurve, QAbstractAnimation
+
 from chat_history_dock import *
 from chatbox_file import *
 from file_explorer_dock import *
@@ -28,6 +30,13 @@ class MainWindow(QMainWindow):
         self.image_preview_dock_widget = None
         self.file_explorer_widget = None
         self.file_explorer_dock_widget = None
+        self.file_explorer_splitter = None
+        self.explorer_image_prev = None
+        self.explorer_image_prev_layout = None
+        self.explorer_image_prev_label = None
+
+
+
 
         # Set the type of location/path where application data should be stored
         self.app_data_path_type = QStandardPaths.StandardLocation.AppDataLocation
@@ -115,8 +124,8 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.map_dock_widget)
 
         # Image Preview Dock Widget
-        self.image_preview_label = image_preview_widget("Image Preview/Selection")
-        self.image_preview_dock_widget = DockWidget("Image Preview", self.image_preview_label, self)
+        self.image_preview_label = image_preview_widget("Image Selection")
+        self.image_preview_dock_widget = DockWidget("Current Image", self.image_preview_label, self)
 
         # The following 2 lines of code add these QDockWidgets to MainWindow
         # (the map_dock_widget and image_preview_dock_widget)
@@ -125,8 +134,54 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.image_preview_dock_widget)
 
         # File Explorer Dock Widget
+        self.file_explorer_splitter = Splitter()
+        self.file_explorer_splitter.setOrientation(Qt.Orientation.Vertical)
+
+        self.explorer_image_prev = image_preview_widget("Image Preview")
+
+        self.explorer_image_prev_frame = QFrame()
+        self.explorer_image_prev_frame.setObjectName("explorerpreview")
+        self.explorer_image_prev_frame.setStyleSheet('''
+             QFrame
+             {
+                background: #202020;
+                border: 2px solid #494949;
+                border-radius:10px;
+            }
+            ''')
+
+        self.explorer_image_prev_frame_l = QHBoxLayout(self.explorer_image_prev_frame)
+        self.explorer_image_prev_frame_l.setContentsMargins(10,10,10,10)
+        self.explorer_image_prev_frame_l.setSpacing(0)
+
+        self.explorer_image_prev_frame_l.addWidget(self.explorer_image_prev)
+
+        self.explorer_image_prev_frame.setLayout(self.explorer_image_prev_frame_l)
+
+
         self.file_explorer_widget = file_explorer(self.app_data_path)
-        self.file_explorer_dock_widget = DockWidget("File Explorer", self.file_explorer_widget, self)
+
+        self.file_explorer_splitter.addWidget(self.explorer_image_prev_frame)
+        self.file_explorer_splitter.addWidget(self.file_explorer_widget)
+
+        self.file_explorer_splitter.setCollapsible(0,True)
+        self.file_explorer_splitter.setCollapsible(1,False)
+
+        self.file_explorer_splitter.moveSplitter(0,1)
+
+        self.file_explorer_splitter.handle(1).setEnabled(False)
+
+        self.file_explorer_dock_widget = DockWidget("File Explorer", self.file_explorer_splitter, self)
+
+        self.m_animation = QVariantAnimation(
+            self,
+            startValue=0,
+            endValue=50,
+            valueChanged=self.onValueChanged,
+            duration=700,
+            easingCurve=QEasingCurve.Type.InOutCubic,
+        )
+
 
         # Add the self.file_explorer_dock_widget to main window.
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.file_explorer_dock_widget)
@@ -135,7 +190,13 @@ class MainWindow(QMainWindow):
         #connections
         self.file_explorer_widget.toggleImagePreviewWidget.connect(lambda image_path, list_widget_item_index, already_displayed, exists_in_file_explorer
                                                                    :self.handle_image_changed(image_path, list_widget_item_index ,already_displayed, exists_in_file_explorer))
+        self.file_explorer_widget.toggleImagePreviewWidget2.connect(
+            lambda image_path, list_widget_item_index, already_displayed, exists_in_file_explorer
+            : self.handle_image_changed2(image_path, list_widget_item_index, already_displayed, exists_in_file_explorer))
+
         self.image_preview_label.toggleOffFileExplorerButton.connect(lambda list_widget_item: self.file_explorer_widget.radio_reset_for_custom_list_item(list_widget_item))
+
+        self.explorer_image_prev.toggleOffFileExplorerButton.connect(lambda list_widget_item: self.file_explorer_widget.radio_reset_for_custom_list_item2(list_widget_item))
 
         self.interactive_map.screenshotTaken.connect(self.file_explorer_widget.add_new_file)
 
@@ -144,13 +205,25 @@ class MainWindow(QMainWindow):
         # self.setDockNestingEnabled(True)
         # self.resizeDocks([self.map_dock_widget, self.image_preview_dock_widget], [1, 1], Qt.Orientation.Vertical)
 
+    def toggle_image_preview_animation(self, is_up):
+
+        if not is_up:
+            self.m_animation.setStartValue(self.file_explorer_splitter.sizes()[0])
+            self.m_animation.setEndValue(0)
+        else:
+            self.m_animation.setStartValue(0)
+            self.m_animation.setEndValue(200)
+        self.m_animation.start()
+    def onValueChanged(self, value):
+        self.file_explorer_splitter.moveSplitter(value,1)
+
     def setup_menus(self):
         menubar = self.menuBar()
 
         view_menu = menubar.addMenu("&View")
 
         self.add_view_menu_action(view_menu, "Interactive Map", self.map_dock_widget)
-        self.add_view_menu_action(view_menu, "Image Preview", self.image_preview_dock_widget)
+        self.add_view_menu_action(view_menu, "Current Image", self.image_preview_dock_widget)
         self.add_view_menu_action(view_menu, "Map File Explorer", self.file_explorer_dock_widget)
         self.add_view_menu_action(view_menu, "Chat History", self.chat_history_dock_widget)
 
@@ -200,7 +273,6 @@ class MainWindow(QMainWindow):
             self.file_explorer_widget.world_button_signal(custom_list_item_widget,list_widget_item)
 
 
-
     def handle_image_changed(self, image_path:str, list_widget_item, already_displayed:bool, exists_in_file_explorer:bool):
         #if the file exists in the uploads folder
         if exists_in_file_explorer:
@@ -225,7 +297,9 @@ class MainWindow(QMainWindow):
 
                 item = list_widget_item
                 widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
-                widget_of_item.remove_button.setEnabled(True)
+
+                if(not widget_of_item.is_preview_image_displayed):
+                    widget_of_item.remove_button.setEnabled(True)
 
                 self.image_preview_label.list_widget_item_index = -1
                 self.tabs.currentWidget().setCurrentImagePath("")
@@ -245,6 +319,64 @@ class MainWindow(QMainWindow):
                 widget_of_item.remove_button.setEnabled(False)
 
                 self.image_preview_label.currentImagePath = image_path
+                self.tabs.currentWidget().setCurrentImagePath(image_path)
+
+    #this is for image preview within the file explorer
+    def handle_image_changed2(self, image_path:str, list_widget_item, already_displayed:bool, exists_in_file_explorer:bool):
+        #if the file exists in the uploads folder
+        if exists_in_file_explorer:
+            #if button has not been toggled and the no image is displayed in image_preview
+            if not already_displayed and not self.explorer_image_prev.is_an_image:
+                image = QPixmap(image_path)
+                self.explorer_image_prev.setPixmap2(image)
+                self.explorer_image_prev.currentImagePath = image_path
+                self.explorer_image_prev.list_widget_item_index = list_widget_item
+                self.explorer_image_prev.is_an_image = True
+                self.file_explorer_splitter.handle(1).setEnabled(True)
+
+                self.toggle_image_preview_animation(True)
+
+                item = list_widget_item
+                widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
+                widget_of_item.remove_button.setEnabled(False)
+
+                self.tabs.currentWidget().setCurrentImagePath(image_path)
+
+            #if button has already been toggled and an image is displayed
+            elif already_displayed and self.explorer_image_prev.is_an_image:
+
+                self.explorer_image_prev.lable.clear()
+                self.explorer_image_prev.lable.setText(self.explorer_image_prev.lable.placeholder)
+
+                item = list_widget_item
+                widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
+
+                if (not widget_of_item.is_image_displayed):
+                    widget_of_item.remove_button.setEnabled(True)
+
+                self.file_explorer_splitter.handle(1).setEnabled(False)
+
+                self.toggle_image_preview_animation(False)
+
+                self.explorer_image_prev.list_widget_item_index = -1
+                self.tabs.currentWidget().setCurrentImagePath("")
+                self.explorer_image_prev.is_an_image = False
+                self.explorer_image_prev.currentImagePath = ""
+
+
+            #if button has not been toggled but there an image is displayed, untoggle that button and then toggle the new one.
+            elif not already_displayed and self.explorer_image_prev.is_an_image:
+                self.explorer_image_prev.toggleOffFileExplorerButton.emit(self.explorer_image_prev.list_widget_item_index)
+                image = QPixmap(image_path)
+                self.explorer_image_prev.setPixmap2(image)
+                self.explorer_image_prev.is_an_image = True
+                self.explorer_image_prev.list_widget_item_index =list_widget_item
+
+                item = list_widget_item
+                widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
+                widget_of_item.remove_button.setEnabled(False)
+
+                self.explorer_image_prev.currentImagePath = image_path
                 self.tabs.currentWidget().setCurrentImagePath(image_path)
 
 def main():
