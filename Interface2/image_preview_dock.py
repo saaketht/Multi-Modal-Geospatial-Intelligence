@@ -130,11 +130,15 @@ class image_preview_widget(QWidget):
 
         current_width = self.size().width()
         current_height = self.size().height()
-        current_h_w_ratio = current_height / current_width
+        current_h_w_ratio = 0
+        if (current_width != 0):
+            current_h_w_ratio = current_height / current_width
 
         height = self.currentImageHeight
         width = self.currentImageWidth
-        image_h_w_ratio = height / width
+        image_h_w_ratio = 0
+        if (width != 0):
+            image_h_w_ratio = height / width
 
         if image_h_w_ratio > current_h_w_ratio:
             new_width = self.heightForWidth2(height, width, current_height)

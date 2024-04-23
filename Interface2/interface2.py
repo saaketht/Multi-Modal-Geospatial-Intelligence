@@ -134,8 +134,8 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.image_preview_dock_widget)
 
         # File Explorer Dock Widget
-        self.file_explorer_splitter = Splitter()
-        self.file_explorer_splitter.setOrientation(Qt.Orientation.Vertical)
+        # self.file_explorer_splitter = Splitter()
+        # self.file_explorer_splitter.setOrientation(Qt.Orientation.Vertical)
 
         self.explorer_image_prev = image_preview_widget("Image Preview")
 
@@ -161,8 +161,11 @@ class MainWindow(QMainWindow):
 
         self.file_explorer_widget = file_explorer(self.app_data_path)
 
-        self.file_explorer_splitter.addWidget(self.explorer_image_prev_frame)
-        self.file_explorer_splitter.addWidget(self.file_explorer_widget)
+        self.file_explorer_splitter = FileExplorerSplitter(self.explorer_image_prev_frame,self.file_explorer_widget)
+        # self.file_explorer_splitter.setOrientation(Qt.Orientation.Vertical)
+
+        # self.file_explorer_splitter.addWidget(self.explorer_image_prev_frame)
+        # self.file_explorer_splitter.addWidget(self.file_explorer_widget)
 
         self.file_explorer_splitter.setCollapsible(0,True)
         self.file_explorer_splitter.setCollapsible(1,False)

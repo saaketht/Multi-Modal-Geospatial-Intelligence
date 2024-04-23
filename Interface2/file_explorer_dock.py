@@ -11,6 +11,26 @@ from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFontMetrics
 from image_preview_dock import *
 from chatbox_file import *
 import os, sys, shutil
+import rasterio
+from rasterio.errors import CRSError
+
+class FileExplorerSplitter(Splitter):
+    def __init__(self, firstWidget, secondWidget, parent=None):
+        super().__init__(parent)
+        self.addWidget(firstWidget)
+        self.addWidget(secondWidget)
+        self.setOrientation(Qt.Orientation.Vertical)
+
+    def resizeEvent(self, e):
+        height = self.height()
+        width = self.width()
+
+        if height < width:
+            self.setOrientation(Qt.Orientation.Horizontal)
+        else:
+            self.setOrientation(Qt.Orientation.Vertical)
+
+        super().resizeEvent(e)
 
 
 # This is the file explorer widget that will be hosted within a qdockwidget,specifically the "docks" variant
@@ -19,6 +39,7 @@ class file_explorer(QWidget):
     # is being displayed exists in file explorer (always true for files in file explorer).
     toggleImagePreviewWidget = pyqtSignal(str, QListWidgetItem, bool,bool)
     toggleImagePreviewWidget2 = pyqtSignal(str, QListWidgetItem, bool,bool)
+    toggleInteractiveMap = pyqtSignal(str, QListWidgetItem, bool)
     def __init__(self, app_data_path, parent=None):
         super().__init__(parent=parent)
         self.uploads_folder = os.path.join(app_data_path, "uploads")
@@ -295,6 +316,8 @@ class CustomListItem(QWidget):
         self.remove_button = icon_button(initial_icon='feather/image.svg', icon_square_len=22, button_square_len=34)
         self.eye_button = icon_button(initial_icon='feather/eye.svg', icon_square_len=22, button_square_len=34)
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
+        self.map_button = icon_button(initial_icon='feather/map-pin.svg', icon_square_len=22, button_square_len=34)
+
 
 
         self.label = Label(text)
@@ -310,11 +333,89 @@ class CustomListItem(QWidget):
         self.is_preview_image_displayed = False
         self.is_image_displayed = False
 
+        self.isGeoReferenced = False
+
+        self.image_basename = os.path.basename(self.image_path)
+        _ , self.image_type = os.path.splitext(self.image_basename)
+        if self.image_type == ".tiff" or self.image_type == ".tif":
+            # print(self.image_path)
+            _, isGeoReferenced =self.check_georeference(self.image_path)
+            if isGeoReferenced:
+                self.isGeoReferenced = True
+                layout.addWidget(self.map_button)
+
+            else:
+
+                self.isGeoReferenced = False
+                layout.addWidget(self.map_button)
+                self.map_button.setEnabled(False)
+
+
         layout.addWidget(self.remove_button)
+
+        if self.isGeoReferenced:
+            self.label.setStyleSheet('''
+        Label
+        {
+            background: transparent;
+            padding: 0 16px;
+            border-top:0;
+            border-bottom:2px solid #494949;
+            border-right:0;
+            border-left:0;
+            border-radius:0;
+            color: rgb(109,148,92);
+        }
+        ''')
+        elif self.isGeoReferenced == False and (self.image_type == ".tiff" or self.image_type == ".tif"):
+            self.label.setStyleSheet('''
+            Label
+            {
+                background: transparent;
+                padding: 0 16px;
+                border-top:0;
+                border-bottom:2px solid #494949;
+                border-right:0;
+                border-left:0;
+                border-radius:0;
+                color: rgb(229,96,104);
+            }
+        ''')
+
+
         layout.addWidget(self.label, 1)
-        # layout.addStretch()
+
+        if self.isGeoReferenced:
+            layout.addWidget(self.map_button)
+        elif self.isGeoReferenced == False and (self.image_type == ".tiff" or self.image_type == ".tif"):
+            layout.addWidget(self.map_button)
+            self.map_button.setEnabled(False)
+
         layout.addWidget(self.eye_button)
         layout.addWidget(self.world_button)
+
+    def check_georeference(self, file_path):
+        try:
+            with rasterio.open(file_path) as src:
+                # Check for a valid coordinate reference system
+                if src.crs is None:
+                    return "GeoTIFF error: No coordinate reference system found.", False
+
+                # Check the geotransform
+                if src.transform is None or src.transform == (0, 1, 0, 0, 0, 1):
+                    return "GeoTIFF error: Invalid geotransform.", False
+
+                # Display the CRS and geotransform
+                # print("Coordinate Reference System (CRS):", src.crs)
+                # print("Geotransform:", src.transform)
+
+                return "GeoTIFF is properly georeferenced.", True
+
+        except CRSError as e:
+            return f"CRS error: {str(e)}",False
+        except Exception as e:
+            return f"Error opening the GeoTIFF: {str(e)}",False
+
 
 
     def eventFilter(self, source, event):
