@@ -25,7 +25,7 @@ class FileExplorerSplitter(Splitter):
         height = self.height()
         width = self.width()
 
-        if height < width:
+        if height*1.5 < width:
             self.setOrientation(Qt.Orientation.Horizontal)
         else:
             self.setOrientation(Qt.Orientation.Vertical)
@@ -316,8 +316,7 @@ class CustomListItem(QWidget):
         self.remove_button = icon_button(initial_icon='feather/image.svg', icon_square_len=22, button_square_len=34)
         self.eye_button = icon_button(initial_icon='feather/eye.svg', icon_square_len=22, button_square_len=34)
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
-        self.map_button = icon_button(initial_icon='feather/map-pin.svg', icon_square_len=22, button_square_len=34)
-
+        self.map_button = icon_button(initial_icon='feather/map.svg', icon_square_len=22, button_square_len=34)
 
 
         self.label = Label(text)
