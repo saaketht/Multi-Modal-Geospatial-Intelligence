@@ -148,10 +148,14 @@ class image_preview_widget(QWidget):
             self.lable.setFixedSize(current_width, new_height)
 
     def heightForWidth2(self, initial_height, initial_width,height):
+        if initial_width == 0:
+            return 0
         ratio = initial_width/initial_height
         return int(ratio*height)
 
     def widthForHeight2(self, initial_height, initial_width,width):
+        if initial_width == 0:
+            return 0
         ratio = initial_height/initial_width
         return int(ratio*width)
 
@@ -166,7 +170,10 @@ class image_preview_widget(QWidget):
 
             height = self.currentImageHeight
             width = self.currentImageWidth
-            image_h_w_ratio = height / width
+            image_h_w_ratio = 0
+            if (width != 0):
+                image_h_w_ratio = height / width
+
 
             if(event_height<=100 or event_width<=self.heightForWidth2(height, width, 100)):
                 new_width = self.heightForWidth2(height, width, 100)
