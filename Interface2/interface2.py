@@ -181,6 +181,7 @@ class MainWindow(QMainWindow):
             duration=700,
             easingCurve=QEasingCurve.Type.InOutCubic,
         )
+        self.m_animation.finished.connect(lambda:self.finish_animation_funct())
 
 
         # Add the self.file_explorer_dock_widget to main window.
@@ -333,20 +334,15 @@ class MainWindow(QMainWindow):
                 self.explorer_image_prev.list_widget_item_index = list_widget_item
                 self.explorer_image_prev.is_an_image = True
                 self.file_explorer_splitter.handle(1).setEnabled(True)
-
                 self.toggle_image_preview_animation(True)
 
                 item = list_widget_item
                 widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
                 widget_of_item.remove_button.setEnabled(False)
 
-                self.tabs.currentWidget().setCurrentImagePath(image_path)
-
             #if button has already been toggled and an image is displayed
             elif already_displayed and self.explorer_image_prev.is_an_image:
 
-                self.explorer_image_prev.lable.clear()
-                self.explorer_image_prev.lable.setText(self.explorer_image_prev.lable.placeholder)
 
                 item = list_widget_item
                 widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
@@ -359,7 +355,6 @@ class MainWindow(QMainWindow):
                 self.toggle_image_preview_animation(False)
 
                 self.explorer_image_prev.list_widget_item_index = -1
-                self.tabs.currentWidget().setCurrentImagePath("")
                 self.explorer_image_prev.is_an_image = False
                 self.explorer_image_prev.currentImagePath = ""
 
@@ -377,7 +372,14 @@ class MainWindow(QMainWindow):
                 widget_of_item.remove_button.setEnabled(False)
 
                 self.explorer_image_prev.currentImagePath = image_path
-                self.tabs.currentWidget().setCurrentImagePath(image_path)
+    def finish_animation_funct(self):
+        is_an_image = self.explorer_image_prev.is_an_image
+        if is_an_image ==False:
+            self.explorer_image_prev.lable.clear()
+            self.explorer_image_prev.lable.setText(self.explorer_image_prev.lable.placeholder)
+        elif is_an_image ==True:
+            list_widget_item = self.explorer_image_prev.list_widget_item_index
+            self.file_explorer_widget.file_list.scrollToItem(list_widget_item)
 
 def main():
     geoint_app = QApplication(sys.argv)

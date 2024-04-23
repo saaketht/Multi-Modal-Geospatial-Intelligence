@@ -220,6 +220,7 @@ class file_explorer(QWidget):
             self.toggleImagePreviewWidget2.emit(image_file_path, temp_list_widget_item,
                                                custom_list_item_widget.is_preview_image_displayed, True)
             custom_list_item_widget.is_preview_image_displayed = True
+            self.file_list.scrollToItem(list_widget_item)
 
 
     def world_button_signal(self, custom_list_item_widget, list_widget_item):
@@ -239,6 +240,7 @@ class file_explorer(QWidget):
             self.toggleImagePreviewWidget.emit(image_file_path, temp_list_widget_item, custom_list_item_widget.is_image_displayed, True)
 
             custom_list_item_widget.is_image_displayed = True
+            self.file_list.scrollToItem(list_widget_item)
 
     def radio_reset_for_custom_list_item(self, list_widget_item):
 

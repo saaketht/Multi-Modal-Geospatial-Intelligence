@@ -448,7 +448,27 @@ class TabWidget(QTabWidget):
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
         self.index += 1
 
+class PlaneTextEdit(QPlainTextEdit):
+    enter_pressed = pyqtSignal()
 
+    def __init__(self):
+        super().__init__(parent=None)
+
+        self.setFixedHeight(34)
+        self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        font1 = QFont('Arial')
+        font1.setPixelSize(13)
+        self.setFont(font1)
+        self.setStyleSheet('''
+        PlaneTextEdit
+        {
+            background: #202020;
+            padding: none 16px;
+            border: 2px solid #494949;
+            border-radius:10px;
+            color: #FFFFFF;
+        }
+        ''')
 class LineEdit(QLineEdit):
     enter_pressed = pyqtSignal()
 
