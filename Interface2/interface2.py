@@ -198,9 +198,15 @@ class MainWindow(QMainWindow):
             lambda image_path, list_widget_item_index, already_displayed, exists_in_file_explorer
             : self.handle_image_changed2(image_path, list_widget_item_index, already_displayed, exists_in_file_explorer))
 
+        self.file_explorer_widget.toggleInteractiveMap.connect(
+            lambda image_path, list_widget_item_index, already_displayed
+            : self.handle_image_changed3(image_path, list_widget_item_index, already_displayed))
+
         self.image_preview_label.toggleOffFileExplorerButton.connect(lambda list_widget_item: self.file_explorer_widget.radio_reset_for_custom_list_item(list_widget_item))
 
         self.explorer_image_prev.toggleOffFileExplorerButton.connect(lambda list_widget_item: self.file_explorer_widget.radio_reset_for_custom_list_item2(list_widget_item))
+
+        self.interactive_map.w3_widget.toggleOffFileExplorerButton.connect(lambda list_widget_item: self.file_explorer_widget.radio_reset_for_custom_list_item3(list_widget_item))
 
         self.interactive_map.screenshotTaken.connect(self.file_explorer_widget.add_new_file)
 
@@ -302,7 +308,7 @@ class MainWindow(QMainWindow):
                 item = list_widget_item
                 widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
 
-                if(not widget_of_item.is_preview_image_displayed):
+                if(not (widget_of_item.is_preview_image_displayed or widget_of_item.is_tiff_displayed)):
                     widget_of_item.remove_button.setEnabled(True)
 
                 self.image_preview_label.list_widget_item_index = -1
@@ -350,7 +356,7 @@ class MainWindow(QMainWindow):
                 item = list_widget_item
                 widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
 
-                if (not widget_of_item.is_image_displayed):
+                if (not (widget_of_item.is_image_displayed or widget_of_item.is_tiff_displayed)):
                     widget_of_item.remove_button.setEnabled(True)
 
                 self.file_explorer_splitter.handle(1).setEnabled(False)
@@ -375,6 +381,46 @@ class MainWindow(QMainWindow):
                 widget_of_item.remove_button.setEnabled(False)
 
                 self.explorer_image_prev.currentImagePath = image_path
+    def handle_image_changed3(self, image_path:str, list_widget_item, already_displayed:bool):
+        #if button has not been toggled and the no image is displayed in image_preview
+        if not already_displayed and not self.interactive_map.w3_widget.is_an_image:
+            self.interactive_map.w3_widget.displayGeoTiff(image_path)
+            self.interactive_map.w3_widget.currentImagePath = image_path
+            self.interactive_map.w3_widget.list_widget_item_index = list_widget_item
+            self.interactive_map.w3_widget.is_an_image = True
+            self.interactive_map.tabs.setCurrentIndex(1)
+
+            item = list_widget_item
+            widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
+            widget_of_item.remove_button.setEnabled(False)
+
+        #if button has already been toggled and an image is displayed
+        elif already_displayed and self.interactive_map.w3_widget.is_an_image:
+
+            item = list_widget_item
+            widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
+
+            if (not (widget_of_item.is_image_displayed or widget_of_item.is_preview_image_displayed)):
+                widget_of_item.remove_button.setEnabled(True)
+
+            self.interactive_map.w3_widget.resetMap()
+            self.interactive_map.w3_widget.list_widget_item_index = -1
+            self.interactive_map.w3_widget.is_an_image = False
+            self.interactive_map.w3_widget.currentImagePath = ""
+
+        #if button has not been toggled but there an image is displayed, untoggle that button and then toggle the new one.
+        elif not already_displayed and self.interactive_map.w3_widget.is_an_image:
+            self.interactive_map.w3_widget.toggleOffFileExplorerButton.emit(self.interactive_map.w3_widget.list_widget_item_index)
+            print("works2")
+            self.interactive_map.w3_widget.displayGeoTiff(image_path)
+            self.interactive_map.w3_widget.is_an_image = True
+            self.interactive_map.w3_widget.list_widget_item_index = list_widget_item
+            self.interactive_map.tabs.setCurrentIndex(1)
+
+            item = list_widget_item
+            widget_of_item = self.file_explorer_widget.file_list.itemWidget(item)
+            widget_of_item.remove_button.setEnabled(False)
+            self.interactive_map.w3_widget.currentImagePath = image_path
     def finish_animation_funct(self):
         is_an_image = self.explorer_image_prev.is_an_image
         if is_an_image ==False:

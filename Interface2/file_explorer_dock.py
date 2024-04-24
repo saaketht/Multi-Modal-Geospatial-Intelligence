@@ -172,6 +172,10 @@ class file_explorer(QWidget):
                     custom_list_item_widget.eye_button.clicked.connect(
                         lambda: self.eye_button_signal(custom_list_item_widget, list_widget_item))
 
+                    if custom_list_item_widget.isGeoReferenced:
+                        custom_list_item_widget.map_button.clicked.connect(
+                            lambda: self.map_button_signal(custom_list_item_widget, list_widget_item))
+
                     custom_list_item_widget.list_widget_item = list_widget_item
                 else:
                     base_name = os.path.basename(file_path)
@@ -204,6 +208,10 @@ class file_explorer(QWidget):
                     custom_list_item_widget.eye_button.clicked.connect(
                         lambda: self.eye_button_signal(custom_list_item_widget, list_widget_item))
 
+                    if custom_list_item_widget.isGeoReferenced:
+                        custom_list_item_widget.map_button.clicked.connect(
+                            lambda: self.map_button_signal(custom_list_item_widget, list_widget_item))
+
                     custom_list_item_widget.list_widget_item = list_widget_item
 
                     self.file_path_line_edit.clear()
@@ -223,6 +231,25 @@ class file_explorer(QWidget):
             self.file_list.takeItem(row)
         except Exception as e:
             print(f"Error removing item: {e}")
+
+    def map_button_signal(self,custom_list_item_widget, list_widget_item):
+        temp_list_widget_item = list_widget_item
+        if custom_list_item_widget.is_tiff_displayed:
+            custom_list_item_widget.map_button.setIcon(QIcon('feather/map.svg'))
+
+            image_file_path = custom_list_item_widget.image_path
+            self.toggleInteractiveMap.emit(image_file_path, temp_list_widget_item,
+                                                custom_list_item_widget.is_tiff_displayed)
+
+            custom_list_item_widget.is_tiff_displayed = False
+        else:
+            custom_list_item_widget.map_button.setIcon(QIcon('feather/x.svg'))
+
+            image_file_path = custom_list_item_widget.image_path
+            self.toggleInteractiveMap.emit(image_file_path, temp_list_widget_item,
+                                           custom_list_item_widget.is_tiff_displayed)
+            custom_list_item_widget.is_tiff_displayed = True
+            self.file_list.scrollToItem(list_widget_item)
     def eye_button_signal(self,custom_list_item_widget, list_widget_item):
 
         temp_list_widget_item = list_widget_item
@@ -271,7 +298,7 @@ class file_explorer(QWidget):
         widget_at_index.world_button.setIcon(QIcon('feather/globe.svg'))
         widget_at_index.is_image_displayed = False
 
-        if widget_at_index.is_preview_image_displayed == False:
+        if (not widget_at_index.is_preview_image_displayed) and (not widget_at_index.is_tiff_displayed):
             widget_at_index.remove_button.setEnabled(True)
 
     def radio_reset_for_custom_list_item2(self, list_widget_item):
@@ -282,7 +309,18 @@ class file_explorer(QWidget):
         widget_at_index.eye_button.setIcon(QIcon('feather/eye.svg'))
         widget_at_index.is_preview_image_displayed = False
 
-        if widget_at_index.is_image_displayed == False:
+        if (not widget_at_index.is_image_displayed) and (not widget_at_index.is_tiff_displayed):
+            widget_at_index.remove_button.setEnabled(True)
+
+    def radio_reset_for_custom_list_item3(self, list_widget_item):
+
+        item = list_widget_item
+        widget_at_index = self.file_list.itemWidget(item)
+
+        widget_at_index.map_button.setIcon(QIcon('feather/map.svg'))
+        widget_at_index.is_tiff_displayed = False
+
+        if (not widget_at_index.is_image_displayed) and (not widget_at_index.is_preview_image_displayed):
             widget_at_index.remove_button.setEnabled(True)
 
     def load_existing_data(self):
@@ -331,6 +369,7 @@ class CustomListItem(QWidget):
 
         self.is_preview_image_displayed = False
         self.is_image_displayed = False
+        self.is_tiff_displayed = False
 
         self.isGeoReferenced = False
 

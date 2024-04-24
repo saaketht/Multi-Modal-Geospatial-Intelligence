@@ -17,17 +17,21 @@ from pathlib import Path
 from datetime import datetime
 from file_explorer_dock import *
 class localTileServer (QWidget):
+    toggleOffFileExplorerButton = pyqtSignal(QListWidgetItem)
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
+        self.list_widget_item_index = -1
+        self.currentImagePath = ""
+        self.currentImage = None
+        self.is_an_image = False
+
+
         self.Layout =  QVBoxLayout()
         self.Layout.setContentsMargins(10,10,10,10)
         self.Layout.setSpacing(0)
 
-        client = TileClient("sample2.tiff")
-        self.t = get_folium_tile_layer(client)
-
-        self.m = Map(location=client.center(), zoom_start=16)
-        self.m.add_child(self.t)
+        self.m = Map()
 
         self.data = io.BytesIO()
         self.m.save(self.data, close_file=False)
@@ -40,12 +44,20 @@ class localTileServer (QWidget):
 
         self.setLayout(self.Layout)
 
-    def test(self):
-        client = TileClient("sample.tiff")
+    def displayGeoTiff(self, file_path):
+        client = TileClient(file_path)
         self.t = get_folium_tile_layer(client)
 
         self.m = Map(location=client.center(), zoom_start=16)
         self.m.add_child(self.t)
+
+        self.data = io.BytesIO()
+        self.m.save(self.data, close_file=False)
+
+        self.w.setHtml(self.data.getvalue().decode())
+
+    def resetMap(self):
+        self.m = Map()
 
         self.data = io.BytesIO()
         self.m.save(self.data, close_file=False)
@@ -199,7 +211,6 @@ class interactive_map_widget(QWidget):
 
     #displays qframe on the map
     def show_capture_frame(self):
-        self.w3_widget.test()
         if self.capture_frame.isVisible():
             self.capture_frame.hide()
         else:
