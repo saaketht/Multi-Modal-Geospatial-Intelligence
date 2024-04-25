@@ -145,7 +145,7 @@ class file_explorer(QWidget):
 
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select Image file", "", "Image files (*.png *.jpg *.jpeg "
-                                                                                  "*.bmp *.tiff)")
+                                                                                  "*.bmp *.tiff *.tif)")
         if file_path:
             self.file_path_line_edit.setText(file_path)
 
