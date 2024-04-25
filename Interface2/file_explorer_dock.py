@@ -116,9 +116,11 @@ class file_explorer(QWidget):
 
         self.open_folder_button = icon_button(initial_icon='feather/folder.svg', icon_square_len=22,
                                               button_square_len=34)
+        self.open_folder_button.setToolTip("Open System's Files")
         self.open_folder_button.clicked.connect(self.open_file_dialog)
 
         self.add_file_button = icon_button(initial_icon='feather/plus.svg', icon_square_len=22, button_square_len=34)
+        self.add_file_button.setToolTip("Add File")
         self.add_file_button.clicked.connect(lambda: self.add_file_to_list(self.file_path_line_edit.text()))
 
         self.file_explorer_layout.addWidget(self.open_folder_button)
@@ -356,10 +358,17 @@ class CustomListItem(QWidget):
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
         self.map_button = icon_button(initial_icon='feather/map.svg', icon_square_len=22, button_square_len=34)
 
+        self.remove_button.setToolTip("Delete")
+        self.eye_button.setToolTip("Preview Image")
+        self.world_button.setToolTip("Analyze Image")
+        self.map_button.setToolTip("Map GeoTiff File")
+
+
 
         self.label = Label(text)
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
         self.label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.label.setToolTip(text)
 
         self.list_widget = list_widget
 
