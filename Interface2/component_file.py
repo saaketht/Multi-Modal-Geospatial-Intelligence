@@ -38,9 +38,35 @@ from PyQt6.QtWidgets import (
     QFrame,
     QTabWidget,
     QPlainTextEdit,
-    QInputDialog
+    QInputDialog,
+    QSplitter
 )
 
+class Splitter (QSplitter):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+
+        self.setStyleSheet('''
+        QSplitter::handle {
+            background-color: #2d2d2d;
+        }
+        
+        QSplitter::handle:horizontal {
+            width: 4px;
+        }
+        
+        QSplitter::handle:vertical {
+            height: 4px;
+        }
+        
+        QSplitter::handle:hover {
+            background-color: #494949;
+        }
+        QSplitter::handle:pressed {
+            background-color: #03B5A9;
+        }
+        
+        ''')
 
 class TreeWidget(QTreeWidget):
     def __init__(self, parent=None):
@@ -422,7 +448,27 @@ class TabWidget(QTabWidget):
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
         self.index += 1
 
+class PlaneTextEdit(QPlainTextEdit):
+    enter_pressed = pyqtSignal()
 
+    def __init__(self):
+        super().__init__(parent=None)
+
+        self.setFixedHeight(34)
+        self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        font1 = QFont('Arial')
+        font1.setPixelSize(13)
+        self.setFont(font1)
+        self.setStyleSheet('''
+        PlaneTextEdit
+        {
+            background: #202020;
+            padding: none 16px;
+            border: 2px solid #494949;
+            border-radius:10px;
+            color: #FFFFFF;
+        }
+        ''')
 class LineEdit(QLineEdit):
     enter_pressed = pyqtSignal()
 

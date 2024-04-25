@@ -1,6 +1,10 @@
 from component_file import*
 from chatbox_file import *
 from PyQt6.QtGui import QPixmap, QPicture
+from PyQt6.QtSvg import QSvgRenderer
+from PyQt6.QtGui import QMovie
+from PyQt6.QtSvgWidgets import QSvgWidget
+from image_preview_dock import *
 class MainWindow (QMainWindow):
     def __init__(self):
         super().__init__()
@@ -141,9 +145,46 @@ class MainWindow (QMainWindow):
         #widget.setLayout(self.mainLayout)
         self.setCentralWidget(widget)
 
-        placeholder = QLabel("Test")
+        svgTest = QSvgWidget()
+        svgTest.setFixedSize(100,100)
+        svgTest.load("Loading3.svg")
+
+
+        gifTest = QMovie("Infinity@2x-1.4s-200px-200px.gif")
+
+        gitLabel =QLabel()
+        gitLabel.setMovie(gifTest)
+        gitLabel.setScaledContents(True)
+        gitLabel.setFixedSize(110,110)
+
+        placeholder = QLabel()
         placeholder2 = QLabel("Test")
-        placeholder3 = QLabel("Test")
+        placeholder3 = Splitter()
+
+        placeholder3.setContentsMargins(0,0,0,0)
+
+        tab_widget = QWidget()
+        tab_widget_layout = QVBoxLayout()
+        tab_widget_layout.addWidget(gitLabel)
+        gifTest.start()
+        tab_widget.setLayout(tab_widget_layout)
+
+        self.tabs.addTab(tab_widget,"Test")
+
+        self.images = image_preview_widget()
+        self.images.setPixmap2(QPixmap("/Users/basmattiejamaludin/Desktop/demo1.jpg"))
+        self.images.is_an_image = True
+        self.images.currentImagePath = "/Users/basmattiejamaludin/Desktop/demo1.jpg"
+
+        self.images2 = image_preview_widget()
+        self.images2.setPixmap2(QPixmap("/Users/basmattiejamaludin/Desktop/demo1.jpg"))
+        self.images2.is_an_image = True
+        self.images2.currentImagePath = "/Users/basmattiejamaludin/Desktop/demo1.jpg"
+
+        placeholder3.setOrientation(Qt.Orientation.Vertical)
+
+        placeholder3.addWidget(self.images)
+        placeholder3.addWidget(self.images2)
 
         self.dockwidget = DockWidget('Dock', placeholder)
         self.dockwidget2 = DockWidget('Dock', placeholder2)

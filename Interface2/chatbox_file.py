@@ -9,7 +9,8 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
     QListWidget,
     QListView,
-    QLayout
+    QLayout,
+    QAbstractScrollArea
 )
 import os
 import sys
@@ -18,7 +19,7 @@ from datetime import time
 
 import json
 from component_file import CustomInputDialog
-from PyQt6.QtCore import QThreadPool
+from PyQt6.QtCore import QThreadPool, QObject
 from model_runnable import ModelRunnable
 from send import send_and_receive
 
@@ -61,6 +62,8 @@ class UserMessage(QWidget):
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
+
+        self.setMinimumWidth(1)
 
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 
@@ -113,6 +116,7 @@ class ModelMessage(QWidget):
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
+        self.setMinimumWidth(1)
 
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 
@@ -188,13 +192,15 @@ class Chat(QWidget):
         self.setContentsMargins(20, 20, 20, 20)
         self.tab_layout.setSpacing(20)
 
-        # self.chat_scroll_area = QScrollArea()
-        self.chat_list = QListWidget()
+        self.chat_scroll_area = QScrollArea()
+        # self.chat_list = QListWidget()
         # self.chat_scroll_area.setStyleSheet
-        self.chat_list.setResizeMode(QListView.ResizeMode.Adjust)
-        self.chat_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
-        self.chat_list.setSpacing(15)
-        self.chat_list.setStyleSheet('''
+        # self.chat_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+        # self.chat_list.setUniformItemSizes(False)
+        # self.chat_list.setResizeMode(QListView.ResizeMode.Adjust)
+        # self.chat_list.setSizeAdjustPolicy(QListView.SizeAdjustPolicy.AdjustToContents)
+        # self.chat_list.setSpacing(15)
+        self.chat_scroll_area.setStyleSheet('''
                 QScrollArea
                 {
                     padding:0;
@@ -251,16 +257,16 @@ class Chat(QWidget):
                     background: none;
                 }
                 ''')
-        # self.chat_scroll_area.setWidgetResizable(True)
-        # self.chat_scroll_widget = QWidget()
-        # self.chat_scroll_layout = QVBoxLayout(self.chat_scroll_widget)
-        # self.chat_scroll_layout.setContentsMargins(0, 15, 0, 15)
-        # self.chat_scroll_layout.setSpacing(20)
-        # # self.chat_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop.AlignLeft)
-        # self.chat_scroll_layout.addStretch()
+        self.chat_scroll_area.setWidgetResizable(True)
+        self.chat_scroll_widget = QWidget()
+        self.chat_scroll_layout = QVBoxLayout(self.chat_scroll_widget)
+        self.chat_scroll_layout.setContentsMargins(0, 15, 0, 15)
+        self.chat_scroll_layout.setSpacing(20)
+        self.chat_scroll_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.chat_scroll_layout.addStretch()
 
         # self.chat_scroll_layout.addWidget(self.chat_box)
-        # self.chat_scroll_area.setWidget(self.chat_scroll_widget)
+        self.chat_scroll_area.setWidget(self.chat_scroll_widget)
 
         self.chat_input_layout = QHBoxLayout()
         self.chat_input_layout.setAlignment(Qt.AlignmentFlag.AlignTop.AlignLeft)
@@ -281,7 +287,8 @@ class Chat(QWidget):
         self.chat_input_layout.addWidget(self.chat_input)
         self.chat_input_layout.addWidget(self.send_button)
 
-        self.tab_layout.addWidget(self.chat_list)
+        # self.tab_layout.addWidget(self.chat_list)
+        self.tab_layout.addWidget(self.chat_scroll_area)
         self.tab_layout.addLayout(self.chat_input_layout)
         self.setLayout(self.tab_layout)
 
@@ -289,6 +296,13 @@ class Chat(QWidget):
 
         # tab_title = f"Tab {chat_widget.count() + 1}"
         # chat_widget.addTab(tab, QIcon('icons/worldIcon.png'), tab_title)
+
+        self.vscrollbar = self.chat_scroll_area.verticalScrollBar()
+        self.vscrollbar.rangeChanged.connect(lambda min, max: self.scrollToBottom(min,max))
+
+    def scrollToBottom(self, min, max):
+        self.vscrollbar.setValue(max)
+
 
     def setCurrentImagePath(self, image_path):
         self.current_image_path = image_path
@@ -313,14 +327,14 @@ class Chat(QWidget):
             message = self.chat_input.text()
             if message:
                 user_message_widget = UserMessage(message)
-                # self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
-                list_widget_item = QListWidgetItem(self.chat_list)
-                list_widget_item.setSizeHint(user_message_widget.sizeHint())
-                self.chat_list.addItem(list_widget_item)
-                self.chat_list.setItemWidget(list_widget_item, user_message_widget)
-
-                self.chat_list.scrollToBottom()
+                # list_widget_item = QListWidgetItem(self.chat_list)
+                # list_widget_item.setSizeHint(user_message_widget.sizeHint())
+                # self.chat_list.addItem(list_widget_item)
+                # self.chat_list.setItemWidget(list_widget_item, user_message_widget)
+                #
+                # self.chat_list.scrollToBottom()
 
 
                 # self.chat_scroll_layout.insertWidget(self.index, user_message_widget, 0,Qt.AlignmentFlag.AlignLeft.AlignTop)
@@ -334,12 +348,36 @@ class Chat(QWidget):
 
                 # self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
                 # self.update()
+                chat_model_message_widget = ModelMessage('')
+
+                # list_widget_item = QListWidgetItem(self.chat_list)
+                # list_widget_item.setSizeHint(chat_model_message_widget.sizeHint())
+                # self.chat_list.addItem(list_widget_item)
+                # self.chat_list.setItemWidget(list_widget_item, chat_model_message_widget)
 
                 self.send_button.setEnabled(False)
-                model_runnable = ModelRunnable(message, self.current_image_path, self.messages)
+
+                model_runnable = ModelRunnable(message, self.current_image_path, self.messages,self.chat_scroll_layout,chat_model_message_widget)
                 model_runnable.signals.response_received.connect(self.handle_model_response)
                 QThreadPool.globalInstance().start(model_runnable)
+
                 self.chat_input.enter_pressed.disconnect()
+
+                # self.thread = QThread()
+                # # Step 3: Create a worker object
+                # self.worker = Worker(message, self.current_image_path, self.messages,chat_model_message_widget)
+                # # Step 4: Move worker to the thread
+                # self.worker.moveToThread(self.thread)
+                # # Step 5: Connect signals and slots
+                # self.thread.started.connect(self.worker.run)
+                # self.worker.finished.connect(self.thread.quit)
+                # self.worker.finished.connect(self.worker.deleteLater)
+                #
+                # self.thread.finished.connect(self.thread.deleteLater)
+                # # self.worker.progress.connect(self.reportProgress)
+                # # Step 6: Start the thread
+                # self.thread.start()
+
 
 
 
@@ -380,28 +418,28 @@ class Chat(QWidget):
                         if message_text.startswith("User:"):
                             user_message_text = message_text[len("User:"):].strip()
                             user_message_widget = UserMessage(user_message_text)
-                            # self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                            self.chat_scroll_layout.addWidget(user_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
-                            list_widget_item = QListWidgetItem(self.chat_list)
-                            list_widget_item.setSizeHint(user_message_widget.sizeHint())
-                            self.chat_list.addItem(list_widget_item)
-                            self.chat_list.setItemWidget(list_widget_item, user_message_widget)
-
-                            self.chat_list.scrollToBottom()
+                            # list_widget_item = QListWidgetItem(self.chat_list)
+                            # list_widget_item.setSizeHint(user_message_widget.sizeHint())
+                            # self.chat_list.addItem(list_widget_item)
+                            # self.chat_list.setItemWidget(list_widget_item, user_message_widget)
+                            #
+                            # self.chat_list.scrollToBottom()
 
 
                             self.index += 1
                         elif message_text.startswith("GEOINT:"):
                             model_message_text = message_text[len("GEOINT:"):].strip()
                             model_message_widget = ModelMessage(model_message_text)
-                            # self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+                            self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
-                            list_widget_item = QListWidgetItem(self.chat_list)
-                            list_widget_item.setSizeHint(model_message_widget.sizeHint())
-                            self.chat_list.addItem(list_widget_item)
-                            self.chat_list.setItemWidget(list_widget_item, model_message_widget)
-
-                            self.chat_list.scrollToBottom()
+                            # list_widget_item = QListWidgetItem(self.chat_list)
+                            # list_widget_item.setSizeHint(model_message_widget.sizeHint())
+                            # self.chat_list.addItem(list_widget_item)
+                            # self.chat_list.setItemWidget(list_widget_item, model_message_widget)
+                            #
+                            # self.chat_list.scrollToBottom()
 
                             self.index += 1
                     self.current_image_path = self.data_dict["image_url"]
@@ -454,18 +492,18 @@ class Chat(QWidget):
     def handle_model_response(self, model_message_text):
         self.chat_input.enter_pressed.connect(self.send_message)
         self.send_button.setEnabled(True)
-        if model_message_text.startswith("GEOINT:"):
-            model_message_text = model_message_text[len("GEOINT:"):].strip()
+        # if model_message_text.startswith("GEOINT:"):
+        #     model_message_text = model_message_text[len("GEOINT:"):].strip()
 
-        chat_model_message_widget = ModelMessage(model_message_text)
-        # self.chat_scroll_layout.addWidget(chat_model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+        # chat_model_message_widget = ModelMessage(model_message_text)
+        # # self.chat_scroll_layout.addWidget(chat_model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
+        #
+        # list_widget_item = QListWidgetItem(self.chat_list)
+        # list_widget_item.setSizeHint(chat_model_message_widget.sizeHint())
+        # self.chat_list.addItem(list_widget_item)
+        # self.chat_list.setItemWidget(list_widget_item, chat_model_message_widget)
 
-        list_widget_item = QListWidgetItem(self.chat_list)
-        list_widget_item.setSizeHint(chat_model_message_widget.sizeHint())
-        self.chat_list.addItem(list_widget_item)
-        self.chat_list.setItemWidget(list_widget_item, chat_model_message_widget)
-
-        self.chat_list.scrollToBottom()
+        # self.chat_list.scrollToBottom()
 
         self.index += 1
         self.messages.append(f"GEOINT: {model_message_text}")

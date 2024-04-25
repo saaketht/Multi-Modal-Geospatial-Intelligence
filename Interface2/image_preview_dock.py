@@ -41,13 +41,21 @@ class image_preview_widget2(QLabel):
             # image_pixmap = QPixmap(self.currentImagePath)
             event_width = e.size().width()
             event_height = e.size().height()
-            event_h_w_ratio = event_height/event_width
+            event_h_w_ratio = 0
+            if (event_width != 0):
+                event_h_w_ratio = event_height/event_width
 
             height = self.currentImage.height()
             width = self.currentImage.width()
             image_h_w_ratio = height/width
 
-            if image_h_w_ratio > event_h_w_ratio:
+            if (event_width >= width and event_height>= height):
+                self.resize(width, height)
+
+            elif (event_width < 100 and event_height < 100):
+                self.resize(100, 100)
+
+            elif image_h_w_ratio > event_h_w_ratio:
                 new_width = self.heightForWidth2(height,width, event_height)
                 self.resize(new_width,event_height)
             elif image_h_w_ratio <= event_h_w_ratio:
@@ -84,12 +92,21 @@ class image_preview_widget(QWidget):
         self.currentImage = None
         self.currentImageHeight = 0
         self.currentImageWidth = 0
+        self.setMinimumSize(0,0)
+        self.lable.setMinimumSize(0,0)
         self.is_an_image = False
         self.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
         self.lable.setScaledContents(True)
         self.lable.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
         self.lable.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lable.setStyleSheet("color: #FFFFFF;")
+        self.setStyleSheet('''
+        QWidget
+        {
+            background: transparent;
+            border: transparent;
+        }
+        ''')
         # self.lable.setFixedSize(100,100)
 
         self.Layout = QVBoxLayout()
@@ -113,11 +130,15 @@ class image_preview_widget(QWidget):
 
         current_width = self.size().width()
         current_height = self.size().height()
-        current_h_w_ratio = current_height / current_width
+        current_h_w_ratio = 0
+        if (current_width != 0):
+            current_h_w_ratio = current_height / current_width
 
         height = self.currentImageHeight
         width = self.currentImageWidth
-        image_h_w_ratio = height / width
+        image_h_w_ratio = 0
+        if (width != 0):
+            image_h_w_ratio = height / width
 
         if image_h_w_ratio > current_h_w_ratio:
             new_width = self.heightForWidth2(height, width, current_height)
@@ -127,10 +148,14 @@ class image_preview_widget(QWidget):
             self.lable.setFixedSize(current_width, new_height)
 
     def heightForWidth2(self, initial_height, initial_width,height):
+        if initial_width == 0:
+            return 0
         ratio = initial_width/initial_height
         return int(ratio*height)
 
     def widthForHeight2(self, initial_height, initial_width,width):
+        if initial_width == 0:
+            return 0
         ratio = initial_height/initial_width
         return int(ratio*width)
 
@@ -139,18 +164,32 @@ class image_preview_widget(QWidget):
             # image_pixmap = QPixmap(self.currentImagePath)
             event_width = e.size().width()
             event_height = e.size().height()
-            event_h_w_ratio = event_height / event_width
+            event_h_w_ratio = 0
+            if (event_width != 0):
+                event_h_w_ratio = event_height / event_width
 
             height = self.currentImageHeight
             width = self.currentImageWidth
-            image_h_w_ratio = height / width
+            image_h_w_ratio = 0
+            if (width != 0):
+                image_h_w_ratio = height / width
 
-            if image_h_w_ratio > event_h_w_ratio:
+
+            if(event_height<=100 or event_width<=self.heightForWidth2(height, width, 100)):
+                new_width = self.heightForWidth2(height, width, 100)
+                self.lable.setFixedSize(new_width, 100)
+
+            elif image_h_w_ratio > event_h_w_ratio:
+
                 new_width = self.heightForWidth2(height, width, event_height)
                 self.lable.setFixedSize(new_width, event_height)
+
             elif image_h_w_ratio <= event_h_w_ratio:
+
                 new_height = self.widthForHeight2(height, width, event_width)
                 self.lable.setFixedSize(event_width, new_height)
+
+
         super().resizeEvent(e)
 
 from PyQt6.QtCore import Qt
@@ -191,6 +230,9 @@ class QImageViewer(QMainWindow):
         #/Users/basmattiejamaludin/Desktop/Images/test.jpg
         #/Users/basmattiejamaludin/Desktop/demo1.jpg
         self.test = image_preview_widget()
+
+        #/Users/basmattiejamaludin/Documents/Notes/COP4020_Functional_Programming/JQuery_Assignment/newyork1.jpg
+        #/Users/basmattiejamaludin/Desktop/demo1.jpg
         self.test.setPixmap2(QPixmap("/Users/basmattiejamaludin/Desktop/demo1.jpg"))
         self.test.is_an_image =True
         self.test.currentImagePath = "/Users/basmattiejamaludin/Desktop/demo1.jpg"

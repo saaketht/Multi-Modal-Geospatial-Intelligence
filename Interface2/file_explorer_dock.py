@@ -11,6 +11,26 @@ from PyQt6.QtGui import QPixmap, QIcon, QAction, QFontDatabase, QFontMetrics
 from image_preview_dock import *
 from chatbox_file import *
 import os, sys, shutil
+import rasterio
+from rasterio.errors import CRSError
+
+class FileExplorerSplitter(Splitter):
+    def __init__(self, firstWidget, secondWidget, parent=None):
+        super().__init__(parent)
+        self.addWidget(firstWidget)
+        self.addWidget(secondWidget)
+        self.setOrientation(Qt.Orientation.Vertical)
+
+    def resizeEvent(self, e):
+        height = self.height()
+        width = self.width()
+
+        if height*1.5 < width:
+            self.setOrientation(Qt.Orientation.Horizontal)
+        else:
+            self.setOrientation(Qt.Orientation.Vertical)
+
+        super().resizeEvent(e)
 
 
 # This is the file explorer widget that will be hosted within a qdockwidget,specifically the "docks" variant
@@ -18,6 +38,8 @@ class file_explorer(QWidget):
     #signal returns path name, index of widget, if image is already displayed, and if image that
     # is being displayed exists in file explorer (always true for files in file explorer).
     toggleImagePreviewWidget = pyqtSignal(str, QListWidgetItem, bool,bool)
+    toggleImagePreviewWidget2 = pyqtSignal(str, QListWidgetItem, bool,bool)
+    toggleInteractiveMap = pyqtSignal(str, QListWidgetItem, bool)
     def __init__(self, app_data_path, parent=None):
         super().__init__(parent=parent)
         self.uploads_folder = os.path.join(app_data_path, "uploads")
@@ -94,9 +116,11 @@ class file_explorer(QWidget):
 
         self.open_folder_button = icon_button(initial_icon='feather/folder.svg', icon_square_len=22,
                                               button_square_len=34)
+        self.open_folder_button.setToolTip("Open System's Files")
         self.open_folder_button.clicked.connect(self.open_file_dialog)
 
         self.add_file_button = icon_button(initial_icon='feather/plus.svg', icon_square_len=22, button_square_len=34)
+        self.add_file_button.setToolTip("Add File")
         self.add_file_button.clicked.connect(lambda: self.add_file_to_list(self.file_path_line_edit.text()))
 
         self.file_explorer_layout.addWidget(self.open_folder_button)
@@ -105,6 +129,8 @@ class file_explorer(QWidget):
 
         self.file_explorer_vertical_layout = QVBoxLayout()
         self.file_explorer_vertical_layout.setSpacing(8)
+        self.file_explorer_vertical_layout.setContentsMargins(0,10,0,0)
+
         self.file_explorer_vertical_layout.addLayout(self.file_explorer_layout)
         self.file_explorer_vertical_layout.addWidget(self.file_list)
 
@@ -119,7 +145,7 @@ class file_explorer(QWidget):
 
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select Image file", "", "Image files (*.png *.jpg *.jpeg "
-                                                                                  "*.bmp *.tiff)")
+                                                                                  "*.bmp *.tiff *.tif)")
         if file_path:
             self.file_path_line_edit.setText(file_path)
 
@@ -144,6 +170,13 @@ class file_explorer(QWidget):
 
                     custom_list_item_widget.world_button.clicked.connect(
                         lambda: self.world_button_signal(custom_list_item_widget,list_widget_item))
+
+                    custom_list_item_widget.eye_button.clicked.connect(
+                        lambda: self.eye_button_signal(custom_list_item_widget, list_widget_item))
+
+                    if custom_list_item_widget.isGeoReferenced:
+                        custom_list_item_widget.map_button.clicked.connect(
+                            lambda: self.map_button_signal(custom_list_item_widget, list_widget_item))
 
                     custom_list_item_widget.list_widget_item = list_widget_item
                 else:
@@ -174,6 +207,13 @@ class file_explorer(QWidget):
                     custom_list_item_widget.world_button.clicked.connect(
                         lambda: self.world_button_signal(custom_list_item_widget, list_widget_item))
 
+                    custom_list_item_widget.eye_button.clicked.connect(
+                        lambda: self.eye_button_signal(custom_list_item_widget, list_widget_item))
+
+                    if custom_list_item_widget.isGeoReferenced:
+                        custom_list_item_widget.map_button.clicked.connect(
+                            lambda: self.map_button_signal(custom_list_item_widget, list_widget_item))
+
                     custom_list_item_widget.list_widget_item = list_widget_item
 
                     self.file_path_line_edit.clear()
@@ -194,6 +234,45 @@ class file_explorer(QWidget):
         except Exception as e:
             print(f"Error removing item: {e}")
 
+    def map_button_signal(self,custom_list_item_widget, list_widget_item):
+        temp_list_widget_item = list_widget_item
+        if custom_list_item_widget.is_tiff_displayed:
+            custom_list_item_widget.map_button.setIcon(QIcon('feather/map.svg'))
+
+            image_file_path = custom_list_item_widget.image_path
+            self.toggleInteractiveMap.emit(image_file_path, temp_list_widget_item,
+                                                custom_list_item_widget.is_tiff_displayed)
+
+            custom_list_item_widget.is_tiff_displayed = False
+        else:
+            custom_list_item_widget.map_button.setIcon(QIcon('feather/x.svg'))
+
+            image_file_path = custom_list_item_widget.image_path
+            self.toggleInteractiveMap.emit(image_file_path, temp_list_widget_item,
+                                           custom_list_item_widget.is_tiff_displayed)
+            custom_list_item_widget.is_tiff_displayed = True
+            self.file_list.scrollToItem(list_widget_item)
+    def eye_button_signal(self,custom_list_item_widget, list_widget_item):
+
+        temp_list_widget_item = list_widget_item
+        if custom_list_item_widget.is_preview_image_displayed:
+            custom_list_item_widget.eye_button.setIcon(QIcon('feather/eye.svg'))
+
+            image_file_path = custom_list_item_widget.image_path
+            self.toggleImagePreviewWidget2.emit(image_file_path, temp_list_widget_item,
+                                               custom_list_item_widget.is_preview_image_displayed, True)
+
+            custom_list_item_widget.is_preview_image_displayed = False
+        else:
+            custom_list_item_widget.eye_button.setIcon(QIcon('feather/eye-off.svg'))
+
+            image_file_path = custom_list_item_widget.image_path
+            self.toggleImagePreviewWidget2.emit(image_file_path, temp_list_widget_item,
+                                               custom_list_item_widget.is_preview_image_displayed, True)
+            custom_list_item_widget.is_preview_image_displayed = True
+            self.file_list.scrollToItem(list_widget_item)
+
+
     def world_button_signal(self, custom_list_item_widget, list_widget_item):
         file_path = custom_list_item_widget.image_path
         temp_list_widget_item = list_widget_item
@@ -211,6 +290,8 @@ class file_explorer(QWidget):
             self.toggleImagePreviewWidget.emit(image_file_path, temp_list_widget_item, custom_list_item_widget.is_image_displayed, True)
 
             custom_list_item_widget.is_image_displayed = True
+            self.file_list.scrollToItem(list_widget_item)
+
     def radio_reset_for_custom_list_item(self, list_widget_item):
 
         item = list_widget_item
@@ -218,7 +299,31 @@ class file_explorer(QWidget):
 
         widget_at_index.world_button.setIcon(QIcon('feather/globe.svg'))
         widget_at_index.is_image_displayed = False
-        widget_at_index.remove_button.setEnabled(True)
+
+        if (not widget_at_index.is_preview_image_displayed) and (not widget_at_index.is_tiff_displayed):
+            widget_at_index.remove_button.setEnabled(True)
+
+    def radio_reset_for_custom_list_item2(self, list_widget_item):
+
+        item = list_widget_item
+        widget_at_index = self.file_list.itemWidget(item)
+
+        widget_at_index.eye_button.setIcon(QIcon('feather/eye.svg'))
+        widget_at_index.is_preview_image_displayed = False
+
+        if (not widget_at_index.is_image_displayed) and (not widget_at_index.is_tiff_displayed):
+            widget_at_index.remove_button.setEnabled(True)
+
+    def radio_reset_for_custom_list_item3(self, list_widget_item):
+
+        item = list_widget_item
+        widget_at_index = self.file_list.itemWidget(item)
+
+        widget_at_index.map_button.setIcon(QIcon('feather/map.svg'))
+        widget_at_index.is_tiff_displayed = False
+
+        if (not widget_at_index.is_image_displayed) and (not widget_at_index.is_preview_image_displayed):
+            widget_at_index.remove_button.setEnabled(True)
 
     def load_existing_data(self):
         directory = os.fsencode(self.uploads_folder)
@@ -251,35 +356,114 @@ class CustomListItem(QWidget):
         self.remove_button = icon_button(initial_icon='feather/image.svg', icon_square_len=22, button_square_len=34)
         self.eye_button = icon_button(initial_icon='feather/eye.svg', icon_square_len=22, button_square_len=34)
         self.world_button = icon_button(initial_icon='feather/globe.svg', icon_square_len=22, button_square_len=34)
+        self.map_button = icon_button(initial_icon='feather/map.svg', icon_square_len=22, button_square_len=34)
+
+        self.remove_button.setToolTip("Delete")
+        self.eye_button.setToolTip("Preview Image")
+        self.world_button.setToolTip("Analyze Image")
+        self.map_button.setToolTip("Map GeoTiff File")
+
 
 
         self.label = Label(text)
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
         self.label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.label.setToolTip(text)
 
         self.list_widget = list_widget
 
-        self.eye_button.clicked.connect(self.toggle_eye_icon)
         self.is_eye_icon = True
 
-        # self.remove_button.clicked.connect(self.remove_item)
         self.remove_button.installEventFilter(self)
 
-        # self.world_button.clicked.connect(self.toggle_image_preview)
+        self.is_preview_image_displayed = False
         self.is_image_displayed = False
+        self.is_tiff_displayed = False
+
+        self.isGeoReferenced = False
+
+        self.image_basename = os.path.basename(self.image_path)
+        _ , self.image_type = os.path.splitext(self.image_basename)
+        if self.image_type == ".tiff" or self.image_type == ".tif":
+            # print(self.image_path)
+            _, isGeoReferenced =self.check_georeference(self.image_path)
+            if isGeoReferenced:
+                self.isGeoReferenced = True
+                layout.addWidget(self.map_button)
+
+            else:
+
+                self.isGeoReferenced = False
+                layout.addWidget(self.map_button)
+                self.map_button.setEnabled(False)
+
 
         layout.addWidget(self.remove_button)
+
+        if self.isGeoReferenced:
+            self.label.setStyleSheet('''
+        Label
+        {
+            background: transparent;
+            padding: 0 16px;
+            border-top:0;
+            border-bottom:2px solid #494949;
+            border-right:0;
+            border-left:0;
+            border-radius:0;
+            color: rgb(109,148,92);
+        }
+        ''')
+        elif self.isGeoReferenced == False and (self.image_type == ".tiff" or self.image_type == ".tif"):
+            self.label.setStyleSheet('''
+            Label
+            {
+                background: transparent;
+                padding: 0 16px;
+                border-top:0;
+                border-bottom:2px solid #494949;
+                border-right:0;
+                border-left:0;
+                border-radius:0;
+                color: rgb(229,96,104);
+            }
+        ''')
+
+
         layout.addWidget(self.label, 1)
-        # layout.addStretch()
-        # layout.addWidget(self.eye_button)
+
+        if self.isGeoReferenced:
+            layout.addWidget(self.map_button)
+        elif self.isGeoReferenced == False and (self.image_type == ".tiff" or self.image_type == ".tif"):
+            layout.addWidget(self.map_button)
+            self.map_button.setEnabled(False)
+
+        layout.addWidget(self.eye_button)
         layout.addWidget(self.world_button)
 
-    # def remove_item(self):
-    #     try:
-    #         row = self.list_widget.row(self.list_widget_item)
-    #         self.list_widget.takeItem(row)
-    #     except Exception as e:
-    #         print(f"Error removing item: {e}")
+    def check_georeference(self, file_path):
+        try:
+            with rasterio.open(file_path) as src:
+                # Check for a valid coordinate reference system
+                if src.crs is None:
+                    return "GeoTIFF error: No coordinate reference system found.", False
+
+                # Check the geotransform
+                if src.transform is None or src.transform == (0, 1, 0, 0, 0, 1):
+                    return "GeoTIFF error: Invalid geotransform.", False
+
+                # Display the CRS and geotransform
+                # print("Coordinate Reference System (CRS):", src.crs)
+                # print("Geotransform:", src.transform)
+
+                return "GeoTIFF is properly georeferenced.", True
+
+        except CRSError as e:
+            return f"CRS error: {str(e)}",False
+        except Exception as e:
+            return f"Error opening the GeoTIFF: {str(e)}",False
+
+
 
     def eventFilter(self, source, event):
         if source == self.remove_button:
@@ -295,10 +479,3 @@ class CustomListItem(QWidget):
                 self.remove_button.setStyleSheet("border:0px; border-radius:10px;")
         return super().eventFilter(source, event)
 
-    def toggle_eye_icon(self):
-        if self.is_eye_icon:
-            self.eye_button.setIcon(QIcon('feather/eye-off.svg'))
-            self.is_eye_icon = False
-        else:
-            self.eye_button.setIcon(QIcon('feather/eye.svg'))
-            self.is_eye_icon = True
