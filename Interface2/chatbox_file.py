@@ -1,6 +1,7 @@
 from component_file import *
 from pyqtconfig import ConfigManager
 from PyQt6.QtCore import QFile, QDataStream, QIODevice, Qt, QStandardPaths
+from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -284,9 +285,20 @@ class Chat(QWidget):
         self.send_button.setToolTip("Send")
 
         # self.chat_input_layout.addWidget(self.attach_icon_button)
+        self.svgTest = QSvgWidget()
+        self.svgTest.setFixedSize(34, 34)
+        self.svgTest.load("feather/loading1.svg")
+
+        test = self.svgTest.sizePolicy()
+        test.setRetainSizeWhenHidden(True)
+        self.svgTest.setSizePolicy(test)
+
+
+        self.chat_input_layout.addWidget(self.svgTest)
         self.chat_input_layout.addWidget(self.chat_input)
         self.chat_input_layout.addWidget(self.send_button)
 
+        self.svgTest.setHidden(True)
         # self.tab_layout.addWidget(self.chat_list)
         self.tab_layout.addWidget(self.chat_scroll_area)
         self.tab_layout.addLayout(self.chat_input_layout)
@@ -356,7 +368,7 @@ class Chat(QWidget):
                 # self.chat_list.setItemWidget(list_widget_item, chat_model_message_widget)
 
                 self.send_button.setEnabled(False)
-
+                self.svgTest.setHidden(False)
                 model_runnable = ModelRunnable(message, self.current_image_path, self.messages,self.chat_scroll_layout,chat_model_message_widget)
                 model_runnable.signals.response_received.connect(self.handle_model_response)
                 QThreadPool.globalInstance().start(model_runnable)
@@ -429,8 +441,10 @@ class Chat(QWidget):
 
 
                             self.index += 1
-                        elif message_text.startswith("GEOINT:"):
-                            model_message_text = message_text[len("GEOINT:"):].strip()
+                        # elif message_text.startswith("GEOINT:"):
+                        else:
+                            # model_message_text = message_text[len("GEOINT:"):].strip()
+                            model_message_text = message_text
                             model_message_widget = ModelMessage(model_message_text)
                             self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
@@ -490,6 +504,7 @@ class Chat(QWidget):
             #     pass
 
     def handle_model_response(self, model_message_text):
+        self.svgTest.setHidden(True)
         self.chat_input.enter_pressed.connect(self.send_message)
         self.send_button.setEnabled(True)
         # if model_message_text.startswith("GEOINT:"):
@@ -506,7 +521,8 @@ class Chat(QWidget):
         # self.chat_list.scrollToBottom()
 
         self.index += 1
-        self.messages.append(f"GEOINT: {model_message_text}")
+        # self.messages.append(f"GEOINT: {model_message_text}")
+        self.messages.append(model_message_text)
         self.save_message(model_message_text, sender="GEOINT")
         # self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
         self.update()

@@ -41,7 +41,8 @@ class ModelRunnable(QRunnable):
         try:
             i = 0
             for event in replicate.stream(
-                "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
+                # "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
+                "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
                 input=input,
             ):
                 model_message_text+= str(event)
@@ -72,7 +73,8 @@ class ModelRunnable(QRunnable):
         except:
             print("except")
             model_output= replicate.run(
-                "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
+                # "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
+                "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
                 input=input
             )
             for item in model_output:

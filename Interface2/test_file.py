@@ -146,8 +146,11 @@ class MainWindow (QMainWindow):
         self.setCentralWidget(widget)
 
         svgTest = QSvgWidget()
-        svgTest.setFixedSize(100,100)
-        svgTest.load("Loading3.svg")
+        svgTest.setFixedSize(300,300)
+        svgTest.load("testing2.svg")
+        svgTest.renderer().setAnimationEnabled(False)
+        svgTest.renderer().setFramesPerSecond(60)
+        print(svgTest.renderer().framesPerSecond())
 
 
         gifTest = QMovie("Infinity@2x-1.4s-200px-200px.gif")
@@ -157,7 +160,7 @@ class MainWindow (QMainWindow):
         gitLabel.setScaledContents(True)
         gitLabel.setFixedSize(110,110)
 
-        placeholder = QLabel()
+        placeholder = svgTest
         placeholder2 = QLabel("Test")
         placeholder3 = Splitter()
 
@@ -182,6 +185,8 @@ class MainWindow (QMainWindow):
         self.images2.currentImagePath = "/Users/basmattiejamaludin/Desktop/demo1.jpg"
 
         placeholder3.setOrientation(Qt.Orientation.Vertical)
+
+        # placeholder3.moveSplitter(0,1)
 
         placeholder3.addWidget(self.images)
         placeholder3.addWidget(self.images2)
