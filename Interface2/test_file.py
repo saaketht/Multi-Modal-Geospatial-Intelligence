@@ -147,7 +147,7 @@ class MainWindow (QMainWindow):
 
         svgTest = QSvgWidget()
         svgTest.setFixedSize(300,300)
-        svgTest.load("testing2.svg")
+        svgTest.load("feather/Loading1.svg")
         svgTest.renderer().setAnimationEnabled(False)
         svgTest.renderer().setFramesPerSecond(60)
         print(svgTest.renderer().framesPerSecond())
