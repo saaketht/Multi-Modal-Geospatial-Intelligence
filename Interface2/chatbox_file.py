@@ -21,6 +21,7 @@ from datetime import time
 import json
 from component_file import CustomInputDialog
 from PyQt6.QtCore import QThreadPool, QObject
+from PyQt6.QtGui import QPixmap
 from model_runnable import ModelRunnable
 from send import send_and_receive
 
@@ -39,16 +40,45 @@ class AboutWidget(QWidget):
         self.current_image_path = ""
         self.current_image_path_in_chat_folder = ""
 
-        title_label = QLabel("About GEOINT")
-        title_label.setStyleSheet("font-weight: bold; font-size: 18px; color: #FFFFFF;")
-        description_label = QLabel("This is a multi-modal geospatial intelligence application.\n\nVersion: 1.0.0\nDeveloped by: L03 GEOINT TEAM")
-        description_label.setStyleSheet("color: #FFFFFF;")
-        description_label.setWordWrap(True)
-
+        title_label = QLabel("\nGetting Started with GEOINT")
+        title_label.setStyleSheet("font-weight: bold; font-size: 30px; color: #FFFFFF;")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         layout.addWidget(title_label)
-        layout.addWidget(description_label)
-        layout.addStretch()
 
+        version_label = QLabel("Version: 1.0.0\nDeveloped by: L03 GEOINT TEAM\n")
+        version_label.setStyleSheet("color: #FFFFFF;")
+        version_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        layout.addWidget(version_label)
+
+        instructions = [
+            ("feather/plus.svg", "Click the icon to add a new instance of the model. Name the tab and click 'Apply'."),
+            ("feather/folder.svg", "Upload your own image by clicking the icon to open your system files, or type in the file path directly."),
+            ("feather/eye.svg", "Use the interactive map to select an area, then click the 'eye' icon to preview what will be captured."),
+            ("feather/camera.svg", "Click the 'camera' icon to capture the selected aerial image. This image will be added to the file explorer."),
+            ("feather/image.svg", "In the file explorer, hover over the 'image' icon to delete an image, or click the 'eye' to preview an image."),
+            ("feather/globe.svg", "Click the 'globe' icon to send the image to the model and query the model."),
+        ]
+
+        for icon_file_path, text in instructions:
+            row_layout = QHBoxLayout()
+            row_layout.setContentsMargins(30, 0, 0, 0)
+
+            icon_label = QLabel()
+            icon_pixmap = QPixmap(icon_file_path)
+            icon_label.setPixmap(icon_pixmap)
+            row_layout.addWidget(icon_label)
+
+            spacer = QLabel("    ")  
+            row_layout.addWidget(spacer)
+
+            text_label = QLabel(text)
+            text_label.setStyleSheet("color: #FFFFFF; font-size: 20px;")
+            text_label.setWordWrap(True)
+            row_layout.addWidget(text_label, stretch=1)
+
+            layout.addLayout(row_layout)
+
+        layout.addStretch()
         self.setLayout(layout)
 
     def setCurrentImagePath(self, path):
