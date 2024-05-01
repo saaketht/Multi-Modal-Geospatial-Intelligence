@@ -9,6 +9,7 @@ api_token = os.getenv('REPLICATE_API_KEY')
 
 class ModelSignals(QObject):
     response_received = pyqtSignal(str)
+    isStream = pyqtSignal(bool)
 
 
 class ModelRunnable(QRunnable):
@@ -41,8 +42,8 @@ class ModelRunnable(QRunnable):
         try:
             i = 0
             for event in replicate.stream(
-                # "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
-                "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
+                "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
+                # "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
                 input=input,
             ):
                 model_message_text+= str(event)
@@ -52,12 +53,14 @@ class ModelRunnable(QRunnable):
                     self.chat_scroll_layout.addWidget(self.chat_model_message_widget,
                                                       alignment=Qt.AlignmentFlag.AlignTop)
                     i+=1
+                    self.signals.isStream.emit(True)
                     continue
                 elif(i==0 and not model_message_text.startswith("GEOINT:")):
                     print("Post the empty model message2")
                     self.chat_scroll_layout.addWidget(self.chat_model_message_widget,
                                                       alignment=Qt.AlignmentFlag.AlignTop)
                     i+= 1
+                    self.signals.isStream.emit(True)
                     continue #possible redundancy
                 elif i>0 and model_message_text.startswith("GEOINT:"):
                     i+=1
@@ -71,10 +74,11 @@ class ModelRunnable(QRunnable):
             if model_message_text.startswith("GEOINT:"):
                 model_message_text = model_message_text[len("GEOINT:"):].strip()
         except:
+            self.signals.isStream.emit(False)
             print("except")
             model_output= replicate.run(
-                # "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
-                "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
+                "yorickvp/llava-v1.6-vicuna-13b:0603dec596080fa084e26f0ae6d605fc5788ed2b1a0358cd25010619487eae63",
+                # "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
                 input=input
             )
             for item in model_output:

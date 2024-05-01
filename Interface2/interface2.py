@@ -55,6 +55,12 @@ class MainWindow(QMainWindow):
                     width:1px;
                     background-color: #494949;
                 }
+                QToolTip
+                {
+                    background-color: #494949;
+                    color:#FFFFFF;
+                    border:none
+                }
                 ''')
 
         self.setup_main_window()
@@ -65,6 +71,7 @@ class MainWindow(QMainWindow):
     def setup_main_window(self):
         self.titlebar = TitleBar("Chat Box")
         self.titlebar.setFixedHeight(38)
+        self.titlebar.titlebar_button1.clicked.connect(lambda: self.goToHelpTab())
 
         # layout for main_window
         layout = QVBoxLayout()
@@ -215,6 +222,11 @@ class MainWindow(QMainWindow):
         # self.setDockNestingEnabled(True)
         # self.resizeDocks([self.map_dock_widget, self.image_preview_dock_widget], [1, 1], Qt.Orientation.Vertical)
 
+    def goToHelpTab(self):
+        for index in range(self.tabs.count()):
+            temp_widget = self.tabs.widget(index)
+            if temp_widget.list_widget_item == None:
+                self.tabs.setCurrentIndex(index)
     def toggle_image_preview_animation(self, is_up):
 
         if not is_up:
@@ -432,6 +444,7 @@ class MainWindow(QMainWindow):
 
 def main():
     geoint_app = QApplication(sys.argv)
+    QImageReader.setAllocationLimit(0)
     geoint_app.setApplicationName("GEOINT")
     geoint_app.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     splashScreen = QPixmap('image 1@2x.png')

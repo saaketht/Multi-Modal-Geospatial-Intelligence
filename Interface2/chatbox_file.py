@@ -30,7 +30,7 @@ from send import send_and_receive
 #     def __init__(self):
 #         super().__init__()
 
-class AboutWidget(QWidget):
+class HelpWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
@@ -50,35 +50,53 @@ class AboutWidget(QWidget):
         version_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         layout.addWidget(version_label)
 
+        scroll_area = ScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_widget = QWidget()
+        scroll_widget_layout = QVBoxLayout(scroll_widget)
+        scroll_widget_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scroll_widget_layout.setSpacing(20)
+        scroll_area.setWidget(scroll_widget)
+
         instructions = [
-            ("feather/plus.svg", "Click the icon to add a new instance of the model. Name the tab and click 'Apply'."),
-            ("feather/folder.svg", "Upload your own image by clicking the icon to open your system files, or type in the file path directly."),
-            ("feather/eye.svg", "Use the interactive map to select an area, then click the 'eye' icon to preview what will be captured."),
-            ("feather/camera.svg", "Click the 'camera' icon to capture the selected aerial image. This image will be added to the file explorer."),
-            ("feather/image.svg", "In the file explorer, hover over the 'image' icon to delete an image, or click the 'eye' to preview an image."),
-            ("feather/globe.svg", "Click the 'globe' icon to send the image to the model and query the model."),
+            ("feather/plus.svg", "In the Chat Box Window click the 'Plus' button to create a new converstion with Llava. A pop-up window will appear. Enter a name for the conversation and click 'Apply' to create the converation."),
+            ("feather/folder.svg", "In the File Explorer Window, click the 'Folder' button to open your file system to upload  images to the File Explorer. A user can also upload an image by entering the file path in the text box located to the right of the 'Folder' button."
+                                   " To add the image to the File Explorer, click the 'Plus' button, located to the right of the text box."),
+            ("feather/eye.svg", "In the File Explorer Window, the 'Eye' button can be used to preview images"),
+            ("feather/image.svg", "In the File Explorer, the 'Image' button can be used to delete images."),
+            ("feather/globe.svg", "In the File Explorer, the 'Globe' button can be used to add an image to the conversation to be queried."),
+            ("feather/map.svg", "In the File Explorer, the 'Map' button can be used to add an image to graph a tiff file to the LocalTileServer Map in the Interactive Map Window.\n"
+                                "It is important to note that only properly georeferenced tiff files (Also known as GeoTiff files) can be graphed. If an uploaded tiff file is georeferenced, its label is highliged green, otherwise its label is red and its 'Map' button is disabled"),
+            ("feather/arrow-up.svg", "After entering A message in the texbox in the Chat Box Window, a user can send his/her message to Llava by clicking on the  'Arrow-Up' button."),
+            ("feather/message-circle.svg", "In the Chat History Window, the 'Message' button can be used used to open a previous conversation."),
+            ("feather/trash-2.svg", "In the Chat History Window, the 'Trash-Can' button can be used to delete a previous conversation."),
         ]
 
         for icon_file_path, text in instructions:
+            temp = QWidget()
             row_layout = QHBoxLayout()
-            row_layout.setContentsMargins(30, 0, 0, 0)
+            row_layout.setContentsMargins(15, 0, 0, 0)
+            row_layout.setSpacing(20)
 
-            icon_label = QLabel()
-            icon_pixmap = QPixmap(icon_file_path)
-            icon_label.setPixmap(icon_pixmap)
-            row_layout.addWidget(icon_label)
-
-            spacer = QLabel("    ")  
-            row_layout.addWidget(spacer)
+            icon_svg = QSvgWidget()
+            icon_svg.load(icon_file_path)
+            icon_svg.setFixedSize(22,22)
+            row_layout.addWidget(icon_svg)
 
             text_label = QLabel(text)
-            text_label.setStyleSheet("color: #FFFFFF; font-size: 20px;")
+            text_label.setFont(QFont('Arial', 14, QFont.Weight.Light.Bold))
+            text_label.setStyleSheet("color: #FFFFFF;")
             text_label.setWordWrap(True)
             row_layout.addWidget(text_label, stretch=1)
 
-            layout.addLayout(row_layout)
+            temp.setLayout(row_layout)
+            scroll_widget_layout.addWidget(temp)
+            # layout.addLayout(row_layout)
 
-        layout.addStretch()
+        # scroll_widget.setLayout(scroll_widget_layout)
+
+        # layout.addStretch()
+        layout.addWidget(scroll_area)
         self.setLayout(layout)
 
     def setCurrentImagePath(self, path):
@@ -317,7 +335,7 @@ class Chat(QWidget):
         # self.chat_input_layout.addWidget(self.attach_icon_button)
         self.svgTest = QSvgWidget()
         self.svgTest.setFixedSize(34, 34)
-        self.svgTest.load("feather/loading1.svg")
+        self.svgTest.load("LoadingPhase1.svg")
 
         test = self.svgTest.sizePolicy()
         test.setRetainSizeWhenHidden(True)
@@ -341,6 +359,13 @@ class Chat(QWidget):
 
         self.vscrollbar = self.chat_scroll_area.verticalScrollBar()
         self.vscrollbar.rangeChanged.connect(lambda min, max: self.scrollToBottom(min,max))
+
+    def isStreamLoadSvg(self, isStream:bool):
+        if isStream:
+            self.svgTest.load("LoadingPhase2.svg")
+        else:
+            self.svgTest.load("LoadingPhase3.svg")
+
 
     def scrollToBottom(self, min, max):
         self.vscrollbar.setValue(max)
@@ -401,6 +426,7 @@ class Chat(QWidget):
                 self.svgTest.setHidden(False)
                 model_runnable = ModelRunnable(message, self.current_image_path, self.messages,self.chat_scroll_layout,chat_model_message_widget)
                 model_runnable.signals.response_received.connect(self.handle_model_response)
+                model_runnable.signals.isStream.connect(lambda isStream: self.isStreamLoadSvg(isStream))
                 QThreadPool.globalInstance().start(model_runnable)
 
                 self.chat_input.enter_pressed.disconnect()
@@ -535,6 +561,7 @@ class Chat(QWidget):
 
     def handle_model_response(self, model_message_text):
         self.svgTest.setHidden(True)
+        self.svgTest.load("LoadingPhase1.svg")
         self.chat_input.enter_pressed.connect(self.send_message)
         self.send_button.setEnabled(True)
         # if model_message_text.startswith("GEOINT:"):
@@ -562,8 +589,8 @@ class ChatTabWidget(TabWidget):
     changeCloseAttribute = pyqtSignal(str)
     def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
-        self.about_widget = AboutWidget(self)
-        self.addTab2(widget=self.about_widget, title="About")
+        self.help_widget = HelpWidget(self)
+        self.addTab2(widget=self.help_widget, title="Help")
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         # self.app_data_path = app_data_path_type
         self.app_data_path = app_data_path
