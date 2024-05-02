@@ -1,32 +1,16 @@
-import sys
+# This file contains all the styled components/widgets that fit the application's theme.
+
 from PyQt6.QtCore import Qt, QSize, QRect, pyqtSignal
 from PyQt6.QtGui import QIcon, QFont, QFontDatabase, QPainter, QBrush, QColor
 from PyQt6.QtWidgets import QStyleOptionTabWidgetFrame
-# from send import sendAndReceive
 from PyQt6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
-    QApplication,
-    QBoxLayout,
     QTabBar,
-    QToolBar,
-    QCheckBox,
-    QComboBox,
-    QDateEdit,
-    QDateTimeEdit,
-    QDial,
-    QDoubleSpinBox,
-    QFontComboBox,
     QLabel,
-    QLCDNumber,
     QLineEdit,
-    QMainWindow,
-    QProgressBar,
     QPushButton,
-    QRadioButton,
     QSlider,
-    QSpinBox,
-    QTimeEdit,
     QVBoxLayout,
     QSpacerItem,
     QHBoxLayout,
@@ -34,7 +18,6 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QDockWidget,
     QSizePolicy,
-    QGridLayout,
     QFrame,
     QTabWidget,
     QPlainTextEdit,
@@ -514,7 +497,7 @@ class TabWidget(QTabWidget):
         self.insertTab(temp, widget, icon, title)
 
         #TODO: SINCE THIS IS AS CUSTOM FEATURE MOVE TO CHATWIDGETTAB IN CHATBOX.py UNDER CREATE NEW TAB METHOD
-        if title == "About":
+        if title == "Help":
             tab_index = self.indexOf(widget)
             self.tabBar().setTabButton(tab_index, QTabBar.ButtonPosition.RightSide, None)
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))

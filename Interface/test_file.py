@@ -2,6 +2,7 @@ from component_file import*
 from chatbox_file import *
 from PyQt6.QtGui import QPixmap, QPicture
 from PyQt6.QtSvg import QSvgRenderer
+from PyQt6.QtWidgets import QMainWindow, QApplication
 from PyQt6.QtGui import QMovie
 from PyQt6.QtSvgWidgets import QSvgWidget
 from image_preview_dock import *

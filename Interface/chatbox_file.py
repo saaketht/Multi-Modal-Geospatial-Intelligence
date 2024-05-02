@@ -23,12 +23,7 @@ from component_file import CustomInputDialog
 from PyQt6.QtCore import QThreadPool, QObject
 from PyQt6.QtGui import QPixmap
 from model_runnable import ModelRunnable
-from send import send_and_receive
 
-
-# class AddNewTabDialog(QDialog):
-#     def __init__(self):
-#         super().__init__()
 
 class HelpWidget(QWidget):
     def __init__(self, parent=None):
@@ -335,7 +330,7 @@ class Chat(QWidget):
         # self.chat_input_layout.addWidget(self.attach_icon_button)
         self.svgTest = QSvgWidget()
         self.svgTest.setFixedSize(34, 34)
-        self.svgTest.load("LoadingPhase1.svg")
+        self.svgTest.load("loadingSvgs/LoadingPhase1.svg")
 
         test = self.svgTest.sizePolicy()
         test.setRetainSizeWhenHidden(True)
@@ -362,9 +357,9 @@ class Chat(QWidget):
 
     def isStreamLoadSvg(self, isStream:bool):
         if isStream:
-            self.svgTest.load("LoadingPhase2.svg")
+            self.svgTest.load("loadingSvgs/LoadingPhase2.svg")
         else:
-            self.svgTest.load("LoadingPhase3.svg")
+            self.svgTest.load("loadingSvgs/LoadingPhase3.svg")
 
 
     def scrollToBottom(self, min, max):
@@ -561,7 +556,7 @@ class Chat(QWidget):
 
     def handle_model_response(self, model_message_text):
         self.svgTest.setHidden(True)
-        self.svgTest.load("LoadingPhase1.svg")
+        self.svgTest.load("loadingSvgs/LoadingPhase1.svg")
         self.chat_input.enter_pressed.connect(self.send_message)
         self.send_button.setEnabled(True)
         # if model_message_text.startswith("GEOINT:"):
