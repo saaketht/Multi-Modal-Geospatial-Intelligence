@@ -1,32 +1,16 @@
-import sys
+# This file contains all the styled components/widgets that fit the application's theme.
+
 from PyQt6.QtCore import Qt, QSize, QRect, pyqtSignal
 from PyQt6.QtGui import QIcon, QFont, QFontDatabase, QPainter, QBrush, QColor
 from PyQt6.QtWidgets import QStyleOptionTabWidgetFrame
-# from send import sendAndReceive
 from PyQt6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
-    QApplication,
-    QBoxLayout,
     QTabBar,
-    QToolBar,
-    QCheckBox,
-    QComboBox,
-    QDateEdit,
-    QDateTimeEdit,
-    QDial,
-    QDoubleSpinBox,
-    QFontComboBox,
     QLabel,
-    QLCDNumber,
     QLineEdit,
-    QMainWindow,
-    QProgressBar,
     QPushButton,
-    QRadioButton,
     QSlider,
-    QSpinBox,
-    QTimeEdit,
     QVBoxLayout,
     QSpacerItem,
     QHBoxLayout,
@@ -34,13 +18,72 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QDockWidget,
     QSizePolicy,
-    QGridLayout,
     QFrame,
     QTabWidget,
     QPlainTextEdit,
     QInputDialog,
     QSplitter
 )
+class ScrollArea(QScrollArea):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setStyleSheet('''
+        QScrollArea
+        {
+            padding:0;
+            background: #202020;
+            border-top: 2px solid #494949;
+            border-bottom: 2px solid #494949;
+            border-radius:0;
+            margin:0;
+        }
+
+        QScrollBar:vertical 
+        {
+             border: 2px solid transparent;
+             background: transparent;
+             width: 15px;
+             margin: 22px 0 22px 0;
+             border-radius:6px;
+        }
+         
+        QScrollBar::handle:vertical {
+            background: #494949;
+            border:2px solid transparent;
+            min-height: 20px;
+            border-radius:5px;
+        }
+
+        QScrollBar::add-line:vertical {
+            border: 2px solid transparent;
+            background: transparent;
+            height: 20px;
+            border-radius:5px;
+            subcontrol-position: bottom;
+            subcontrol-origin: margin;
+        }
+
+        QScrollBar::sub-line:vertical {
+            border: 2px solid transparent;
+            background: transparent;
+            height: 20px;
+            border-radius:5px;
+            subcontrol-position: top;
+            subcontrol-origin: margin;
+        }
+         
+        QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+            border: 2px solid transparent;
+            width: 3px;
+            height: 3px;
+            border-radius:3px;
+            background: transparent;
+        }
+
+        QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+            background: none;
+        }
+        ''')
 
 class Splitter (QSplitter):
     def __init__(self, parent=None):
@@ -147,10 +190,14 @@ class TitleBar(QFrame):
 
         self.titlebar_button1 = icon_button(icon_square_len=16, initial_icon='feather(3px)/help-circle.svg',
                                             button_square_len=28, type='type2')
+        self.titlebar_button1.setToolTip("Help")
         self.titlebar_button2 = icon_button(icon_square_len=16, initial_icon='feather(3px)/sliders.svg',
                                             button_square_len=28, type='type2')
+        self.titlebar_button2.setToolTip("Model Parameters")
         self.titlebar_button3 = icon_button(icon_square_len=16, initial_icon='feather(3px)/settings.svg',
                                             button_square_len=28, type='type2')
+        self.titlebar_button3.setToolTip("Settings")
+
 
         self.titlebar_title = QLabel(title)
         self.titlebar_title.setStyleSheet('''
@@ -198,8 +245,10 @@ class DockTitleBar(QFrame):
 
         self.titlebar_exit = icon_button(icon_square_len=16, initial_icon='feather(3px)/x.svg',
                                          button_square_len=28, type='type2', exit=True)
+        self.titlebar_exit.setToolTip("Close")
         self.titlebar_float = icon_button(icon_square_len=16, initial_icon='feather(3px)/arrow-up-right.svg',
                                           button_square_len=28, type='type2')
+        self.titlebar_float.setToolTip("Pop-Out")
 
         self.titlebar_title = QLabel(title)
         self.titlebar_title.setStyleSheet('''
@@ -232,6 +281,12 @@ class TabWidget(QTabWidget):
         self.setFont(self.font1)
         self.setContentsMargins(0, 0, 0, 0)
         self.setStyleSheet('''
+        QToolTip
+        {
+            background-color: #494949;
+            color:#FFFFFF;
+            border:none
+        }
         QTabWidget QWidget
         {
             border: none;
@@ -406,7 +461,7 @@ class TabWidget(QTabWidget):
         # to here
 
         self.addButton = icon_button(initial_icon='feather(3px)/plus.svg', icon_square_len=16, button_square_len=34)
-
+        self.addButton.setToolTip("Add New Chat")
         corner_widget = QWidget()
         corner_widget.setContentsMargins(0, 0, 0, 0)
         corner_widget_layout = QHBoxLayout()
@@ -442,7 +497,7 @@ class TabWidget(QTabWidget):
         self.insertTab(temp, widget, icon, title)
 
         #TODO: SINCE THIS IS AS CUSTOM FEATURE MOVE TO CHATWIDGETTAB IN CHATBOX.py UNDER CREATE NEW TAB METHOD
-        if title == "About":
+        if title == "Help":
             tab_index = self.indexOf(widget)
             self.tabBar().setTabButton(tab_index, QTabBar.ButtonPosition.RightSide, None)
         # self.tabBar().tabButton(temp, QTabBar().ButtonPosition.RightSide).setFixedSize(QSize(24, 24))
@@ -455,7 +510,7 @@ class PlaneTextEdit(QPlainTextEdit):
         super().__init__(parent=None)
 
         self.setFixedHeight(34)
-        self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        # self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         font1 = QFont('Arial')
         font1.setPixelSize(13)
         self.setFont(font1)
@@ -694,6 +749,12 @@ class icon_button(QPushButton):
             {
                 background-color: #FF0000;
             }
+            QToolTip
+            {
+                background-color: #494949;
+                color:#FFFFFF;
+                border:none
+            }
             ''')
         elif (exit == True and type == 'type2'):
             self.setIcon(QIcon('feather(3px)/x.svg'))
@@ -713,6 +774,12 @@ class icon_button(QPushButton):
             icon_button:pressed
             {
                 background-color: #FF0000;
+            }
+            QToolTip
+            {
+                background-color: #494949;
+                color:#FFFFFF;
+                border:none
             }
             ''')
 
@@ -734,6 +801,12 @@ class icon_button(QPushButton):
             {
                 background-color: #03B5A9;
             }
+            QToolTip
+            {
+                background-color: #494949;
+                color:#FFFFFF;
+                border:none
+            }
             ''')
         elif (exit == False and type == 'type2'):
             self.setStyleSheet('''
@@ -751,6 +824,12 @@ class icon_button(QPushButton):
             icon_button:pressed
             {
                 background-color: #03B5A9;
+            }
+            QToolTip
+            {
+                background-color: #494949;
+                color:#FFFFFF;
+                border:none
             }
             ''')
 

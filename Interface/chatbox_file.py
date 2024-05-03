@@ -1,6 +1,7 @@
 from component_file import *
 from pyqtconfig import ConfigManager
 from PyQt6.QtCore import QFile, QDataStream, QIODevice, Qt, QStandardPaths
+from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -20,15 +21,11 @@ from datetime import time
 import json
 from component_file import CustomInputDialog
 from PyQt6.QtCore import QThreadPool, QObject
+from PyQt6.QtGui import QPixmap
 from model_runnable import ModelRunnable
-from send import send_and_receive
 
 
-# class AddNewTabDialog(QDialog):
-#     def __init__(self):
-#         super().__init__()
-
-class AboutWidget(QWidget):
+class HelpWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
@@ -38,16 +35,63 @@ class AboutWidget(QWidget):
         self.current_image_path = ""
         self.current_image_path_in_chat_folder = ""
 
-        title_label = QLabel("About GEOINT")
-        title_label.setStyleSheet("font-weight: bold; font-size: 18px; color: #FFFFFF;")
-        description_label = QLabel("This is a multi-modal geospatial intelligence application.\n\nVersion: 1.0.0\nDeveloped by: L03 GEOINT TEAM")
-        description_label.setStyleSheet("color: #FFFFFF;")
-        description_label.setWordWrap(True)
-
+        title_label = QLabel("\nGetting Started with GEOINT")
+        title_label.setStyleSheet("font-weight: bold; font-size: 30px; color: #FFFFFF;")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         layout.addWidget(title_label)
-        layout.addWidget(description_label)
-        layout.addStretch()
 
+        version_label = QLabel("Version: 1.0.0\nDeveloped by: L03 GEOINT TEAM\n")
+        version_label.setStyleSheet("color: #FFFFFF;")
+        version_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        layout.addWidget(version_label)
+
+        scroll_area = ScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_widget = QWidget()
+        scroll_widget_layout = QVBoxLayout(scroll_widget)
+        scroll_widget_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scroll_widget_layout.setSpacing(20)
+        scroll_area.setWidget(scroll_widget)
+
+        instructions = [
+            ("feather/plus.svg", "In the Chat Box Window click the 'Plus' button to create a new converstion with Llava. A pop-up window will appear. Enter a name for the conversation and click 'Apply' to create the converation."),
+            ("feather/folder.svg", "In the File Explorer Window, click the 'Folder' button to open your file system to upload  images to the File Explorer. A user can also upload an image by entering the file path in the text box located to the right of the 'Folder' button."
+                                   " To add the image to the File Explorer, click the 'Plus' button, located to the right of the text box."),
+            ("feather/eye.svg", "In the File Explorer Window, the 'Eye' button can be used to preview images"),
+            ("feather/image.svg", "In the File Explorer, the 'Image' button can be used to delete images."),
+            ("feather/globe.svg", "In the File Explorer, the 'Globe' button can be used to add an image to the conversation to be queried."),
+            ("feather/map.svg", "In the File Explorer, the 'Map' button can be used to add an image to graph a tiff file to the LocalTileServer Map in the Interactive Map Window.\n"
+                                "It is important to note that only properly georeferenced tiff files (Also known as GeoTiff files) can be graphed. If an uploaded tiff file is georeferenced, its label is highliged green, otherwise its label is red and its 'Map' button is disabled"),
+            ("feather/arrow-up.svg", "After entering A message in the texbox in the Chat Box Window, a user can send his/her message to Llava by clicking on the  'Arrow-Up' button."),
+            ("feather/message-circle.svg", "In the Chat History Window, the 'Message' button can be used used to open a previous conversation."),
+            ("feather/trash-2.svg", "In the Chat History Window, the 'Trash-Can' button can be used to delete a previous conversation."),
+        ]
+
+        for icon_file_path, text in instructions:
+            temp = QWidget()
+            row_layout = QHBoxLayout()
+            row_layout.setContentsMargins(15, 0, 0, 0)
+            row_layout.setSpacing(20)
+
+            icon_svg = QSvgWidget()
+            icon_svg.load(icon_file_path)
+            icon_svg.setFixedSize(22,22)
+            row_layout.addWidget(icon_svg)
+
+            text_label = QLabel(text)
+            text_label.setFont(QFont('Arial', 14, QFont.Weight.Light.Bold))
+            text_label.setStyleSheet("color: #FFFFFF;")
+            text_label.setWordWrap(True)
+            row_layout.addWidget(text_label, stretch=1)
+
+            temp.setLayout(row_layout)
+            scroll_widget_layout.addWidget(temp)
+            # layout.addLayout(row_layout)
+
+        # scroll_widget.setLayout(scroll_widget_layout)
+
+        # layout.addStretch()
+        layout.addWidget(scroll_area)
         self.setLayout(layout)
 
     def setCurrentImagePath(self, path):
@@ -284,9 +328,20 @@ class Chat(QWidget):
         self.send_button.setToolTip("Send")
 
         # self.chat_input_layout.addWidget(self.attach_icon_button)
+        self.svgTest = QSvgWidget()
+        self.svgTest.setFixedSize(34, 34)
+        self.svgTest.load("loadingSvgs/LoadingPhase1.svg")
+
+        test = self.svgTest.sizePolicy()
+        test.setRetainSizeWhenHidden(True)
+        self.svgTest.setSizePolicy(test)
+
+
+        self.chat_input_layout.addWidget(self.svgTest)
         self.chat_input_layout.addWidget(self.chat_input)
         self.chat_input_layout.addWidget(self.send_button)
 
+        self.svgTest.setHidden(True)
         # self.tab_layout.addWidget(self.chat_list)
         self.tab_layout.addWidget(self.chat_scroll_area)
         self.tab_layout.addLayout(self.chat_input_layout)
@@ -299,6 +354,13 @@ class Chat(QWidget):
 
         self.vscrollbar = self.chat_scroll_area.verticalScrollBar()
         self.vscrollbar.rangeChanged.connect(lambda min, max: self.scrollToBottom(min,max))
+
+    def isStreamLoadSvg(self, isStream:bool):
+        if isStream:
+            self.svgTest.load("loadingSvgs/LoadingPhase2.svg")
+        else:
+            self.svgTest.load("loadingSvgs/LoadingPhase3.svg")
+
 
     def scrollToBottom(self, min, max):
         self.vscrollbar.setValue(max)
@@ -356,9 +418,10 @@ class Chat(QWidget):
                 # self.chat_list.setItemWidget(list_widget_item, chat_model_message_widget)
 
                 self.send_button.setEnabled(False)
-
+                self.svgTest.setHidden(False)
                 model_runnable = ModelRunnable(message, self.current_image_path, self.messages,self.chat_scroll_layout,chat_model_message_widget)
                 model_runnable.signals.response_received.connect(self.handle_model_response)
+                model_runnable.signals.isStream.connect(lambda isStream: self.isStreamLoadSvg(isStream))
                 QThreadPool.globalInstance().start(model_runnable)
 
                 self.chat_input.enter_pressed.disconnect()
@@ -429,8 +492,10 @@ class Chat(QWidget):
 
 
                             self.index += 1
-                        elif message_text.startswith("GEOINT:"):
-                            model_message_text = message_text[len("GEOINT:"):].strip()
+                        # elif message_text.startswith("GEOINT:"):
+                        else:
+                            # model_message_text = message_text[len("GEOINT:"):].strip()
+                            model_message_text = message_text
                             model_message_widget = ModelMessage(model_message_text)
                             self.chat_scroll_layout.addWidget(model_message_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
@@ -490,6 +555,8 @@ class Chat(QWidget):
             #     pass
 
     def handle_model_response(self, model_message_text):
+        self.svgTest.setHidden(True)
+        self.svgTest.load("loadingSvgs/LoadingPhase1.svg")
         self.chat_input.enter_pressed.connect(self.send_message)
         self.send_button.setEnabled(True)
         # if model_message_text.startswith("GEOINT:"):
@@ -506,7 +573,8 @@ class Chat(QWidget):
         # self.chat_list.scrollToBottom()
 
         self.index += 1
-        self.messages.append(f"GEOINT: {model_message_text}")
+        # self.messages.append(f"GEOINT: {model_message_text}")
+        self.messages.append(model_message_text)
         self.save_message(model_message_text, sender="GEOINT")
         # self.chat_scroll_area.verticalScrollBar().setValue(self.chat_scroll_area.verticalScrollBar().maximum())
         self.update()
@@ -516,8 +584,8 @@ class ChatTabWidget(TabWidget):
     changeCloseAttribute = pyqtSignal(str)
     def __init__(self, app_data_path, chat_history_widget, parent=None):
         super().__init__(parent=parent)
-        self.about_widget = AboutWidget(self)
-        self.addTab2(widget=self.about_widget, title="About")
+        self.help_widget = HelpWidget(self)
+        self.addTab2(widget=self.help_widget, title="Help")
         # self.addButton.clicked.connect(lambda: self.addTab2(widget=chat()))
         # self.app_data_path = app_data_path_type
         self.app_data_path = app_data_path

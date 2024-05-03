@@ -187,9 +187,12 @@ class ChatListItem(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
 
         self.open_button = icon_button(initial_icon="feather/message-circle.svg", icon_square_len=22, button_square_len=34)
+        self.open_button.setToolTip("Open")
 
         self.remove_button = icon_button(exit=True, icon_square_len=22, button_square_len=34)
         self.remove_button.setIcon(QIcon("feather/trash-2.svg"))
+        self.remove_button.setToolTip("Remove")
+
 
         self.label = Label(text)
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)
