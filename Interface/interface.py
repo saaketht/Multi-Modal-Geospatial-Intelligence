@@ -1,3 +1,4 @@
+
 # This file contains the main window of the applicaiton.
 
 from PyQt6.QtCore import pyqtSlot, QVariant, QEasingCurve, QAbstractAnimation
