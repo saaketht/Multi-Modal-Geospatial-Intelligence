@@ -1,11 +1,16 @@
+
+# This is just a test file for viewing/designing custom widget
+
 from component_file import*
 from chatbox_file import *
+import sys
 from PyQt6.QtGui import QPixmap, QPicture
 from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtWidgets import QMainWindow, QApplication
 from PyQt6.QtGui import QMovie
 from PyQt6.QtSvgWidgets import QSvgWidget
 from image_preview_dock import *
+
 class MainWindow (QMainWindow):
     def __init__(self):
         super().__init__()
