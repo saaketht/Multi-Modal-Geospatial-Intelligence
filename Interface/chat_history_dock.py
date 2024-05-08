@@ -258,6 +258,7 @@ class ChatListItem(QWidget):
 
         # Set the label to the text var from constructor
         self.label = Label(text)
+        self.label.setToolTip(text)
 
         # Make Label content align center, and set its size policy
         self.label.setAlignment(Qt.AlignmentFlag.AlignLeft.AlignVCenter)

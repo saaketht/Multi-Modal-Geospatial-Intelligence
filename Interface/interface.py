@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
         self.explorer_image_prev = None
         self.explorer_image_prev_layout = None
         self.explorer_image_prev_label = None
+        self.explorer_image_prev_frame = None
 
         # Set the type of location/path where application data should be stored
         self.app_data_path_type = QStandardPaths.StandardLocation.AppDataLocation
@@ -179,7 +180,7 @@ class MainWindow(QMainWindow):
             ''')
 
         self.explorer_image_prev_frame_l = QHBoxLayout(self.explorer_image_prev_frame)
-        self.explorer_image_prev_frame_l.setContentsMargins(10,10,10,10)
+        self.explorer_image_prev_frame_l.setContentsMargins(10, 10, 10, 10)
         self.explorer_image_prev_frame_l.setSpacing(0)
 
         self.explorer_image_prev_frame_l.addWidget(self.explorer_image_prev)
@@ -188,10 +189,10 @@ class MainWindow(QMainWindow):
 
         self.file_explorer_widget = file_explorer(self.app_data_path)
 
-        self.file_explorer_splitter = FileExplorerSplitter(self.explorer_image_prev_frame,self.file_explorer_widget)
+        self.file_explorer_splitter = FileExplorerSplitter(self.explorer_image_prev, self.file_explorer_widget)
 
-        self.file_explorer_splitter.setCollapsible(0,True)
-        self.file_explorer_splitter.setCollapsible(1,False)
+        self.file_explorer_splitter.setCollapsible(0, False)
+        self.file_explorer_splitter.setCollapsible(1, False)
 
         self.file_explorer_splitter.moveSplitter(0,1)
 

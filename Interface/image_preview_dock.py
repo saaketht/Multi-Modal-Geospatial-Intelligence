@@ -33,7 +33,7 @@ class image_preview_widget(QWidget):
         self.currentImage = None  # Holds the QPixmap of the image
         self.currentImageHeight = 0  # Holds the image's original height
         self.currentImageWidth = 0  # Holds the image's original width
-        self.is_an_image = False # Bool val of whether the label is an image
+        self.is_an_image = False  # Bool val of whether the label is an image
 
         # Set the minimum size of the Label and widget to 0, 0
         self.setMinimumSize(0, 0)
