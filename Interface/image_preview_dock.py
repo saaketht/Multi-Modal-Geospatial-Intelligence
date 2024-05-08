@@ -1,32 +1,55 @@
+
+# This file contains widgets related to both the Current Image Window and the
+# Image Preview Widget within the File Explorer Window
+
 from component_file import *
 from PyQt6.QtWidgets import (
-    QLabel, QGridLayout,QListWidgetItem
+    QLabel,QListWidgetItem
 )
-from PyQt6.QtGui import QPixmap, QPainter,QImage
-from PyQt6.QtCore import QPoint,Qt, QModelIndex
+from PyQt6.QtCore import Qt
 
-
+# This widget is a custom widget that allows users to display an image that keeps
+# the aspect ratio of the original image without rescaling the original image every time
+# a resize event is called, this way we avoid interpolation algorithms that diminish the quality of
+# the original image.
 class image_preview_widget(QWidget):
-    # signal returns path name, index of widget to toggle off
+    # Signal returns path name, index of widget to toggle off
     toggleOffFileExplorerButton = pyqtSignal(QListWidgetItem)
+    # Constructor
     def __init__(self, text=None):
+        # Call Parent Constructor
         super().__init__()
+
+        # This QLabel, purposely spelled incorrectly, is used to display the image
         self.lable = QLabel()
-        self.lable.placeholder = text
-        self.lable.setText(self.lable.placeholder)
-        self.list_widget_item_index = -1
-        self.currentImagePath = ""
-        self.currentImage = None
-        self.currentImageHeight = 0
-        self.currentImageWidth = 0
-        self.setMinimumSize(0,0)
-        self.lable.setMinimumSize(0,0)
-        self.is_an_image = False
+        self.lable.placeholder = text  # The label's placeholder while an image is not being viewed
+        self.lable.setText(self.lable.placeholder)  # Set Placeholder
+        self.lable.setScaledContents(True)  # Make contents scaled
+        self.lable.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Make the contents align center
+
+        # Attributes
+        self.list_widget_item_index = -1  # Holds the List widget item, NOT the index, its functionality changed
+        self.currentImagePath = ""  # Holds the current image path
+        self.currentImage = None  # Holds the QPixmap of the image
+        self.currentImageHeight = 0  # Holds the image's original height
+        self.currentImageWidth = 0  # Holds the image's original width
+        self.is_an_image = False # Bool val of whether the label is an image
+
+        # Set the minimum size of the Label and widget to 0, 0
+        self.setMinimumSize(0, 0)
+        self.lable.setMinimumSize(0, 0)
+
+        # Set size policy of label and widget
+        # THIS PART IS IMPORTANT
+        # We se the size policy of the widget to ignored to take all the space of the window this widget
+        # is called into, we then set the size policy of the label to fixed to avoid rescaling via interpolation
         self.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
-        self.lable.setScaledContents(True)
         self.lable.setSizePolicy(QSizePolicy.Policy.Fixed,QSizePolicy.Policy.Fixed)
-        self.lable.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Set stylesheet for label
         self.lable.setStyleSheet("color: #FFFFFF;")
+
+        # Set stylesheet for widget
         self.setStyleSheet('''
         QWidget
         {
@@ -34,89 +57,184 @@ class image_preview_widget(QWidget):
             border: transparent;
         }
         ''')
-        # self.lable.setFixedSize(100,100)
 
+        # The widget consists of two layouts, a vertical and horizontal layout
+        # these layouts will be nested to host the label in the middle.
         self.Layout = QVBoxLayout()
-        self.Layout.addWidget(self.lable, Qt.AlignmentFlag.AlignCenter)
-        self.Layout.setContentsMargins(0,0,0,0)
         self.Layout.setSpacing(0)
+        self.Layout.setContentsMargins(0,0,0,0)
+
+        # Add the label to the vertical layout
+        self.Layout.addWidget(self.lable, Qt.AlignmentFlag.AlignCenter)
+
+        # The super layout is the outer layout and that is the Horizontal layout
         self.superLayout = QHBoxLayout()
         self.superLayout.setSpacing(0)
         self.superLayout.setContentsMargins(0,0,0,0)
+
+        # add the vertical layout to the horizontal layout
         self.superLayout.addLayout(self.Layout)
+
+        # Set the horizontal layout to the widget
         self.setLayout(self.superLayout)
 
-        # self.setMaximumSize(315, 317)
-
+    # Instead of overriding the setPixmap functions, we create a new variant of the
+    # setPixmap called setPixmap2 that will populate the attributes with the image's
+    # values
     def setPixmap2(self, pixmap):
-        self.currentImage = pixmap
-        self.currentImageHeight = pixmap.height()
-        self.currentImageWidth = pixmap.width()
+        # Update attributes
+        self.currentImage = pixmap  # Set pixmap to self.currentImage
+        self.currentImageHeight = pixmap.height()  # Set the original height of pixmap
+        self.currentImageWidth = pixmap.width()  # Set the original width of pixmap
 
+        # Set label's pixmap
         self.lable.setPixmap(pixmap)
 
+        # Get current width and height of the widget
         current_width = self.size().width()
         current_height = self.size().height()
+
+        # Calculate the h to w ratio of widget, initialized to 0
         current_h_w_ratio = 0
-        if (current_width != 0):
+        # If the width does not equal 0 to avoid divide by 0 error
+        if current_width != 0:
+            # Update h to w ratio
             current_h_w_ratio = current_height / current_width
 
+        # Store height and width of the image's original size
+        # as local variables
         height = self.currentImageHeight
         width = self.currentImageWidth
+
+        # Calculate the h to w ratio of original image, initialized to 0
         image_h_w_ratio = 0
-        if (width != 0):
+        # If the width does not equal 0 to avoid divide by 0 error
+        if width != 0:
+            # Update h to w ratio
             image_h_w_ratio = height / width
 
-        if image_h_w_ratio > current_h_w_ratio:
+        # The following statements sets the image to the size of the widget while keeping the
+        # image's original aspect ratio
+
+        # if the widget's height is smaller than 100px or
+        # if the widget's width is smaller than the width of the image if scaled to a height of 100px
+        # then set the max height of the image to 100px
+        if current_height <= 100 or current_width <= self.heightForWidth2(height, width, 100):
+            # Get the new width of the image based off its aspect ratio while using the height of widget
+            new_width = self.heightForWidth2(height, width, 100)
+
+            # Resize the label to the recalculated dimensions
+            self.lable.setFixedSize(new_width, 100)
+
+        # if the ratio of the image is bigger than the ratio of the widget, in other words if the
+        # height of the image is bigger than the height of the widget if they were scaled to the same width,
+        # then resize the image's height to the widget's height and get a smaller width to fit within the widget's
+        # width.
+        elif image_h_w_ratio > current_h_w_ratio:
+            # Get the new width of the image based off its aspect ratio while using the height of widget
             new_width = self.heightForWidth2(height, width, current_height)
+
+            # Resize the label to the recalculated dimensions
             self.lable.setFixedSize(new_width, current_height)
+
+        # if the ratio of the image is smaller than the ratio of the widget, in other words if the
+        # height of the image is smaller than the height of the widget if they were scaled to the same width,
+        # then resize the image's width to the widget's width and get a smaller height to fit within the widget's
+        # height.
         elif image_h_w_ratio <= current_h_w_ratio:
+            # Get the new height of the image based off its aspect ratio while using the width of widget
             new_height = self.widthForHeight2(height, width, current_width)
+
+            # Resize the label to the recalculated dimensions
             self.lable.setFixedSize(current_width, new_height)
 
-    def heightForWidth2(self, initial_height, initial_width,height):
-        if initial_width == 0:
+    # This function takes the image's original height and width to get the w/h ratio to calculate the
+    # new width of the image given a new height.
+    def heightForWidth2(self, initial_height, initial_width, height):
+        # if the initial height is zero return 0 because we cannot divide by 0
+        if initial_height == 0:
             return 0
+
+        # Calculate the w/h aspect ratio
         ratio = initial_width/initial_height
+
+        # return the rounded integer of the ratio multiplied by the desired height
         return int(ratio*height)
 
-    def widthForHeight2(self, initial_height, initial_width,width):
+    # This function takes the image's original height and width to get the h/w ratio to calculate the
+    # new height of the image given a new width.
+    def widthForHeight2(self, initial_height, initial_width, width):
+        # if the initial width is zero return 0 because we cannot divide by 0
         if initial_width == 0:
             return 0
+        # Calculate the h/w aspect ratio
         ratio = initial_height/initial_width
+
+        # return the rounded integer of the ratio multiplied by the desired width
         return int(ratio*width)
 
+    # Here we override the resize event to resize the label within the widget to maintain the aspect ratio
+    # of the original image
     def resizeEvent(self, e):
-        if (self.is_an_image):
-            # image_pixmap = QPixmap(self.currentImagePath)
+        # Only resize the label if the widget is hosting an image
+        if self.is_an_image:
+            # Get event's width and height of the widget
             event_width = e.size().width()
             event_height = e.size().height()
+
+            # Calculate the h to w ratio of widget, initialized to 0
             event_h_w_ratio = 0
-            if (event_width != 0):
+
+            # If the width does not equal 0 to avoid divide by 0 error
+            if event_width != 0:
+                # Update h to w ratio
                 event_h_w_ratio = event_height / event_width
 
+            # Store height and width of the image's original size
+            # as local variables
             height = self.currentImageHeight
             width = self.currentImageWidth
+
+            # Calculate the h to w ratio of image, initialized to 0
             image_h_w_ratio = 0
-            if (width != 0):
+
+            # If the width does not equal 0 to avoid divide by 0 error
+            if width != 0:
                 image_h_w_ratio = height / width
 
-
-            if(event_height<=100 or event_width<=self.heightForWidth2(height, width, 100)):
+            # if the widget's height is smaller than 100px or
+            # if the widget's width is smaller than the width of the image if scaled to a height of 100px
+            # then set the max height of the image to 100px
+            if event_height<=100 or event_width<=self.heightForWidth2(height, width, 100):
+                # Get the new width of the image based off its aspect ratio while using the height of widget
                 new_width = self.heightForWidth2(height, width, 100)
+
+                # Resize the label to the recalculated dimensions
                 self.lable.setFixedSize(new_width, 100)
 
+            # if the ratio of the image is bigger than the ratio of the widget, in other words if the
+            # height of the image is bigger than the height of the widget if they were scaled to the same width,
+            # then resize the image's height to the widget's height and get a smaller width to fit within the widget's
+            # width.
             elif image_h_w_ratio > event_h_w_ratio:
-
+                # Get the new width of the image based off its aspect ratio while using the height of widget
                 new_width = self.heightForWidth2(height, width, event_height)
+
+                # Resize the label to the recalculated dimensions
                 self.lable.setFixedSize(new_width, event_height)
 
+            # if the ratio of the image is smaller than the ratio of the widget, in other words if the
+            # height of the image is smaller than the height of the widget if they were scaled to the same width,
+            # then resize the image's width to the widget's width and get a smaller height to fit within the widget's
+            # height.
             elif image_h_w_ratio <= event_h_w_ratio:
-
+                # Get the new height of the image based off its aspect ratio while using the width of widget
                 new_height = self.widthForHeight2(height, width, event_width)
+
+                # Resize the label to the recalculated dimensions
                 self.lable.setFixedSize(event_width, new_height)
 
-
+        # Call the Parent resize event
         super().resizeEvent(e)
 
 # The following code is a sample image viewer from Qt,

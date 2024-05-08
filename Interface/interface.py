@@ -6,7 +6,8 @@ from PyQt6.QtWidgets import QSplashScreen, QMainWindow, QApplication
 
 import ctypes
 import platform
-
+import sys
+from PyQt6.QtGui import QPixmap, QImageReader, QAction
 from chat_history_dock import *
 from chatbox_file import *
 from file_explorer_dock import *
@@ -467,7 +468,7 @@ class MainWindow(QMainWindow):
             self.interactive_map.w3_widget.currentImagePath = image_path
 
 
-# main function to run the applicaiton
+# main function to run the application
 def main():
     geoint_app = QApplication(sys.argv)
 

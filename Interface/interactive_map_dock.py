@@ -1,21 +1,16 @@
-import sys
-import json
-from PyQt6.QtWidgets import QApplication, QVBoxLayout, QWidget, QLabel
-from PyQt6.QtCore import *
-from PyQt6.QtCore import pyqtSlot as Slot
-from PyQt6.QtCore import pyqtSignal as Signal
-from PyQt6.QtGui import *
-from PyQt6.QtWidgets import *
+
+# This file contains widgets related to the Interactive Map Window
+
+import io
+from datetime import datetime
 from PyQt6 import QtWebEngineWidgets
-# from ipyleaflet import Map, Marker, LayersControl, basemaps
-from ipywidgets import HTML, IntSlider
-from ipywidgets.embed import embed_data
+from PyQt6.QtCore import *
+from PyQt6.QtGui import QPainter
 from  folium import Map, TileLayer
 from localtileserver import get_folium_tile_layer, TileClient
-import io
-from pathlib import Path
-from datetime import datetime
 from file_explorer_dock import *
+
+# This widget
 class localTileServer (QWidget):
     toggleOffFileExplorerButton = pyqtSignal(QListWidgetItem)
     def __init__(self, parent=None):
